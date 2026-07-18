@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="NISSA Manager">
+  <rect width="512" height="512" rx="102" fill="#1f3b5b"/>
+  <rect x="64" y="64" width="384" height="384" rx="74" fill="#ffffff" opacity="0.12"/>
+  <path d="M146 368V144h59l103 128V144h58v224h-54L204 236v132h-58Z" fill="#ffffff"/>
+  <path d="M154 400h204" stroke="#16a085" stroke-width="28" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,3027 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NISSA Manager v2.4.1</title>
+  <meta name="theme-color" content="#1f3b5b">
+  <meta name="application-name" content="NISSA Manager">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="NISSA Manager">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icon-192.png" type="image/png">
+  <style>
+    :root {
+      --primary: #1f3b5b;
+      --primary-soft: #dbe7f5;
+      --primary-dark: #14283f;
+      --accent: #16a085;
+      --danger: #d64545;
+      --warning: #d48a13;
+      --bg: #f4f7fb;
+      --surface: #ffffff;
+      --surface-muted: #edf2f8;
+      --text: #172033;
+      --muted: #66758b;
+      --border: #dce4ee;
+      --shadow: 0 14px 36px rgba(31, 59, 91, 0.12);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: 268px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 24px 18px;
+      background: var(--primary);
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 6px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.13);
+      color: #ffffff;
+      font-size: 24px;
+    }
+
+    .brand-title {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .brand-subtitle {
+      margin: 4px 0 0;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 13px;
+    }
+
+    .nav {
+      display: grid;
+      gap: 8px;
+    }
+
+    .nav-button {
+      min-height: 44px;
+      width: 100%;
+      border: 0;
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.78);
+      text-align: left;
+      transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+    }
+
+    .nav-button:hover,
+    .nav-button.active {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .nav-button.active {
+      box-shadow: inset 3px 0 0 #9fd8ff;
+    }
+
+    .nav-icon {
+      width: 24px;
+      text-align: center;
+      flex: 0 0 24px;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 14px;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .main {
+      min-width: 0;
+      padding: 28px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .page-kicker {
+      margin: 0 0 6px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .page-title {
+      margin: 0;
+      font-size: clamp(26px, 4vw, 38px);
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .today-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--muted);
+      white-space: nowrap;
+      box-shadow: 0 6px 18px rgba(31, 59, 91, 0.06);
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .kpi-card,
+    .panel,
+    .placeholder,
+    .empty-state {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .kpi-card {
+      min-height: 128px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .kpi-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .kpi-label {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .kpi-icon {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: var(--radius);
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 20px;
+    }
+
+    .kpi-value {
+      margin: 0;
+      font-size: clamp(22px, 3vw, 32px);
+      font-weight: 800;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      padding: 20px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .panel-subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .field input {
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      background: #ffffff;
+      color: var(--text);
+      outline: none;
+      transition: border 160ms ease, box-shadow 160ms ease;
+    }
+
+    .field input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(31, 59, 91, 0.12);
+    }
+
+    .field textarea {
+      width: 100%;
+      min-height: 92px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      background: #ffffff;
+      color: var(--text);
+      outline: none;
+      resize: vertical;
+    }
+
+    .field input[type="checkbox"] {
+      width: 18px;
+      min-height: 18px;
+      accent-color: var(--primary);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .summary-item {
+      min-height: 84px;
+      border-radius: var(--radius);
+      padding: 14px;
+      background: var(--surface-muted);
+      border: 1px solid var(--border);
+    }
+
+    .summary-label {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .summary-value {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding-top: 4px;
+    }
+
+    .primary-button,
+    .secondary-button,
+    .danger-button {
+      min-height: 44px;
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 800;
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    .primary-button {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 10px 20px rgba(31, 59, 91, 0.2);
+    }
+
+    .secondary-button {
+      background: #ffffff;
+      color: var(--primary);
+      border-color: var(--border);
+    }
+
+    .danger-button {
+      background: #fff5f5;
+      color: var(--danger);
+      border-color: #f1c4c4;
+    }
+
+    .primary-button:hover,
+    .secondary-button:hover,
+    .danger-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .status-message {
+      min-height: 22px;
+      margin: 0;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .status-message.error {
+      color: var(--danger);
+    }
+
+    .mini-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .mini-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #ffffff;
+    }
+
+    .mini-row strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 14px;
+    }
+
+    .mini-row span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .mini-amount {
+      font-weight: 800;
+      color: var(--primary);
+      white-space: nowrap;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    table {
+      width: 100%;
+      min-width: 980px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 13px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    th {
+      color: var(--muted);
+      background: var(--surface-muted);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    td {
+      font-size: 14px;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .amount-positive {
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .amount-negative {
+      color: var(--danger);
+      font-weight: 800;
+    }
+
+    .stats-stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .stat-card {
+      min-height: 104px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .stat-label {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .stat-value {
+      margin: 0;
+      font-size: clamp(22px, 3vw, 30px);
+      font-weight: 850;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .stat-note {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .product-share {
+      display: grid;
+      gap: 12px;
+    }
+
+    .share-bar {
+      height: 20px;
+      overflow: hidden;
+      display: flex;
+      border-radius: var(--radius);
+      background: var(--surface-muted);
+      border: 1px solid var(--border);
+    }
+
+    .share-segment {
+      min-width: 0;
+      transition: width 180ms ease;
+    }
+
+    .share-segment.cv {
+      background: var(--primary);
+    }
+
+    .share-segment.qn {
+      background: var(--accent);
+    }
+
+    .share-legend {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      display: inline-block;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    .legend-dot.cv {
+      background: var(--primary);
+    }
+
+    .legend-dot.qn {
+      background: var(--accent);
+    }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .chart-card {
+      min-height: 300px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .chart-title {
+      margin: 0 0 12px;
+      font-size: 16px;
+      letter-spacing: 0;
+    }
+
+    .chart-svg {
+      width: 100%;
+      height: 210px;
+      display: block;
+      overflow: visible;
+    }
+
+    .chart-axis {
+      stroke: #c8d4e3;
+      stroke-width: 1;
+    }
+
+    .chart-line {
+      fill: none;
+      stroke: var(--primary);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .chart-line.alt {
+      stroke: var(--accent);
+    }
+
+    .chart-point {
+      fill: #ffffff;
+      stroke: var(--primary);
+      stroke-width: 2;
+    }
+
+    .chart-point.alt {
+      stroke: var(--accent);
+    }
+
+    .bar-chart {
+      height: 220px;
+      display: flex;
+      align-items: end;
+      gap: 10px;
+      padding: 16px 6px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .bar-item {
+      min-width: 30px;
+      flex: 1 1 0;
+      display: grid;
+      align-items: end;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .bar-fill {
+      width: 100%;
+      min-height: 3px;
+      border-radius: 6px 6px 0 0;
+      background: var(--primary);
+    }
+
+    .bar-fill.alt {
+      background: var(--accent);
+    }
+
+    .bar-label {
+      min-height: 30px;
+      display: grid;
+      place-items: start center;
+      overflow-wrap: anywhere;
+    }
+
+    .monthly-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .month-card {
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface-muted);
+    }
+
+    .month-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+
+    .month-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .trend-positive {
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .trend-negative {
+      color: var(--danger);
+      font-weight: 800;
+    }
+
+    .trend-neutral {
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .forecast-stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .forecast-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .forecast-card {
+      min-height: 128px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .forecast-label {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .forecast-value {
+      margin: 0;
+      font-size: clamp(22px, 3vw, 30px);
+      font-weight: 850;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .forecast-note {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .advice-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .advice-item {
+      padding: 13px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface-muted);
+      line-height: 1.45;
+    }
+
+    .advice-item strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .report-stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .report-toolbar {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .report-toolbar .field {
+      min-width: 240px;
+    }
+
+    .field select {
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      background: #ffffff;
+      color: var(--text);
+      outline: none;
+    }
+
+    .report-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .report-summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .settings-stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .settings-section {
+      display: grid;
+      gap: 16px;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .settings-grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .product-config {
+      display: grid;
+      gap: 12px;
+    }
+
+    .product-row {
+      display: grid;
+      grid-template-columns: minmax(120px, 1fr) repeat(2, minmax(120px, 0.8fr)) minmax(90px, 0.5fr);
+      gap: 12px;
+      align-items: end;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface-muted);
+    }
+
+    .checkbox-field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 48px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .settings-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .hidden-input {
+      display: none;
+    }
+
+    .empty-state {
+      padding: 28px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .placeholder {
+      padding: 34px;
+      min-height: 260px;
+      display: grid;
+      align-content: center;
+      gap: 10px;
+      color: var(--muted);
+    }
+
+    .placeholder h2 {
+      margin: 0;
+      color: var(--text);
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+
+    .placeholder p {
+      max-width: 680px;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 1080px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        height: auto;
+        padding: 16px;
+      }
+
+      .brand {
+        padding-bottom: 14px;
+      }
+
+      .nav {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .sidebar-footer {
+        display: none;
+      }
+
+      .main {
+        padding: 22px;
+      }
+
+      .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .stats-grid,
+      .monthly-grid,
+      .forecast-grid,
+      .report-summary,
+      .settings-grid,
+      .settings-grid.two,
+      .product-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .main {
+        padding: 16px;
+      }
+
+      .topbar {
+        display: grid;
+      }
+
+      .today-pill {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .nav-button {
+        justify-content: center;
+      }
+
+      .nav-label {
+        display: none;
+      }
+
+      .kpi-grid,
+      .form-grid,
+      .summary-grid,
+      .stats-grid,
+      .monthly-grid,
+      .forecast-grid,
+      .report-summary,
+      .settings-grid,
+      .settings-grid.two,
+      .product-row {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        padding: 16px;
+      }
+
+      .actions {
+        align-items: stretch;
+      }
+
+      .primary-button,
+      .secondary-button,
+      .danger-button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navigation principale">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">N</div>
+        <div>
+          <h1 class="brand-title">NISSA Manager</h1>
+          <p class="brand-subtitle">v2.4.1</p>
+        </div>
+      </div>
+
+      <nav class="nav" id="appNav">
+        <button class="nav-button active" type="button" data-view="dashboard" aria-current="page">
+          <span class="nav-icon" aria-hidden="true">⌂</span>
+          <span class="nav-label">Tableau de bord</span>
+        </button>
+        <button class="nav-button" type="button" data-view="journee">
+          <span class="nav-icon" aria-hidden="true">$</span>
+          <span class="nav-label">Journée</span>
+        </button>
+        <button class="nav-button" type="button" data-view="historique">
+          <span class="nav-icon" aria-hidden="true">≡</span>
+          <span class="nav-label">Historique</span>
+        </button>
+        <button class="nav-button" type="button" data-view="statistiques">
+          <span class="nav-icon" aria-hidden="true">▣</span>
+          <span class="nav-label">Statistiques</span>
+        </button>
+        <button class="nav-button" type="button" data-view="previsions">
+          <span class="nav-icon" aria-hidden="true">↗</span>
+          <span class="nav-label">Prévisions</span>
+        </button>
+        <button class="nav-button" type="button" data-view="rapports">
+          <span class="nav-icon" aria-hidden="true">▤</span>
+          <span class="nav-label">Rapports</span>
+        </button>
+        <button class="nav-button" type="button" data-view="parametres">
+          <span class="nav-icon" aria-hidden="true">⚙</span>
+          <span class="nav-label">Paramètres</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        Données enregistrées hors ligne sur cet appareil avec localStorage.
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="page-kicker" id="pageKicker">Gestion journalière</p>
+          <h2 class="page-title" id="pageTitle">Tableau de bord</h2>
+        </div>
+        <div class="today-pill" id="todayLabel">Aujourd'hui</div>
+      </header>
+
+      <section class="view active" id="view-dashboard" data-title="Tableau de bord" data-kicker="Gestion journalière">
+        <div class="kpi-grid">
+          <article class="kpi-card">
+            <div class="kpi-top">
+              <p class="kpi-label">CA du jour</p>
+              <div class="kpi-icon" aria-hidden="true">$</div>
+            </div>
+            <p class="kpi-value" id="kpiCaJour">0 Ar</p>
+          </article>
+          <article class="kpi-card">
+            <div class="kpi-top">
+              <p class="kpi-label">Glaces vendues</p>
+              <div class="kpi-icon" aria-hidden="true">#</div>
+            </div>
+            <p class="kpi-value" id="kpiGlacesJour">0</p>
+          </article>
+          <article class="kpi-card">
+            <div class="kpi-top">
+              <p class="kpi-label">Bénéfice</p>
+              <div class="kpi-icon" aria-hidden="true">+</div>
+            </div>
+            <p class="kpi-value" id="kpiBeneficeJour">0 Ar</p>
+          </article>
+          <article class="kpi-card">
+            <div class="kpi-top">
+              <p class="kpi-label">Dernière clôture</p>
+              <div class="kpi-icon" aria-hidden="true">✓</div>
+            </div>
+            <p class="kpi-value" id="kpiDerniereCloture">Aucune</p>
+          </article>
+        </div>
+
+        <div class="content-grid">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Saisie rapide</h3>
+                <p class="panel-subtitle">Enregistrez la journée et retrouvez-la directement dans l'historique.</p>
+              </div>
+            </div>
+            <div id="dashboardFormMount"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Dernières journées</h3>
+                <p class="panel-subtitle">Les cinq dernières clôtures enregistrées.</p>
+              </div>
+            </div>
+            <div class="mini-list" id="recentDays"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="view-journee" data-title="Journée" data-kicker="Saisie des ventes">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h3 class="panel-title">Valider une journée</h3>
+              <p class="panel-subtitle">Prix, coûts et devise configurables dans les paramètres.</p>
+            </div>
+          </div>
+          <div id="journeeFormMount"></div>
+        </section>
+      </section>
+
+      <section class="view" id="view-historique" data-title="Historique" data-kicker="Clôtures enregistrées">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h3 class="panel-title">Historique complet</h3>
+              <p class="panel-subtitle">Tri automatique du plus récent au plus ancien.</p>
+            </div>
+            <button class="danger-button" id="clearDataButton" type="button">Effacer l'historique</button>
+          </div>
+          <div id="historyMount"></div>
+        </section>
+      </section>
+
+      <section class="view" id="view-statistiques" data-title="Statistiques" data-kicker="Analyse des ventes">
+        <div class="stats-stack">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Statistiques avancées</h3>
+                <p class="panel-subtitle">Synthèse globale calculée depuis l'historique local.</p>
+              </div>
+            </div>
+            <div class="stats-grid" id="advancedStats"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Analyse produits</h3>
+                <p class="panel-subtitle">Volumes cumulés et répartition entre CV et QN.</p>
+              </div>
+            </div>
+            <div class="stats-grid" id="productStats"></div>
+            <div class="product-share" id="productShare"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Graphiques</h3>
+                <p class="panel-subtitle">Evolution du CA, du bénéfice, des ventes et de la répartition produits.</p>
+              </div>
+            </div>
+            <div class="chart-grid" id="chartsMount"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Comparaison mensuelle</h3>
+                <p class="panel-subtitle">CA, bénéfice, glaces, meilleur mois, pire mois et évolution.</p>
+              </div>
+            </div>
+            <div id="monthlyStats"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="view-previsions" data-title="Prévisions" data-kicker="Intelligence métier">
+        <div class="forecast-stack">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Prévisions avancées</h3>
+                <p class="panel-subtitle">Projection de production, CA, bénéfice et caisse à partir de l'historique local.</p>
+              </div>
+            </div>
+            <div class="forecast-grid" id="forecastStats"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Intelligence métier</h3>
+                <p class="panel-subtitle">Tendances, périodes fortes et recommandations opérationnelles.</p>
+              </div>
+            </div>
+            <div id="businessInsights"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Projection commerciale</h3>
+                <p class="panel-subtitle">Vision estimée sur 7 jours et 30 jours.</p>
+              </div>
+            </div>
+            <div id="forecastProjection"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="view-rapports" data-title="Rapports" data-kicker="Exports mensuels">
+        <div class="report-stack">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Rapport mensuel</h3>
+                <p class="panel-subtitle">Préparez un rapport par mois, puis exportez-le en PDF ou Excel compatible.</p>
+              </div>
+            </div>
+            <div class="report-toolbar">
+              <div class="field">
+                <label for="reportMonthSelect">Mois à exporter</label>
+                <select id="reportMonthSelect"></select>
+              </div>
+              <div class="report-actions">
+                <button class="secondary-button" id="exportExcelButton" type="button">Exporter Excel</button>
+                <button class="primary-button" id="exportPdfButton" type="button">Exporter PDF</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Aperçu du rapport</h3>
+                <p class="panel-subtitle">Synthèse, lignes détaillées et totaux du mois sélectionné.</p>
+              </div>
+            </div>
+            <div id="monthlyReportMount"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="view-parametres" data-title="Paramètres" data-kicker="Configuration">
+        <form class="settings-stack" id="settingsForm" novalidate>
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Entreprise</h3>
+                <p class="panel-subtitle">Identité et informations utilisées par le logiciel.</p>
+              </div>
+            </div>
+            <div class="settings-grid">
+              <div class="field">
+                <label for="companyName">Nom</label>
+                <input id="companyName" name="company.name" type="text">
+              </div>
+              <div class="field">
+                <label for="companyLogo">Logo</label>
+                <input id="companyLogo" name="company.logo" type="text" placeholder="URL ou texte">
+              </div>
+              <div class="field">
+                <label for="companyResponsible">Responsable</label>
+                <input id="companyResponsible" name="company.responsible" type="text">
+              </div>
+              <div class="field">
+                <label for="companyPhone">Téléphone</label>
+                <input id="companyPhone" name="company.phone" type="tel">
+              </div>
+              <div class="field">
+                <label for="companyEmail">Email</label>
+                <input id="companyEmail" name="company.email" type="email">
+              </div>
+              <div class="field">
+                <label for="companyCurrency">Devise</label>
+                <input id="companyCurrency" name="company.currency" type="text">
+              </div>
+              <div class="field">
+                <label for="companyAddress">Adresse</label>
+                <textarea id="companyAddress" name="company.address"></textarea>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Produits</h3>
+                <p class="panel-subtitle">Prix, coûts et disponibilité des produits.</p>
+              </div>
+            </div>
+            <div class="product-config" id="productSettings"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Matières premières</h3>
+                <p class="panel-subtitle">Paramètres de production et marge cible.</p>
+              </div>
+            </div>
+            <div class="settings-grid">
+              <div class="field">
+                <label for="materialMilk">Prix lait</label>
+                <input id="materialMilk" name="materials.milkPrice" type="number" min="0" step="1">
+              </div>
+              <div class="field">
+                <label for="materialSugar">Prix sucre</label>
+                <input id="materialSugar" name="materials.sugarPrice" type="number" min="0" step="1">
+              </div>
+              <div class="field">
+                <label for="materialStick">Prix bâtonnet</label>
+                <input id="materialStick" name="materials.stickPrice" type="number" min="0" step="1">
+              </div>
+              <div class="field">
+                <label for="materialBag">Prix sachet</label>
+                <input id="materialBag" name="materials.bagPrice" type="number" min="0" step="1">
+              </div>
+              <div class="field">
+                <label for="materialYield">Rendement</label>
+                <input id="materialYield" name="materials.yield" type="number" min="0" step="1">
+              </div>
+              <div class="field">
+                <label for="materialMargin">Marge cible (%)</label>
+                <input id="materialMargin" name="materials.targetMargin" type="number" min="0" step="1">
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Prévisions</h3>
+                <p class="panel-subtitle">Règles utilisées par les projections.</p>
+              </div>
+            </div>
+            <div class="settings-grid">
+              <div class="field">
+                <label for="forecastDays">Jours ouvrés</label>
+                <input id="forecastDays" name="forecast.workingDays" type="number" min="1" step="1">
+              </div>
+              <div class="field">
+                <label for="forecastPeriod">Période moyenne</label>
+                <input id="forecastPeriod" name="forecast.averagePeriod" type="number" min="1" step="1">
+              </div>
+              <div class="field">
+                <label for="forecastTrend">Seuil de tendance (%)</label>
+                <input id="forecastTrend" name="forecast.trendThreshold" type="number" min="0" step="1">
+              </div>
+              <div class="field">
+                <label for="forecastTargetCa">Objectif CA</label>
+                <input id="forecastTargetCa" name="forecast.targetCa" type="number" min="0" step="1">
+              </div>
+              <div class="field">
+                <label for="forecastTargetBenefice">Objectif bénéfice</label>
+                <input id="forecastTargetBenefice" name="forecast.targetBenefice" type="number" min="0" step="1">
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Sauvegarde</h3>
+                <p class="panel-subtitle">Préférences de sauvegarde locale.</p>
+              </div>
+            </div>
+            <div class="settings-grid">
+              <label class="checkbox-field" for="backupAuto">
+                <input id="backupAuto" name="backup.autoExport" type="checkbox">
+                Export automatique
+              </label>
+              <div class="field">
+                <label for="backupFrequency">Fréquence</label>
+                <select id="backupFrequency" name="backup.frequency">
+                  <option value="daily">Quotidienne</option>
+                  <option value="weekly">Hebdomadaire</option>
+                  <option value="monthly">Mensuelle</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="backupLast">Dernière sauvegarde</label>
+                <input id="backupLast" name="backup.lastBackup" type="date">
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Apparence</h3>
+                <p class="panel-subtitle">Thème, couleurs et police.</p>
+              </div>
+            </div>
+            <div class="settings-grid">
+              <div class="field">
+                <label for="appearanceTheme">Thème</label>
+                <select id="appearanceTheme" name="appearance.theme">
+                  <option value="light">Clair</option>
+                  <option value="dark">Sombre</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="appearancePrimary">Couleur principale</label>
+                <input id="appearancePrimary" name="appearance.primaryColor" type="color">
+              </div>
+              <div class="field">
+                <label for="appearanceAccent">Couleur accent</label>
+                <input id="appearanceAccent" name="appearance.accentColor" type="color">
+              </div>
+              <div class="field">
+                <label for="appearanceFont">Police</label>
+                <input id="appearanceFont" name="appearance.fontFamily" type="text">
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Données</h3>
+                <p class="panel-subtitle">Exports, imports et réinitialisations.</p>
+              </div>
+            </div>
+            <input class="hidden-input" id="importJsonInput" type="file" accept="application/json,.json">
+            <div class="settings-actions">
+              <button class="secondary-button" id="exportJsonButton" type="button">Export JSON</button>
+              <button class="secondary-button" id="importJsonButton" type="button">Import JSON</button>
+              <button class="secondary-button" id="resetSettingsButton" type="button">Réinitialiser paramètres</button>
+              <button class="danger-button" id="resetHistoryButton" type="button">Réinitialiser historique</button>
+              <button class="danger-button" id="resetAllButton" type="button">Réinitialisation complète</button>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="actions">
+              <p class="status-message" id="settingsStatus"></p>
+              <button class="primary-button" type="submit">Enregistrer les paramètres</button>
+            </div>
+          </section>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <template id="journeeFormTemplate">
+    <form class="journee-form" novalidate>
+      <div class="form-grid">
+        <div class="field">
+          <label for="inputCv">CV vendus</label>
+          <input id="inputCv" name="cv" type="number" min="0" step="1" inputmode="numeric" placeholder="0">
+        </div>
+        <div class="field">
+          <label for="inputQn">QN vendus</label>
+          <input id="inputQn" name="qn" type="number" min="0" step="1" inputmode="numeric" placeholder="0">
+        </div>
+        <div class="field">
+          <label for="inputDepenses">Dépenses complémentaires</label>
+          <input id="inputDepenses" name="depenses" type="number" min="0" step="1" inputmode="numeric" placeholder="0">
+        </div>
+      </div>
+
+      <div class="summary-grid" aria-live="polite">
+        <div class="summary-item">
+          <p class="summary-label">CA calculé</p>
+          <p class="summary-value" data-summary="ca">0 Ar</p>
+        </div>
+        <div class="summary-item">
+          <p class="summary-label">Total glaces</p>
+          <p class="summary-value" data-summary="total">0</p>
+        </div>
+        <div class="summary-item">
+          <p class="summary-label">Bénéfice</p>
+          <p class="summary-value" data-summary="benefice">0 Ar</p>
+        </div>
+        <div class="summary-item">
+          <p class="summary-label">Caisse</p>
+          <p class="summary-value" data-summary="caisse">0 Ar</p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <p class="status-message" data-status></p>
+        <div class="actions">
+          <button class="secondary-button" type="reset">Réinitialiser</button>
+          <button class="primary-button" type="submit">Valider la journée</button>
+        </div>
+      </div>
+    </form>
+  </template>
+
+  <script>
+    const Settings = (() => {
+      const storageKey = "nissa_settings";
+      const defaultSettings = Object.freeze({
+        company: {
+          name: "NISSA",
+          logo: "",
+          responsible: "",
+          address: "",
+          phone: "",
+          email: "",
+          currency: "Ar"
+        },
+        products: {
+          cv: { name: "CV", price: 200, cost: 120, active: true },
+          qn: { name: "QN", price: 300, cost: 140, active: true },
+          yaourt: { name: "Yaourt", price: 1000, cost: 650, active: true }
+        },
+        materials: {
+          milkPrice: 0,
+          sugarPrice: 0,
+          stickPrice: 0,
+          bagPrice: 0,
+          yield: 0,
+          targetMargin: 30
+        },
+        forecast: {
+          workingDays: 26,
+          averagePeriod: 14,
+          trendThreshold: 10,
+          targetCa: 0,
+          targetBenefice: 0
+        },
+        backup: {
+          autoExport: false,
+          frequency: "weekly",
+          lastBackup: ""
+        },
+        appearance: {
+          theme: "light",
+          primaryColor: "#1f3b5b",
+          accentColor: "#16a085",
+          fontFamily: "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif"
+        }
+      });
+
+      const isPlainObject = (value) => value && typeof value === "object" && !Array.isArray(value);
+
+      const clone = (value) => JSON.parse(JSON.stringify(value));
+
+      const mergeSettings = (base, saved) => {
+        const output = clone(base);
+        if (!isPlainObject(saved)) return output;
+
+        Object.keys(saved).forEach((key) => {
+          if (isPlainObject(saved[key]) && isPlainObject(output[key])) {
+            output[key] = mergeSettings(output[key], saved[key]);
+          } else if (key in output) {
+            output[key] = saved[key];
+          }
+        });
+
+        return output;
+      };
+
+      const safeParse = (rawValue) => {
+        try {
+          return rawValue ? JSON.parse(rawValue) : {};
+        } catch (error) {
+          return {};
+        }
+      };
+
+      let settings = mergeSettings(defaultSettings, safeParse(localStorage.getItem(storageKey)));
+
+      const write = () => localStorage.setItem(storageKey, JSON.stringify(settings));
+      const all = () => settings;
+      const defaults = () => clone(defaultSettings);
+      const product = (key) => settings.products[key] || defaultSettings.products[key];
+
+      const update = (nextSettings) => {
+        settings = mergeSettings(defaultSettings, nextSettings);
+        write();
+        applyAppearance();
+        return all();
+      };
+
+      const reset = () => update(defaults());
+
+      const applyAppearance = () => {
+        const { appearance } = settings;
+        document.documentElement.style.setProperty("--primary", appearance.primaryColor || defaultSettings.appearance.primaryColor);
+        document.documentElement.style.setProperty("--accent", appearance.accentColor || defaultSettings.appearance.accentColor);
+        document.body.style.fontFamily = appearance.fontFamily || defaultSettings.appearance.fontFamily;
+        document.body.dataset.theme = appearance.theme || "light";
+      };
+
+      write();
+      applyAppearance();
+
+      return { storageKey, all, defaults, product, update, reset, applyAppearance };
+    })();
+
+    const Utils = (() => {
+      const storageKey = "nissa_data";
+
+      const todayIso = () => {
+        const now = new Date();
+        const timezoneOffset = now.getTimezoneOffset() * 60000;
+        return new Date(now.getTime() - timezoneOffset).toISOString().slice(0, 10);
+      };
+
+      const toNumber = (value) => {
+        const number = Number(value);
+        return Number.isFinite(number) && number > 0 ? Math.floor(number) : 0;
+      };
+
+      const formatNumber = (value) => new Intl.NumberFormat("fr-FR").format(value);
+      const formatMoney = (value) => `${formatNumber(value)} ${Settings.all().company.currency || "Ar"}`;
+      const productLabel = (key) => Settings.product(key).name || key.toUpperCase();
+
+      const formatDate = (isoDate) => {
+        if (!isoDate) return "Aucune";
+        const [year, month, day] = isoDate.split("-").map(Number);
+        return new Intl.DateTimeFormat("fr-FR", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric"
+        }).format(new Date(year, month - 1, day));
+      };
+
+      const safeParse = (rawValue) => {
+        try {
+          const parsed = JSON.parse(rawValue);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+          return [];
+        }
+      };
+
+      const readData = () => safeParse(localStorage.getItem(storageKey));
+      const writeData = (data) => localStorage.setItem(storageKey, JSON.stringify(data));
+
+      const sortByRecent = (records) => [...records].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      const calculateDay = ({ cv, qn, depenses }) => {
+        const cvProduct = Settings.product("cv");
+        const qnProduct = Settings.product("qn");
+        const cleanCv = cvProduct.active ? toNumber(cv) : 0;
+        const cleanQn = qnProduct.active ? toNumber(qn) : 0;
+        const extraDepenses = toNumber(depenses);
+        const productCosts = cleanCv * toNumber(cvProduct.cost) + cleanQn * toNumber(qnProduct.cost);
+        const cleanDepenses = extraDepenses + productCosts;
+        const ca = cleanCv * toNumber(cvProduct.price) + cleanQn * toNumber(qnProduct.price);
+        const total = cleanCv + cleanQn;
+        const benefice = ca - cleanDepenses;
+
+        return {
+          cv: cleanCv,
+          qn: cleanQn,
+          total,
+          ca,
+          depenses: cleanDepenses,
+          benefice,
+          caisse: benefice
+        };
+      };
+
+      return {
+        storageKey,
+        todayIso,
+        toNumber,
+        formatNumber,
+        formatMoney,
+        productLabel,
+        formatDate,
+        readData,
+        writeData,
+        sortByRecent,
+        calculateDay
+      };
+    })();
+
+    const Store = (() => {
+      let records = Utils.sortByRecent(Utils.readData());
+
+      const all = () => Utils.sortByRecent(records);
+
+      const saveDay = (day) => {
+        records = Utils.sortByRecent([day, ...records]);
+        Utils.writeData(records);
+        return all();
+      };
+
+      const clear = () => {
+        records = [];
+        Utils.writeData(records);
+      };
+
+      const replace = (nextRecords) => {
+        records = Utils.sortByRecent(Array.isArray(nextRecords) ? nextRecords : []);
+        Utils.writeData(records);
+        return all();
+      };
+
+      const latest = () => all()[0] || null;
+      const today = () => all().find((day) => day.date === Utils.todayIso()) || null;
+
+      return { all, saveDay, clear, replace, latest, today };
+    })();
+
+    const App = (() => {
+      const views = [...document.querySelectorAll(".view")];
+      const navButtons = [...document.querySelectorAll(".nav-button")];
+      const pageTitle = document.querySelector("#pageTitle");
+      const pageKicker = document.querySelector("#pageKicker");
+      const todayLabel = document.querySelector("#todayLabel");
+
+      const setView = (viewName) => {
+        views.forEach((view) => view.classList.toggle("active", view.id === `view-${viewName}`));
+        navButtons.forEach((button) => {
+          const isActive = button.dataset.view === viewName;
+          button.classList.toggle("active", isActive);
+          if (isActive) {
+            button.setAttribute("aria-current", "page");
+          } else {
+            button.removeAttribute("aria-current");
+          }
+        });
+
+        const activeView = document.querySelector(`#view-${viewName}`);
+        pageTitle.textContent = activeView.dataset.title;
+        pageKicker.textContent = activeView.dataset.kicker;
+      };
+
+      const init = () => {
+        todayLabel.textContent = `Aujourd'hui · ${Utils.formatDate(Utils.todayIso())}`;
+        navButtons.forEach((button) => {
+          button.addEventListener("click", () => setView(button.dataset.view));
+        });
+      };
+
+      return { init };
+    })();
+
+    const Dashboard = (() => {
+      const elements = {
+        caJour: document.querySelector("#kpiCaJour"),
+        glacesJour: document.querySelector("#kpiGlacesJour"),
+        beneficeJour: document.querySelector("#kpiBeneficeJour"),
+        derniereCloture: document.querySelector("#kpiDerniereCloture"),
+        recentDays: document.querySelector("#recentDays")
+      };
+
+      const renderRecentDays = (records) => {
+        if (records.length === 0) {
+          elements.recentDays.innerHTML = '<div class="empty-state">Aucune journée enregistrée pour le moment.</div>';
+          return;
+        }
+
+        elements.recentDays.innerHTML = records.slice(0, 5).map((day) => `
+          <div class="mini-row">
+            <div>
+              <strong>${Utils.formatDate(day.date)}</strong>
+              <span>${Utils.formatNumber(day.total)} glaces · ${Utils.productLabel("cv")} ${day.cv} · ${Utils.productLabel("qn")} ${day.qn}</span>
+            </div>
+            <div class="mini-amount">${Utils.formatMoney(day.ca)}</div>
+          </div>
+        `).join("");
+      };
+
+      const render = () => {
+        const today = Store.today();
+        const latest = Store.latest();
+        const records = Store.all();
+
+        elements.caJour.textContent = Utils.formatMoney(today ? today.ca : 0);
+        elements.glacesJour.textContent = Utils.formatNumber(today ? today.total : 0);
+        elements.beneficeJour.textContent = Utils.formatMoney(today ? today.benefice : 0);
+        elements.derniereCloture.textContent = latest ? Utils.formatDate(latest.date) : "Aucune";
+        renderRecentDays(records);
+      };
+
+      return { render };
+    })();
+
+    const Historique = (() => {
+      const mount = document.querySelector("#historyMount");
+      const clearButton = document.querySelector("#clearDataButton");
+
+      const renderEmpty = () => {
+        mount.innerHTML = '<div class="empty-state">L\'historique est vide. Validez une journée pour commencer.</div>';
+      };
+
+      const renderTable = (records) => {
+        mount.innerHTML = `
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>${Utils.productLabel("cv")}</th>
+                  <th>${Utils.productLabel("qn")}</th>
+                  <th>Total</th>
+                  <th>CA</th>
+                  <th>Dépenses</th>
+                  <th>Bénéfice</th>
+                  <th>Caisse</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${records.map((day) => `
+                  <tr>
+                    <td>${Utils.formatDate(day.date)}</td>
+                    <td>${Utils.formatNumber(day.cv)}</td>
+                    <td>${Utils.formatNumber(day.qn)}</td>
+                    <td>${Utils.formatNumber(day.total)}</td>
+                    <td>${Utils.formatMoney(day.ca)}</td>
+                    <td>${Utils.formatMoney(day.depenses)}</td>
+                    <td class="${day.benefice >= 0 ? "amount-positive" : "amount-negative"}">${Utils.formatMoney(day.benefice)}</td>
+                    <td>${Utils.formatMoney(day.caisse)}</td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>
+        `;
+      };
+
+      const render = () => {
+        const records = Store.all();
+        clearButton.disabled = records.length === 0;
+        if (records.length === 0) {
+          renderEmpty();
+          return;
+        }
+        renderTable(records);
+      };
+
+      const init = () => {
+        clearButton.addEventListener("click", () => {
+          if (!Store.all().length) return;
+          const confirmed = window.confirm("Effacer tout l'historique NISSA Manager sur cet appareil ?");
+          if (!confirmed) return;
+          Store.clear();
+          renderAll();
+        });
+      };
+
+      return { init, render };
+    })();
+
+    const Statistiques = (() => {
+      const advancedStats = document.querySelector("#advancedStats");
+      const productStats = document.querySelector("#productStats");
+      const productShare = document.querySelector("#productShare");
+      const chartsMount = document.querySelector("#chartsMount");
+      const monthlyStats = document.querySelector("#monthlyStats");
+
+      const statNumber = (value) => {
+        const number = Number(value);
+        return Number.isFinite(number) ? Math.round(number) : 0;
+      };
+
+      const positiveStatNumber = (value) => Math.max(0, statNumber(value));
+      const sum = (records, key, parser = positiveStatNumber) => records.reduce((total, day) => total + parser(day[key]), 0);
+      const average = (value, count) => count > 0 ? Math.round(value / count) : 0;
+      const percentage = (value, total) => total > 0 ? (value / total) * 100 : 0;
+      const formatPercent = (value) => `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 }).format(value)} %`;
+      const formatEvolution = (value) => value === null ? "N/A" : formatPercent(value);
+      const trendClass = (value) => value === null || value === 0 ? "trend-neutral" : value > 0 ? "trend-positive" : "trend-negative";
+      const evolutionFrom = (previous, current) => previous !== 0 ? ((current - previous) / Math.abs(previous)) * 100 : null;
+
+      const monthKey = (date) => (date || "").slice(0, 7);
+
+      const monthLabel = (key) => {
+        if (!key) return "Mois inconnu";
+        const [year, month] = key.split("-").map(Number);
+        return new Intl.DateTimeFormat("fr-FR", {
+          month: "short",
+          year: "numeric"
+        }).format(new Date(year, month - 1, 1));
+      };
+
+      const escapeHtml = (value) => String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+      const renderStatCards = (mount, cards) => {
+        mount.innerHTML = cards.map((card) => `
+          <article class="stat-card">
+            <p class="stat-label">${escapeHtml(card.label)}</p>
+            <p class="stat-value">${escapeHtml(card.value)}</p>
+            ${card.note ? `<p class="stat-note">${escapeHtml(card.note)}</p>` : ""}
+          </article>
+        `).join("");
+      };
+
+      const renderEmpty = () => {
+        advancedStats.innerHTML = '<div class="empty-state">Aucune donnée disponible pour les statistiques.</div>';
+        productStats.innerHTML = "";
+        productShare.innerHTML = "";
+        chartsMount.innerHTML = "";
+        monthlyStats.innerHTML = "";
+      };
+
+      const buildTotals = (records) => {
+        const ca = sum(records, "ca");
+        const benefice = sum(records, "benefice", statNumber);
+        const depenses = sum(records, "depenses");
+        const cv = sum(records, "cv");
+        const qn = sum(records, "qn");
+        const total = sum(records, "total");
+        const margin = ca > 0 ? (benefice / ca) * 100 : 0;
+
+        return {
+          ca,
+          benefice,
+          depenses,
+          cv,
+          qn,
+          total,
+          margin,
+          averageCa: average(ca, records.length),
+          averageBenefice: average(benefice, records.length)
+        };
+      };
+
+      const sortedAscending = (records) => [...records].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      const compactDateLabel = (date) => {
+        const [year, month, day] = date.split("-").map(Number);
+        return new Intl.DateTimeFormat("fr-FR", {
+          day: "2-digit",
+          month: "short"
+        }).format(new Date(year, month - 1, day));
+      };
+
+      const makeLineChart = (title, records, key, formatter, alt = false) => {
+        const ordered = sortedAscending(records);
+        const values = ordered.map((day) => key === "benefice" ? statNumber(day[key]) : positiveStatNumber(day[key]));
+        const maxValue = Math.max(...values, 0);
+        const minValue = Math.min(...values, 0);
+        const range = maxValue - minValue || 1;
+        const width = 420;
+        const height = 170;
+        const padding = 24;
+        const usableWidth = width - padding * 2;
+        const usableHeight = height - padding * 2;
+        const step = ordered.length > 1 ? usableWidth / (ordered.length - 1) : 0;
+
+        const points = values.map((value, index) => {
+          const x = ordered.length === 1 ? width / 2 : padding + step * index;
+          const y = padding + ((maxValue - value) / range) * usableHeight;
+          return { x, y, value, label: compactDateLabel(ordered[index].date) };
+        });
+
+        const path = points.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`).join(" ");
+        const zeroY = padding + ((maxValue - 0) / range) * usableHeight;
+
+        return `
+          <article class="chart-card">
+            <h4 class="chart-title">${escapeHtml(title)}</h4>
+            <svg class="chart-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(title)}">
+              <line class="chart-axis" x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}"></line>
+              <line class="chart-axis" x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}"></line>
+              ${minValue < 0 ? `<line class="chart-axis" x1="${padding}" y1="${zeroY}" x2="${width - padding}" y2="${zeroY}"></line>` : ""}
+              <path class="chart-line ${alt ? "alt" : ""}" d="${path}"></path>
+              ${points.map((point) => `
+                <circle class="chart-point ${alt ? "alt" : ""}" cx="${point.x}" cy="${point.y}" r="4">
+                  <title>${escapeHtml(point.label)} : ${escapeHtml(formatter(point.value))}</title>
+                </circle>
+              `).join("")}
+            </svg>
+            <p class="stat-note">Min : ${escapeHtml(formatter(minValue))} · Max : ${escapeHtml(formatter(maxValue))}</p>
+          </article>
+        `;
+      };
+
+      const makeBarChart = (title, items, formatter, alt = false) => {
+        const maxValue = Math.max(...items.map((item) => item.value), 1);
+
+        return `
+          <article class="chart-card">
+            <h4 class="chart-title">${escapeHtml(title)}</h4>
+            <div class="bar-chart" aria-label="${escapeHtml(title)}">
+              ${items.map((item) => {
+                const height = Math.max((item.value / maxValue) * 100, item.value > 0 ? 4 : 0);
+                return `
+                  <div class="bar-item">
+                    <div class="bar-fill ${alt ? "alt" : ""}" style="height: ${height}%;" title="${escapeHtml(item.label)} : ${escapeHtml(formatter(item.value))}"></div>
+                    <div class="bar-label">${escapeHtml(item.label)}</div>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+            <p class="stat-note">Maximum : ${escapeHtml(formatter(maxValue))}</p>
+          </article>
+        `;
+      };
+
+      const groupByMonth = (records) => {
+        const grouped = new Map();
+
+        records.forEach((day) => {
+          const key = monthKey(day.date);
+          const current = grouped.get(key) || {
+            key,
+            label: monthLabel(key),
+            ca: 0,
+            benefice: 0,
+            total: 0,
+            depenses: 0,
+            days: 0
+          };
+
+          current.ca += positiveStatNumber(day.ca);
+          current.benefice += statNumber(day.benefice);
+          current.total += positiveStatNumber(day.total);
+          current.depenses += positiveStatNumber(day.depenses);
+          current.days += 1;
+          grouped.set(key, current);
+        });
+
+        return [...grouped.values()].sort((a, b) => a.key.localeCompare(b.key));
+      };
+
+      const renderMonthly = (records) => {
+        const months = groupByMonth(records);
+        const bestMonth = [...months].sort((a, b) => b.ca - a.ca)[0];
+        const worstMonth = [...months].sort((a, b) => a.ca - b.ca)[0];
+        const previous = months[months.length - 2];
+        const current = months[months.length - 1];
+        const evolution = previous ? evolutionFrom(previous.ca, current.ca) : null;
+        const evolutionClass = trendClass(evolution);
+
+        monthlyStats.innerHTML = `
+          <div class="monthly-grid">
+            <article class="month-card">
+              <strong>Meilleur mois</strong>
+              <span>${escapeHtml(bestMonth.label)}</span>
+              <span>CA : ${escapeHtml(Utils.formatMoney(bestMonth.ca))}</span>
+              <span>Bénéfice : ${escapeHtml(Utils.formatMoney(bestMonth.benefice))}</span>
+            </article>
+            <article class="month-card">
+              <strong>Pire mois</strong>
+              <span>${escapeHtml(worstMonth.label)}</span>
+              <span>CA : ${escapeHtml(Utils.formatMoney(worstMonth.ca))}</span>
+              <span>Bénéfice : ${escapeHtml(Utils.formatMoney(worstMonth.benefice))}</span>
+            </article>
+            <article class="month-card">
+              <strong>Evolution entre mois</strong>
+              <span>${previous ? `${escapeHtml(previous.label)} vers ${escapeHtml(current.label)}` : "Pas assez de mois"}</span>
+              <span class="${evolutionClass}">${escapeHtml(formatEvolution(evolution))}</span>
+            </article>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Mois</th>
+                  <th>CA</th>
+                  <th>Bénéfice</th>
+                  <th>Glaces</th>
+                  <th>Evolution CA</th>
+                  <th>Evolution bénéfice</th>
+                  <th>Evolution glaces</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${[...months].reverse().map((month) => {
+                  const index = months.findIndex((item) => item.key === month.key);
+                  const previousMonth = index > 0 ? months[index - 1] : null;
+                  const caEvolution = previousMonth ? evolutionFrom(previousMonth.ca, month.ca) : null;
+                  const beneficeEvolution = previousMonth ? evolutionFrom(previousMonth.benefice, month.benefice) : null;
+                  const totalEvolution = previousMonth ? evolutionFrom(previousMonth.total, month.total) : null;
+
+                  return `
+                    <tr>
+                      <td>${escapeHtml(month.label)}</td>
+                      <td>${escapeHtml(Utils.formatMoney(month.ca))}</td>
+                      <td class="${month.benefice >= 0 ? "amount-positive" : "amount-negative"}">${escapeHtml(Utils.formatMoney(month.benefice))}</td>
+                      <td>${escapeHtml(Utils.formatNumber(month.total))}</td>
+                      <td class="${trendClass(caEvolution)}">${escapeHtml(formatEvolution(caEvolution))}</td>
+                      <td class="${trendClass(beneficeEvolution)}">${escapeHtml(formatEvolution(beneficeEvolution))}</td>
+                      <td class="${trendClass(totalEvolution)}">${escapeHtml(formatEvolution(totalEvolution))}</td>
+                    </tr>
+                  `;
+                }).join("")}
+              </tbody>
+            </table>
+          </div>
+        `;
+      };
+
+      const render = () => {
+        const records = Store.all();
+
+        if (records.length === 0) {
+          renderEmpty();
+          return;
+        }
+
+        const totals = buildTotals(records);
+        const cvPercent = percentage(totals.cv, totals.total);
+        const qnPercent = percentage(totals.qn, totals.total);
+
+        renderStatCards(advancedStats, [
+          { label: "CA total", value: Utils.formatMoney(totals.ca) },
+          { label: "Bénéfice total", value: Utils.formatMoney(totals.benefice) },
+          { label: "Dépenses totales", value: Utils.formatMoney(totals.depenses) },
+          { label: "Marge globale", value: formatPercent(totals.margin), note: "Bénéfice / CA" },
+          { label: "Moyenne CA / jour", value: Utils.formatMoney(totals.averageCa) },
+          { label: "Moyenne bénéfice / jour", value: Utils.formatMoney(totals.averageBenefice) }
+        ]);
+
+        renderStatCards(productStats, [
+          { label: `Total ${Utils.productLabel("cv")}`, value: Utils.formatNumber(totals.cv), note: formatPercent(cvPercent) },
+          { label: `Total ${Utils.productLabel("qn")}`, value: Utils.formatNumber(totals.qn), note: formatPercent(qnPercent) },
+          { label: "Total glaces", value: Utils.formatNumber(totals.total), note: `${Utils.productLabel("cv")} + ${Utils.productLabel("qn")}` }
+        ]);
+
+        productShare.innerHTML = `
+          <div class="share-bar" aria-label="Répartition CV QN">
+            <div class="share-segment cv" style="width: ${cvPercent}%;"></div>
+            <div class="share-segment qn" style="width: ${qnPercent}%;"></div>
+          </div>
+          <div class="share-legend">
+            <span><span class="legend-dot cv"></span>${escapeHtml(Utils.productLabel("cv"))} ${escapeHtml(formatPercent(cvPercent))}</span>
+            <span><span class="legend-dot qn"></span>${escapeHtml(Utils.productLabel("qn"))} ${escapeHtml(formatPercent(qnPercent))}</span>
+          </div>
+        `;
+
+        chartsMount.innerHTML = [
+          makeLineChart("Evolution CA", records, "ca", Utils.formatMoney),
+          makeLineChart("Evolution bénéfice", records, "benefice", Utils.formatMoney, true),
+          makeLineChart("Evolution ventes", records, "total", Utils.formatNumber),
+          makeBarChart("Répartition CV/QN", [
+            { label: Utils.productLabel("cv"), value: totals.cv },
+            { label: Utils.productLabel("qn"), value: totals.qn }
+          ], Utils.formatNumber, true)
+        ].join("");
+
+        renderMonthly(records);
+      };
+
+      return { render };
+    })();
+
+    const Previsions = (() => {
+      const forecastStats = document.querySelector("#forecastStats");
+      const businessInsights = document.querySelector("#businessInsights");
+      const forecastProjection = document.querySelector("#forecastProjection");
+
+      const statNumber = (value) => {
+        const number = Number(value);
+        return Number.isFinite(number) ? Math.round(number) : 0;
+      };
+
+      const positiveStatNumber = (value) => Math.max(0, statNumber(value));
+      const average = (value, count) => count > 0 ? Math.round(value / count) : 0;
+      const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+      const formatPercent = (value) => `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 }).format(value)} %`;
+      const formatEvolution = (value) => value === null ? "N/A" : formatPercent(value);
+      const trendClass = (value) => value === null || value === 0 ? "trend-neutral" : value > 0 ? "trend-positive" : "trend-negative";
+      const evolutionFrom = (previous, current) => previous !== 0 ? ((current - previous) / Math.abs(previous)) * 100 : null;
+      const sortedAscending = (records) => [...records].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      const escapeHtml = (value) => String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+      const sum = (records, key, parser = positiveStatNumber) => records.reduce((total, day) => total + parser(day[key]), 0);
+
+      const weekdayLabel = (isoDate) => {
+        const [year, month, day] = isoDate.split("-").map(Number);
+        return new Intl.DateTimeFormat("fr-FR", { weekday: "long" }).format(new Date(year, month - 1, day));
+      };
+
+      const buildCards = (mount, cards) => {
+        mount.innerHTML = cards.map((card) => `
+          <article class="forecast-card">
+            <p class="forecast-label">${escapeHtml(card.label)}</p>
+            <p class="forecast-value">${escapeHtml(card.value)}</p>
+            ${card.note ? `<p class="forecast-note">${escapeHtml(card.note)}</p>` : ""}
+          </article>
+        `).join("");
+      };
+
+      const renderEmpty = () => {
+        forecastStats.innerHTML = '<div class="empty-state">Aucune donnée disponible pour calculer les prévisions.</div>';
+        businessInsights.innerHTML = "";
+        forecastProjection.innerHTML = "";
+      };
+
+      const groupByWeekday = (records) => {
+        const groups = new Map();
+
+        records.forEach((day) => {
+          const label = weekdayLabel(day.date);
+          const current = groups.get(label) || {
+            label,
+            days: 0,
+            ca: 0,
+            benefice: 0,
+            total: 0,
+            cv: 0,
+            qn: 0
+          };
+
+          current.days += 1;
+          current.ca += positiveStatNumber(day.ca);
+          current.benefice += statNumber(day.benefice);
+          current.total += positiveStatNumber(day.total);
+          current.cv += positiveStatNumber(day.cv);
+          current.qn += positiveStatNumber(day.qn);
+          groups.set(label, current);
+        });
+
+        return [...groups.values()]
+          .map((group) => ({
+            ...group,
+            averageCa: average(group.ca, group.days),
+            averageBenefice: average(group.benefice, group.days),
+            averageTotal: average(group.total, group.days)
+          }))
+          .sort((a, b) => b.averageCa - a.averageCa);
+      };
+
+      const buildForecast = (records) => {
+        const ordered = sortedAscending(records);
+        const count = ordered.length;
+        const totals = {
+          ca: sum(ordered, "ca"),
+          benefice: sum(ordered, "benefice", statNumber),
+          depenses: sum(ordered, "depenses"),
+          total: sum(ordered, "total"),
+          cv: sum(ordered, "cv"),
+          qn: sum(ordered, "qn")
+        };
+
+        const forecastSettings = Settings.all().forecast;
+        const period = Math.max(1, Utils.toNumber(forecastSettings.averagePeriod));
+        const recent = ordered.slice(-Math.min(period, count));
+        const previous = ordered.slice(-Math.min(period * 2, count), -Math.min(period, count));
+        const averageTotal = average(totals.total, count);
+        const recentTotal = average(sum(recent, "total"), recent.length);
+        const previousTotal = previous.length ? average(sum(previous, "total"), previous.length) : 0;
+        const trend = previous.length ? evolutionFrom(previousTotal, recentTotal) : null;
+        const trendFactor = trend === null ? 1 : clamp(1 + trend / 100, 0.75, 1.25);
+        const cvShare = totals.total > 0 ? totals.cv / totals.total : 0.5;
+        const forecastTotal = Math.max(0, Math.round(((averageTotal * 0.55) + (recentTotal * 0.45)) * trendFactor));
+        const forecastCv = Math.round(forecastTotal * cvShare);
+        const forecastQn = Math.max(0, forecastTotal - forecastCv);
+        const cvProduct = Settings.product("cv");
+        const qnProduct = Settings.product("qn");
+        const forecastCa = forecastCv * Utils.toNumber(cvProduct.price) + forecastQn * Utils.toNumber(qnProduct.price);
+        const averageDepenses = average(totals.depenses, count);
+        const forecastBenefice = forecastCa - averageDepenses;
+        const margin = forecastCa > 0 ? (forecastBenefice / forecastCa) * 100 : 0;
+        const weekdays = groupByWeekday(ordered);
+
+        return {
+          count,
+          workingDays: Utils.toNumber(forecastSettings.workingDays),
+          targetCa: Utils.toNumber(forecastSettings.targetCa),
+          targetBenefice: Utils.toNumber(forecastSettings.targetBenefice),
+          totals,
+          averageTotal,
+          recentTotal,
+          previousTotal,
+          trend,
+          cvShare,
+          forecastTotal,
+          forecastCv,
+          forecastQn,
+          forecastCa,
+          forecastBenefice,
+          averageDepenses,
+          margin,
+          weekdays,
+          bestPeriod: weekdays[0] || null,
+          weakPeriod: weekdays[weekdays.length - 1] || null
+        };
+      };
+
+      const buildAdvice = (forecast) => {
+        const advice = [];
+
+        advice.push({
+          title: "Production conseillée",
+          text: `Prévoir environ ${Utils.formatNumber(forecast.forecastTotal)} glaces : ${Utils.productLabel("cv")} ${Utils.formatNumber(forecast.forecastCv)} et ${Utils.productLabel("qn")} ${Utils.formatNumber(forecast.forecastQn)}.`
+        });
+
+        if (forecast.trend !== null) {
+          advice.push({
+            title: forecast.trend >= 0 ? "Tendance positive" : "Tendance à surveiller",
+            text: `Les ventes récentes évoluent de ${formatEvolution(forecast.trend)} par rapport à la période précédente.`
+          });
+        }
+
+        if (forecast.bestPeriod) {
+          advice.push({
+            title: "Période forte",
+            text: `${forecast.bestPeriod.label} ressort comme la meilleure période avec ${Utils.formatMoney(forecast.bestPeriod.averageCa)} de CA moyen.`
+          });
+        }
+
+        if (forecast.margin < Utils.toNumber(Settings.all().materials.targetMargin)) {
+          advice.push({
+            title: "Marge fragile",
+            text: `La marge prévue est de ${formatPercent(forecast.margin)}. Surveiller les dépenses avant de produire davantage.`
+          });
+        } else {
+          advice.push({
+            title: "Marge saine",
+            text: `La marge prévue est de ${formatPercent(forecast.margin)} avec un bénéfice estimé à ${Utils.formatMoney(forecast.forecastBenefice)}.`
+          });
+        }
+
+        if (forecast.count < 7) {
+          advice.push({
+            title: "Fiabilité limitée",
+            text: "Les prévisions seront plus solides après au moins 7 journées enregistrées."
+          });
+        }
+
+        return advice;
+      };
+
+      const renderInsights = (forecast) => {
+        const advice = buildAdvice(forecast);
+        const weekdayRows = forecast.weekdays.map((period) => `
+          <tr>
+            <td>${escapeHtml(period.label)}</td>
+            <td>${escapeHtml(Utils.formatMoney(period.averageCa))}</td>
+            <td class="${period.averageBenefice >= 0 ? "amount-positive" : "amount-negative"}">${escapeHtml(Utils.formatMoney(period.averageBenefice))}</td>
+            <td>${escapeHtml(Utils.formatNumber(period.averageTotal))}</td>
+          </tr>
+        `).join("");
+
+        businessInsights.innerHTML = `
+          <div class="content-grid">
+            <div class="advice-list">
+              ${advice.map((item) => `
+                <div class="advice-item">
+                  <strong>${escapeHtml(item.title)}</strong>
+                  <span>${escapeHtml(item.text)}</span>
+                </div>
+              `).join("")}
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Période</th>
+                    <th>CA moyen</th>
+                    <th>Bénéfice moyen</th>
+                    <th>Glaces moyennes</th>
+                  </tr>
+                </thead>
+                <tbody>${weekdayRows}</tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      };
+
+      const renderProjection = (forecast) => {
+        forecastProjection.innerHTML = `
+          <div class="monthly-grid">
+            <article class="month-card">
+              <strong>Sur 7 jours</strong>
+              <span>Glaces : ${escapeHtml(Utils.formatNumber(forecast.forecastTotal * 7))}</span>
+              <span>CA : ${escapeHtml(Utils.formatMoney(forecast.forecastCa * 7))}</span>
+              <span>Bénéfice : ${escapeHtml(Utils.formatMoney(forecast.forecastBenefice * 7))}</span>
+            </article>
+            <article class="month-card">
+              <strong>Sur période ouvrée</strong>
+              <span>Glaces : ${escapeHtml(Utils.formatNumber(forecast.forecastTotal * forecast.workingDays))}</span>
+              <span>CA : ${escapeHtml(Utils.formatMoney(forecast.forecastCa * forecast.workingDays))}</span>
+              <span>Bénéfice : ${escapeHtml(Utils.formatMoney(forecast.forecastBenefice * forecast.workingDays))}</span>
+            </article>
+            <article class="month-card">
+              <strong>Signal métier</strong>
+              <span class="${trendClass(forecast.trend)}">Tendance ventes : ${escapeHtml(formatEvolution(forecast.trend))}</span>
+              <span>Marge prévue : ${escapeHtml(formatPercent(forecast.margin))}</span>
+              <span>Dépenses moyennes : ${escapeHtml(Utils.formatMoney(forecast.averageDepenses))}</span>
+              <span>Objectif CA : ${escapeHtml(Utils.formatMoney(forecast.targetCa))}</span>
+            </article>
+          </div>
+        `;
+      };
+
+      const render = () => {
+        const records = Store.all();
+
+        if (records.length === 0) {
+          renderEmpty();
+          return;
+        }
+
+        const forecast = buildForecast(records);
+
+        buildCards(forecastStats, [
+          { label: "Production demain", value: Utils.formatNumber(forecast.forecastTotal), note: `${Utils.productLabel("cv")} ${Utils.formatNumber(forecast.forecastCv)} · ${Utils.productLabel("qn")} ${Utils.formatNumber(forecast.forecastQn)}` },
+          { label: "CA prévu", value: Utils.formatMoney(forecast.forecastCa), note: "Projection par journée" },
+          { label: "Bénéfice prévu", value: Utils.formatMoney(forecast.forecastBenefice), note: `Marge ${formatPercent(forecast.margin)}` },
+          { label: "Tendance ventes", value: formatEvolution(forecast.trend), note: `Base : ${Utils.formatNumber(forecast.count)} journées` }
+        ]);
+
+        renderInsights(forecast);
+        renderProjection(forecast);
+      };
+
+      return { render };
+    })();
+
+    const Rapports = (() => {
+      const monthSelect = document.querySelector("#reportMonthSelect");
+      const excelButton = document.querySelector("#exportExcelButton");
+      const pdfButton = document.querySelector("#exportPdfButton");
+      const reportMount = document.querySelector("#monthlyReportMount");
+      let currentReport = null;
+
+      const statNumber = (value) => {
+        const number = Number(value);
+        return Number.isFinite(number) ? Math.round(number) : 0;
+      };
+
+      const positiveStatNumber = (value) => Math.max(0, statNumber(value));
+      const escapeHtml = (value) => String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+      const monthKey = (date) => (date || "").slice(0, 7);
+
+      const monthLabel = (key) => {
+        if (!key) return "Mois inconnu";
+        const [year, month] = key.split("-").map(Number);
+        return new Intl.DateTimeFormat("fr-FR", {
+          month: "long",
+          year: "numeric"
+        }).format(new Date(year, month - 1, 1));
+      };
+
+      const sortAscending = (records) => [...records].sort((a, b) => new Date(a.date) - new Date(b.date));
+      const sum = (records, key, parser = positiveStatNumber) => records.reduce((total, day) => total + parser(day[key]), 0);
+
+      const buildReport = (records, key) => {
+        const monthRecords = sortAscending(records.filter((day) => monthKey(day.date) === key));
+        const ca = sum(monthRecords, "ca");
+        const benefice = sum(monthRecords, "benefice", statNumber);
+        const depenses = sum(monthRecords, "depenses");
+        const total = sum(monthRecords, "total");
+        const cv = sum(monthRecords, "cv");
+        const qn = sum(monthRecords, "qn");
+        const marge = ca > 0 ? (benefice / ca) * 100 : 0;
+
+        return {
+          key,
+          label: monthLabel(key),
+          records: monthRecords,
+          totals: { ca, benefice, depenses, total, cv, qn, marge }
+        };
+      };
+
+      const availableMonths = (records) => {
+        const months = [...new Set(records.map((day) => monthKey(day.date)).filter(Boolean))];
+        return months.sort((a, b) => b.localeCompare(a));
+      };
+
+      const renderEmpty = () => {
+        currentReport = null;
+        monthSelect.innerHTML = '<option value="">Aucun mois disponible</option>';
+        monthSelect.disabled = true;
+        excelButton.disabled = true;
+        pdfButton.disabled = true;
+        reportMount.innerHTML = '<div class="empty-state">Aucune journée enregistrée pour générer un rapport.</div>';
+      };
+
+      const renderReport = (report) => {
+        const { totals } = report;
+
+        reportMount.innerHTML = `
+          <div class="report-summary">
+            <article class="month-card">
+              <strong>CA mensuel</strong>
+              <span>${escapeHtml(Utils.formatMoney(totals.ca))}</span>
+            </article>
+            <article class="month-card">
+              <strong>Bénéfice mensuel</strong>
+              <span class="${totals.benefice >= 0 ? "amount-positive" : "amount-negative"}">${escapeHtml(Utils.formatMoney(totals.benefice))}</span>
+            </article>
+            <article class="month-card">
+              <strong>Glaces vendues</strong>
+              <span>${escapeHtml(Utils.formatNumber(totals.total))}</span>
+              <span>${escapeHtml(Utils.productLabel("cv"))} ${escapeHtml(Utils.formatNumber(totals.cv))} · ${escapeHtml(Utils.productLabel("qn"))} ${escapeHtml(Utils.formatNumber(totals.qn))}</span>
+            </article>
+            <article class="month-card">
+              <strong>Marge</strong>
+              <span>${escapeHtml(new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 }).format(totals.marge))} %</span>
+              <span>Dépenses : ${escapeHtml(Utils.formatMoney(totals.depenses))}</span>
+            </article>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>${escapeHtml(Utils.productLabel("cv"))}</th>
+                  <th>${escapeHtml(Utils.productLabel("qn"))}</th>
+                  <th>Total</th>
+                  <th>CA</th>
+                  <th>Dépenses</th>
+                  <th>Bénéfice</th>
+                  <th>Caisse</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${report.records.map((day) => `
+                  <tr>
+                    <td>${escapeHtml(Utils.formatDate(day.date))}</td>
+                    <td>${escapeHtml(Utils.formatNumber(day.cv))}</td>
+                    <td>${escapeHtml(Utils.formatNumber(day.qn))}</td>
+                    <td>${escapeHtml(Utils.formatNumber(day.total))}</td>
+                    <td>${escapeHtml(Utils.formatMoney(day.ca))}</td>
+                    <td>${escapeHtml(Utils.formatMoney(day.depenses))}</td>
+                    <td class="${day.benefice >= 0 ? "amount-positive" : "amount-negative"}">${escapeHtml(Utils.formatMoney(day.benefice))}</td>
+                    <td>${escapeHtml(Utils.formatMoney(day.caisse))}</td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>
+        `;
+      };
+
+      const setSelectedReport = () => {
+        const records = Store.all();
+        const key = monthSelect.value;
+        currentReport = key ? buildReport(records, key) : null;
+        if (!currentReport) return;
+        renderReport(currentReport);
+      };
+
+      const reportFileName = (extension) => `nissa-manager-rapport-${currentReport.key}.${extension}`;
+
+      const reportTableHtml = (report) => `
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>${escapeHtml(Utils.productLabel("cv"))}</th>
+              <th>${escapeHtml(Utils.productLabel("qn"))}</th>
+              <th>Total</th>
+              <th>CA</th>
+              <th>Dépenses</th>
+              <th>Bénéfice</th>
+              <th>Caisse</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${report.records.map((day) => `
+              <tr>
+                <td>${escapeHtml(Utils.formatDate(day.date))}</td>
+                <td>${escapeHtml(day.cv)}</td>
+                <td>${escapeHtml(day.qn)}</td>
+                <td>${escapeHtml(day.total)}</td>
+                <td>${escapeHtml(day.ca)}</td>
+                <td>${escapeHtml(day.depenses)}</td>
+                <td>${escapeHtml(day.benefice)}</td>
+                <td>${escapeHtml(day.caisse)}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+
+      const reportDocumentHtml = (report) => `
+        <!DOCTYPE html>
+        <html lang="fr">
+        <head>
+          <meta charset="UTF-8">
+          <title>NISSA Manager - Rapport ${escapeHtml(report.label)}</title>
+          <style>
+            body { font-family: Arial, sans-serif; color: #172033; margin: 28px; }
+            h1 { margin: 0 0 6px; }
+            p { margin: 0 0 18px; color: #66758b; }
+            .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 18px 0; }
+            .card { border: 1px solid #dce4ee; padding: 10px; }
+            .card strong { display: block; margin-bottom: 6px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+            th, td { border: 1px solid #dce4ee; padding: 8px; text-align: left; }
+            th { background: #edf2f8; }
+            @media print { body { margin: 14mm; } }
+          </style>
+        </head>
+        <body>
+          <h1>NISSA Manager - Rapport mensuel</h1>
+          <p>${escapeHtml(report.label)} · Version v2.4.1</p>
+          <div class="summary">
+            <div class="card"><strong>CA</strong>${escapeHtml(Utils.formatMoney(report.totals.ca))}</div>
+            <div class="card"><strong>Bénéfice</strong>${escapeHtml(Utils.formatMoney(report.totals.benefice))}</div>
+            <div class="card"><strong>Dépenses</strong>${escapeHtml(Utils.formatMoney(report.totals.depenses))}</div>
+            <div class="card"><strong>Glaces</strong>${escapeHtml(Utils.formatNumber(report.totals.total))}</div>
+          </div>
+          ${reportTableHtml(report)}
+        </body>
+        </html>
+      `;
+
+      const downloadBlob = (content, fileName, type) => {
+        const blob = new Blob([content], { type });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      };
+
+      const exportExcel = () => {
+        if (!currentReport) return;
+        const html = reportDocumentHtml(currentReport);
+        downloadBlob(html, reportFileName("xls"), "application/vnd.ms-excel;charset=utf-8");
+      };
+
+      const exportPdf = () => {
+        if (!currentReport) return;
+        const popup = window.open("", "_blank");
+        if (!popup) {
+          window.alert("Impossible d'ouvrir la fenêtre d'impression PDF.");
+          return;
+        }
+        popup.document.open();
+        popup.document.write(reportDocumentHtml(currentReport));
+        popup.document.close();
+        popup.focus();
+        popup.print();
+      };
+
+      const render = () => {
+        const records = Store.all();
+        const months = availableMonths(records);
+
+        if (months.length === 0) {
+          renderEmpty();
+          return;
+        }
+
+        const selected = monthSelect.value && months.includes(monthSelect.value) ? monthSelect.value : months[0];
+        monthSelect.disabled = false;
+        excelButton.disabled = false;
+        pdfButton.disabled = false;
+        monthSelect.innerHTML = months.map((key) => `
+          <option value="${escapeHtml(key)}" ${key === selected ? "selected" : ""}>${escapeHtml(monthLabel(key))}</option>
+        `).join("");
+        monthSelect.value = selected;
+        currentReport = buildReport(records, selected);
+        renderReport(currentReport);
+      };
+
+      const init = () => {
+        monthSelect.addEventListener("change", setSelectedReport);
+        excelButton.addEventListener("click", exportExcel);
+        pdfButton.addEventListener("click", exportPdf);
+      };
+
+      return { init, render };
+    })();
+
+    const Parametres = (() => {
+      const form = document.querySelector("#settingsForm");
+      const productMount = document.querySelector("#productSettings");
+      const status = document.querySelector("#settingsStatus");
+      const exportJsonButton = document.querySelector("#exportJsonButton");
+      const importJsonButton = document.querySelector("#importJsonButton");
+      const importJsonInput = document.querySelector("#importJsonInput");
+      const resetSettingsButton = document.querySelector("#resetSettingsButton");
+      const resetHistoryButton = document.querySelector("#resetHistoryButton");
+      const resetAllButton = document.querySelector("#resetAllButton");
+
+      const productKeys = ["cv", "qn", "yaourt"];
+
+      const escapeHtml = (value) => String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+      const getPath = (source, path) => path.split(".").reduce((value, key) => value ? value[key] : "", source);
+
+      const setPath = (target, path, value) => {
+        const keys = path.split(".");
+        const lastKey = keys.pop();
+        const parent = keys.reduce((current, key) => {
+          current[key] = current[key] || {};
+          return current[key];
+        }, target);
+        parent[lastKey] = value;
+      };
+
+      const setStatus = (message, isError = false) => {
+        status.textContent = message;
+        status.classList.toggle("error", isError);
+        if (!message) return;
+        window.setTimeout(() => {
+          status.textContent = "";
+          status.classList.remove("error");
+        }, 3200);
+      };
+
+      const renderProducts = () => {
+        const products = Settings.all().products;
+        productMount.innerHTML = productKeys.map((key) => {
+          const product = products[key];
+          return `
+            <div class="product-row">
+              <div class="field">
+                <label for="product-${key}-name">Produit</label>
+                <input id="product-${key}-name" name="products.${key}.name" type="text" value="${escapeHtml(product.name)}">
+              </div>
+              <div class="field">
+                <label for="product-${key}-price">Prix</label>
+                <input id="product-${key}-price" name="products.${key}.price" type="number" min="0" step="1" value="${escapeHtml(product.price)}">
+              </div>
+              <div class="field">
+                <label for="product-${key}-cost">Coût</label>
+                <input id="product-${key}-cost" name="products.${key}.cost" type="number" min="0" step="1" value="${escapeHtml(product.cost)}">
+              </div>
+              <label class="checkbox-field" for="product-${key}-active">
+                <input id="product-${key}-active" name="products.${key}.active" type="checkbox" ${product.active ? "checked" : ""}>
+                Actif
+              </label>
+            </div>
+          `;
+        }).join("");
+      };
+
+      const fillForm = () => {
+        const settings = Settings.all();
+        renderProducts();
+        [...form.elements].forEach((field) => {
+          if (!field.name) return;
+          const value = getPath(settings, field.name);
+          if (field.type === "checkbox") {
+            field.checked = Boolean(value);
+            return;
+          }
+          field.value = value ?? "";
+        });
+      };
+
+      const readForm = () => {
+        const nextSettings = Settings.defaults();
+        [...form.elements].forEach((field) => {
+          if (!field.name) return;
+          let value = field.type === "checkbox" ? field.checked : field.value;
+          if (field.type === "number") value = Utils.toNumber(value);
+          setPath(nextSettings, field.name, value);
+        });
+        return nextSettings;
+      };
+
+      const downloadBlob = (content, fileName, type) => {
+        const blob = new Blob([content], { type });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      };
+
+      const exportJson = () => {
+        const payload = {
+          version: "v2.4.1",
+          exportedAt: new Date().toISOString(),
+          settings: Settings.all(),
+          records: Store.all()
+        };
+        downloadBlob(JSON.stringify(payload, null, 2), `nissa-manager-sauvegarde-${Utils.todayIso()}.json`, "application/json;charset=utf-8");
+        const nextSettings = Settings.all();
+        nextSettings.backup.lastBackup = Utils.todayIso();
+        Settings.update(nextSettings);
+        fillForm();
+        setStatus("Export JSON préparé.");
+      };
+
+      const importJson = (file) => {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.addEventListener("load", () => {
+          try {
+            const parsed = JSON.parse(reader.result);
+            if (Array.isArray(parsed)) {
+              Store.replace(parsed);
+            } else {
+              if (parsed.settings) Settings.update(parsed.settings);
+              if (Array.isArray(parsed.records)) Store.replace(parsed.records);
+            }
+            fillForm();
+            renderAll();
+            setStatus("Import JSON terminé.");
+          } catch (error) {
+            setStatus("Import JSON impossible.", true);
+          }
+        });
+        reader.readAsText(file);
+      };
+
+      const init = () => {
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+          Settings.update(readForm());
+          fillForm();
+          renderAll();
+          setStatus("Paramètres enregistrés.");
+        });
+
+        exportJsonButton.addEventListener("click", exportJson);
+        importJsonButton.addEventListener("click", () => importJsonInput.click());
+        importJsonInput.addEventListener("change", () => {
+          importJson(importJsonInput.files[0]);
+          importJsonInput.value = "";
+        });
+
+        resetSettingsButton.addEventListener("click", () => {
+          if (!window.confirm("Réinitialiser uniquement les paramètres ?")) return;
+          Settings.reset();
+          fillForm();
+          renderAll();
+          setStatus("Paramètres réinitialisés.");
+        });
+
+        resetHistoryButton.addEventListener("click", () => {
+          if (!window.confirm("Réinitialiser uniquement l'historique ?")) return;
+          Store.clear();
+          renderAll();
+          setStatus("Historique réinitialisé.");
+        });
+
+        resetAllButton.addEventListener("click", () => {
+          if (!window.confirm("Réinitialiser les paramètres et l'historique ?")) return;
+          Store.clear();
+          Settings.reset();
+          fillForm();
+          renderAll();
+          setStatus("Réinitialisation complète terminée.");
+        });
+      };
+
+      const render = () => fillForm();
+
+      return { init, render };
+    })();
+
+    const Journee = (() => {
+      const template = document.querySelector("#journeeFormTemplate");
+      const mounts = [
+        document.querySelector("#dashboardFormMount"),
+        document.querySelector("#journeeFormMount")
+      ];
+
+      const getFormValues = (form) => ({
+        cv: form.elements.cv.value,
+        qn: form.elements.qn.value,
+        depenses: form.elements.depenses.value
+      });
+
+      const updateSummary = (form) => {
+        const totals = Utils.calculateDay(getFormValues(form));
+        form.querySelector('[data-summary="ca"]').textContent = Utils.formatMoney(totals.ca);
+        form.querySelector('[data-summary="total"]').textContent = Utils.formatNumber(totals.total);
+        form.querySelector('[data-summary="benefice"]').textContent = Utils.formatMoney(totals.benefice);
+        form.querySelector('[data-summary="caisse"]').textContent = Utils.formatMoney(totals.caisse);
+        return totals;
+      };
+
+      const setStatus = (form, message, isError = false) => {
+        const status = form.querySelector("[data-status]");
+        status.textContent = message;
+        status.classList.toggle("error", isError);
+      };
+
+      const clearStatusLater = (form) => {
+        window.setTimeout(() => setStatus(form, ""), 3200);
+      };
+
+      const resetOtherForms = (activeForm) => {
+        document.querySelectorAll(".journee-form").forEach((form) => {
+          if (form === activeForm) return;
+          form.reset();
+          updateSummary(form);
+          setStatus(form, "");
+        });
+      };
+
+      const handleSubmit = (form, event) => {
+        event.preventDefault();
+        const totals = updateSummary(form);
+
+        if (totals.total === 0 && totals.depenses === 0) {
+          setStatus(form, "Saisissez au moins une vente ou une dépense.", true);
+          return;
+        }
+
+        const day = {
+          date: Utils.todayIso(),
+          ...totals
+        };
+
+        Store.saveDay(day);
+        form.reset();
+        updateSummary(form);
+        resetOtherForms(form);
+        setStatus(form, "Journée validée et ajoutée à l'historique.");
+        clearStatusLater(form);
+        renderAll();
+      };
+
+      const buildForm = (mount, index) => {
+        const formFragment = template.content.cloneNode(true);
+        const form = formFragment.querySelector("form");
+        const suffix = index === 0 ? "Dashboard" : "Journee";
+
+        form.querySelectorAll("input").forEach((input) => {
+          const label = form.querySelector(`label[for="${input.id}"]`);
+          input.id = `${input.id}${suffix}`;
+          if (label) label.setAttribute("for", input.id);
+          if (label && input.name === "cv") label.textContent = `${Utils.productLabel("cv")} vendus`;
+          if (label && input.name === "qn") label.textContent = `${Utils.productLabel("qn")} vendus`;
+        });
+
+        form.addEventListener("input", () => {
+          updateSummary(form);
+          setStatus(form, "");
+        });
+
+        form.addEventListener("reset", () => {
+          window.setTimeout(() => {
+            updateSummary(form);
+            setStatus(form, "");
+          }, 0);
+        });
+
+        form.addEventListener("submit", (event) => handleSubmit(form, event));
+        mount.appendChild(formFragment);
+        updateSummary(form);
+      };
+
+      const init = () => mounts.forEach(buildForm);
+
+      return { init };
+    })();
+
+    function renderAll() {
+      Dashboard.render();
+      Historique.render();
+      Statistiques.render();
+      Previsions.render();
+      Rapports.render();
+      Parametres.render();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      App.init();
+      Journee.init();
+      Historique.init();
+      Rapports.init();
+      Parametres.init();
+      renderAll();
+
+      if ("serviceWorker" in navigator && window.location.protocol !== "file:") {
+        navigator.serviceWorker.register("service-worker.js").catch(() => {});
+      }
+    });
+  </script>
+</body>
+</html>
