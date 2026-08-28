@@ -1,0 +1,4 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+convert_percentage_tables_to_figures.py

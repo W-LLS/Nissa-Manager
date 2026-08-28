@@ -2,7 +2,7 @@
 
 ## Version actuelle
 
-- [x] `v2.4.1` - Refonte du module Parametres.
+- [x] `v2.6.0` - Tresorerie et objectifs mensuels.
 
 ## Regles permanentes de versionnement
 
@@ -46,6 +46,49 @@
 - [x] Faire lire la devise et les prix depuis les parametres.
 - [x] Regrouper export JSON, import JSON et reinitialisations dans Parametres.
 - [x] Conserver la compatibilite de la structure des journees.
+
+## v2.4.2 - Stabilisation du module Parametres
+
+- [x] Renforcer la validation des parametres sauvegardes.
+- [x] Nettoyer les valeurs invalides chargees depuis `localStorage`.
+- [x] Normaliser les journees importees sans modifier leur structure.
+- [x] Refuser les imports JSON sans parametres ni historique valides.
+- [x] Proteger l'application contre la desactivation simultanee de CV et QN.
+- [x] Aligner la version des exports et du cache PWA.
+
+## v2.4.3 - Stabilisation UX du module Parametres
+
+- [x] Appliquer réellement le theme sombre.
+- [x] Synchroniser la couleur de theme navigateur avec les parametres.
+- [x] Eviter l'ecrasement des champs Parametres pendant la saisie.
+- [x] Aligner la version application, exports et cache PWA.
+
+## v2.5.0 - Gestion avancee des depenses
+
+- [x] Ajouter la cle `nissa_expenses` et les categories par defaut.
+- [x] Ajouter la vue Depenses, le CRUD, les filtres et l'historique.
+- [x] Synchroniser les depenses detaillees avec les journees existantes.
+- [x] Migrer une seule fois les depenses historiques.
+- [x] Ajouter les statistiques par categorie et la comparaison mensuelle.
+- [x] Ajouter les depenses au tableau de bord et aux rapports.
+- [x] Etendre les exports et imports JSON aux depenses.
+- [x] Aligner la version de l'application et du cache PWA.
+
+## v2.6.0 - Tresorerie et objectifs mensuels
+
+- [x] Ajouter `nissa_treasury`, son initialisation et le CRUD des mouvements.
+- [x] Integrer automatiquement CA et depenses sans double saisie.
+- [x] Ajouter les corrections et l'evolution de tresorerie.
+- [x] Ajouter `nissa_goals` avec un ensemble unique par mois.
+- [x] Calculer progressions, statuts, jours et effort restants.
+- [x] Enrichir le dashboard et les rapports mensuels.
+- [x] Etendre les imports et exports JSON aux donnees v2.6.0.
+- [x] Aligner l'application et le cache PWA sur `v2.6.0`.
+
+## v3.0.0 - Prochaine version majeure
+
+- [ ] Definir le perimetre apres stabilisation de `v2.6.0`.
+- [ ] Ne pas demarrer de nouveau module avant validation complete du module Parametres.
 
 ## Refactorisation future
 

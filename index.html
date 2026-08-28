@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NISSA Manager v2.4.1</title>
+  <title>NISSA Manager v2.6.0</title>
   <meta name="theme-color" content="#1f3b5b">
   <meta name="application-name" content="NISSA Manager">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -39,6 +39,18 @@
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--text);
       background: var(--bg);
+    }
+
+    body[data-theme="dark"] {
+      --primary-soft: #233653;
+      --primary-dark: #0b1422;
+      --bg: #101722;
+      --surface: #172033;
+      --surface-muted: #1f2b3d;
+      --text: #edf3fb;
+      --muted: #a8b5c7;
+      --border: #2d3b51;
+      --shadow: 0 14px 36px rgba(0, 0, 0, 0.24);
     }
 
     button,
@@ -850,6 +862,135 @@
       gap: 18px;
     }
 
+    .expenses-stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .expenses-form-grid,
+    .expenses-filter-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .expenses-form-grid .field-wide {
+      grid-column: span 2;
+    }
+
+    .expense-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .expense-actions button {
+      min-height: 36px;
+      padding: 7px 10px;
+    }
+
+    .category-bars {
+      display: grid;
+      gap: 12px;
+    }
+
+    .category-bar-row {
+      display: grid;
+      grid-template-columns: minmax(150px, 0.5fr) minmax(180px, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .category-bar-track {
+      height: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface-muted);
+    }
+
+    .category-bar-fill {
+      height: 100%;
+      background: var(--accent);
+    }
+
+    .finance-stack,
+    .goals-stack,
+    .progress-list {
+      display: grid;
+      gap: 18px;
+    }
+
+    .finance-form-grid,
+    .goals-form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .progress-row {
+      display: grid;
+      gap: 8px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .progress-track {
+      height: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface-muted);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+    }
+
+    .progress-fill.warning { background: var(--warning); }
+    .progress-fill.danger { background: var(--danger); }
+
+    .treasury-chart {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
+      gap: 8px;
+      align-items: end;
+      min-height: 220px;
+    }
+
+    .treasury-chart-item {
+      display: grid;
+      grid-template-rows: 1fr auto;
+      gap: 8px;
+      height: 210px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .treasury-chart-bar-wrap {
+      display: flex;
+      align-items: end;
+      justify-content: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .treasury-chart-bar {
+      width: min(34px, 80%);
+      min-height: 3px;
+      background: var(--primary);
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+
     .settings-section {
       display: grid;
       gap: 16px;
@@ -966,6 +1107,10 @@
       .report-summary,
       .settings-grid,
       .settings-grid.two,
+      .expenses-form-grid,
+      .expenses-filter-grid,
+      .finance-form-grid,
+      .goals-form-grid,
       .product-row {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -1014,8 +1159,21 @@
       .report-summary,
       .settings-grid,
       .settings-grid.two,
+      .expenses-form-grid,
+      .expenses-filter-grid,
+      .finance-form-grid,
+      .goals-form-grid,
       .product-row {
         grid-template-columns: 1fr;
+      }
+
+      .expenses-form-grid .field-wide {
+        grid-column: auto;
+      }
+
+      .category-bar-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
       }
 
       .panel {
@@ -1041,7 +1199,7 @@
         <div class="brand-mark" aria-hidden="true">N</div>
         <div>
           <h1 class="brand-title">NISSA Manager</h1>
-          <p class="brand-subtitle">v2.4.1</p>
+          <p class="brand-subtitle">v2.6.0</p>
         </div>
       </div>
 
@@ -1057,6 +1215,18 @@
         <button class="nav-button" type="button" data-view="historique">
           <span class="nav-icon" aria-hidden="true">≡</span>
           <span class="nav-label">Historique</span>
+        </button>
+        <button class="nav-button" type="button" data-view="depenses">
+          <span class="nav-icon" aria-hidden="true">−</span>
+          <span class="nav-label">Dépenses</span>
+        </button>
+        <button class="nav-button" type="button" data-view="tresorerie">
+          <span class="nav-icon" aria-hidden="true">¤</span>
+          <span class="nav-label">Trésorerie</span>
+        </button>
+        <button class="nav-button" type="button" data-view="objectifs">
+          <span class="nav-icon" aria-hidden="true">◎</span>
+          <span class="nav-label">Objectifs</span>
         </button>
         <button class="nav-button" type="button" data-view="statistiques">
           <span class="nav-icon" aria-hidden="true">▣</span>
@@ -1120,6 +1290,13 @@
             </div>
             <p class="kpi-value" id="kpiDerniereCloture">Aucune</p>
           </article>
+          <article class="kpi-card">
+            <div class="kpi-top">
+              <p class="kpi-label">Dépenses du mois</p>
+              <div class="kpi-icon" aria-hidden="true">−</div>
+            </div>
+            <p class="kpi-value" id="kpiDepensesMois">0 Ar</p>
+          </article>
         </div>
 
         <div class="content-grid">
@@ -1143,6 +1320,10 @@
             <div class="mini-list" id="recentDays"></div>
           </section>
         </div>
+        <section class="panel" style="margin-top:18px">
+          <div class="panel-header"><div><h3 class="panel-title">Objectifs du mois</h3><p class="panel-subtitle">Progression et effort restant pour le mois courant.</p></div></div>
+          <div id="dashboardGoals"></div>
+        </section>
       </section>
 
       <section class="view" id="view-journee" data-title="Journée" data-kicker="Saisie des ventes">
@@ -1168,6 +1349,149 @@
           </div>
           <div id="historyMount"></div>
         </section>
+      </section>
+
+      <section class="view" id="view-depenses" data-title="Dépenses" data-kicker="Gestion avancée des charges">
+        <div class="expenses-stack">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Synthèse</h3>
+                <p class="panel-subtitle">Indicateurs calculés depuis les dépenses détaillées.</p>
+              </div>
+            </div>
+            <div class="kpi-grid" id="expenseSummary"></div>
+            <div id="expenseComparison"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Enregistrer une dépense</h3>
+                <p class="panel-subtitle">Les montants sont enregistrés numériquement dans le stockage local.</p>
+              </div>
+            </div>
+            <form id="expenseForm" novalidate>
+              <input id="expenseId" type="hidden">
+              <div class="expenses-form-grid">
+                <div class="field">
+                  <label for="expenseDate">Date</label>
+                  <input id="expenseDate" type="date" required>
+                </div>
+                <div class="field">
+                  <label for="expenseCategory">Catégorie</label>
+                  <select id="expenseCategory" required></select>
+                </div>
+                <div class="field">
+                  <label for="expenseAmount">Montant</label>
+                  <input id="expenseAmount" type="number" min="1" step="1" inputmode="numeric" required>
+                </div>
+                <div class="field field-wide">
+                  <label for="expenseLabel">Libellé</label>
+                  <input id="expenseLabel" type="text" required>
+                </div>
+                <div class="field">
+                  <label for="expenseNote">Note (facultative)</label>
+                  <textarea id="expenseNote"></textarea>
+                </div>
+              </div>
+              <div class="actions">
+                <p class="status-message" id="expenseStatus"></p>
+                <div class="actions">
+                  <button class="secondary-button" id="cancelExpenseEdit" type="button" hidden>Annuler</button>
+                  <button class="primary-button" id="saveExpenseButton" type="submit">Enregistrer la dépense</button>
+                </div>
+              </div>
+            </form>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Historique</h3>
+                <p class="panel-subtitle">Filtrez sans modifier les données enregistrées.</p>
+              </div>
+            </div>
+            <div class="expenses-filter-grid">
+              <div class="field">
+                <label for="expensePeriodFilter">Période</label>
+                <select id="expensePeriodFilter">
+                  <option value="all">Toutes</option>
+                  <option value="today">Aujourd’hui</option>
+                  <option value="current">Ce mois</option>
+                  <option value="previous">Mois précédent</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="expenseCategoryFilter">Catégorie</label>
+                <select id="expenseCategoryFilter"></select>
+              </div>
+              <div class="field">
+                <label for="expenseStatsMonth">Mois analysé</label>
+                <input id="expenseStatsMonth" type="month">
+              </div>
+            </div>
+            <div id="expenseHistoryMount"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Dépenses par catégorie</h3>
+                <p class="panel-subtitle">Répartition du mois sélectionné.</p>
+              </div>
+            </div>
+            <div id="expenseCategoryStats"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="view-tresorerie" data-title="Trésorerie" data-kicker="Argent disponible">
+        <div class="finance-stack">
+          <section class="panel" id="treasuryInitializationPanel">
+            <div class="panel-header"><div><h3 class="panel-title">Initialiser la trésorerie</h3><p class="panel-subtitle">La trésorerie théorique commencera uniquement à cette date.</p></div></div>
+            <form id="treasuryInitializationForm" novalidate>
+              <div class="finance-form-grid">
+                <div class="field"><label for="treasuryStartDate">Date de départ</label><input id="treasuryStartDate" type="date" required></div>
+                <div class="field"><label for="treasuryOpeningBalance">Solde initial</label><input id="treasuryOpeningBalance" type="number" min="0" step="1" required></div>
+              </div>
+              <div class="actions"><p class="status-message" id="treasuryInitializationStatus"></p><button class="primary-button" type="submit">Initialiser la trésorerie</button></div>
+            </form>
+          </section>
+
+          <div id="treasuryActiveContent">
+            <section class="panel"><div class="panel-header"><div><h3 class="panel-title">Synthèse</h3><p class="panel-subtitle">Solde théorique depuis la date de départ.</p></div></div><div class="kpi-grid" id="treasurySummary"></div></section>
+            <section class="panel" style="margin-top:18px">
+              <div class="panel-header"><div><h3 class="panel-title">Ajouter un mouvement</h3><p class="panel-subtitle">Uniquement les entrées, sorties et corrections exceptionnelles.</p></div></div>
+              <form id="treasuryForm" novalidate><input id="treasuryId" type="hidden"><div class="finance-form-grid">
+                <div class="field"><label for="treasuryDate">Date</label><input id="treasuryDate" type="date" required></div>
+                <div class="field"><label for="treasuryType">Type</label><select id="treasuryType"><option value="in">Entrée</option><option value="out">Sortie</option></select></div>
+                <div class="field"><label for="treasuryCategory">Catégorie</label><select id="treasuryCategory"></select></div>
+                <div class="field"><label for="treasuryLabel">Libellé</label><input id="treasuryLabel" type="text" required></div>
+                <div class="field"><label for="treasuryAmount">Montant</label><input id="treasuryAmount" type="number" min="1" step="1" required></div>
+                <div class="field"><label for="treasuryNote">Note</label><textarea id="treasuryNote"></textarea></div>
+              </div><div class="actions"><p class="status-message" id="treasuryStatus"></p><div class="actions"><button class="secondary-button" id="cancelTreasuryEdit" type="button" hidden>Annuler</button><button class="primary-button" id="saveTreasuryButton" type="submit">Enregistrer le mouvement</button></div></div></form>
+            </section>
+            <section class="panel" style="margin-top:18px"><div class="panel-header"><div><h3 class="panel-title">Historique</h3><p class="panel-subtitle">Mouvements manuels du plus récent au plus ancien.</p></div></div><div id="treasuryHistory"></div></section>
+            <section class="panel" style="margin-top:18px"><div class="panel-header"><div><h3 class="panel-title">Évolution de la trésorerie</h3><p class="panel-subtitle">Solde théorique par mois depuis l’initialisation.</p></div></div><div id="treasuryChart"></div></section>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="view-objectifs" data-title="Objectifs" data-kicker="Pilotage mensuel">
+        <div class="goals-stack">
+          <section class="panel">
+            <div class="panel-header"><div><h3 class="panel-title">Objectifs mensuels</h3><p class="panel-subtitle">Laissez un champ vide pour ne pas définir cet objectif.</p></div></div>
+            <form id="goalsForm" novalidate><div class="goals-form-grid">
+              <div class="field"><label for="goalsMonth">Mois</label><input id="goalsMonth" type="month" required></div>
+              <div class="field"><label for="revenueTarget">Objectif CA</label><input id="revenueTarget" type="number" min="0" step="1"></div>
+              <div class="field"><label for="salesTarget">Objectif ventes</label><input id="salesTarget" type="number" min="0" step="1"></div>
+              <div class="field"><label for="profitTarget">Objectif bénéfice</label><input id="profitTarget" type="number" min="0" step="1"></div>
+              <div class="field"><label for="expenseLimit">Plafond dépenses</label><input id="expenseLimit" type="number" min="0" step="1"></div>
+            </div><div class="actions"><p class="status-message" id="goalsStatus"></p><button class="primary-button" type="submit">Enregistrer les objectifs</button></div></form>
+          </section>
+          <section class="panel"><div class="panel-header"><div><h3 class="panel-title">Progression</h3><p class="panel-subtitle">Réalisé, rythme nécessaire et statut.</p></div></div><div id="goalsProgress"></div></section>
+        </div>
       </section>
 
       <section class="view" id="view-statistiques" data-title="Statistiques" data-kicker="Analyse des ventes">
@@ -1573,10 +1897,26 @@
           primaryColor: "#1f3b5b",
           accentColor: "#16a085",
           fontFamily: "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif"
+        },
+        dataMigrations: {
+          expensesV250: false
+        },
+        treasury: {
+          startDate: "",
+          openingBalance: 0
         }
       });
 
       const isPlainObject = (value) => value && typeof value === "object" && !Array.isArray(value);
+      const toPositiveInteger = (value) => {
+        const number = Number(value);
+        return Number.isFinite(number) && number > 0 ? Math.floor(number) : 0;
+      };
+      const cleanText = (value, fallback = "") => {
+        const text = String(value ?? "").trim();
+        return text || fallback;
+      };
+      const cleanColor = (value, fallback) => /^#[0-9a-f]{6}$/i.test(String(value || "")) ? value : fallback;
 
       const clone = (value) => JSON.parse(JSON.stringify(value));
 
@@ -1595,6 +1935,54 @@
         return output;
       };
 
+      const sanitizeSettings = (rawSettings) => {
+        const sanitized = mergeSettings(defaultSettings, rawSettings);
+
+        sanitized.company.name = cleanText(sanitized.company.name, defaultSettings.company.name);
+        sanitized.company.currency = cleanText(sanitized.company.currency, defaultSettings.company.currency);
+        sanitized.company.logo = cleanText(sanitized.company.logo);
+        sanitized.company.responsible = cleanText(sanitized.company.responsible);
+        sanitized.company.address = cleanText(sanitized.company.address);
+        sanitized.company.phone = cleanText(sanitized.company.phone);
+        sanitized.company.email = cleanText(sanitized.company.email);
+
+        Object.keys(sanitized.products).forEach((key) => {
+          const fallback = defaultSettings.products[key] || { name: key.toUpperCase(), price: 0, cost: 0, active: true };
+          sanitized.products[key].name = cleanText(sanitized.products[key].name, fallback.name);
+          sanitized.products[key].price = toPositiveInteger(sanitized.products[key].price);
+          sanitized.products[key].cost = toPositiveInteger(sanitized.products[key].cost);
+          sanitized.products[key].active = Boolean(sanitized.products[key].active);
+        });
+
+        if (!sanitized.products.cv.active && !sanitized.products.qn.active) {
+          sanitized.products.cv.active = true;
+        }
+
+        Object.keys(sanitized.materials).forEach((key) => {
+          sanitized.materials[key] = toPositiveInteger(sanitized.materials[key]);
+        });
+
+        sanitized.forecast.workingDays = Math.max(1, toPositiveInteger(sanitized.forecast.workingDays) || defaultSettings.forecast.workingDays);
+        sanitized.forecast.averagePeriod = Math.max(1, toPositiveInteger(sanitized.forecast.averagePeriod) || defaultSettings.forecast.averagePeriod);
+        sanitized.forecast.trendThreshold = toPositiveInteger(sanitized.forecast.trendThreshold);
+        sanitized.forecast.targetCa = toPositiveInteger(sanitized.forecast.targetCa);
+        sanitized.forecast.targetBenefice = toPositiveInteger(sanitized.forecast.targetBenefice);
+
+        sanitized.backup.autoExport = Boolean(sanitized.backup.autoExport);
+        sanitized.backup.frequency = ["daily", "weekly", "monthly"].includes(sanitized.backup.frequency) ? sanitized.backup.frequency : defaultSettings.backup.frequency;
+        sanitized.backup.lastBackup = cleanText(sanitized.backup.lastBackup);
+
+        sanitized.appearance.theme = ["light", "dark"].includes(sanitized.appearance.theme) ? sanitized.appearance.theme : defaultSettings.appearance.theme;
+        sanitized.appearance.primaryColor = cleanColor(sanitized.appearance.primaryColor, defaultSettings.appearance.primaryColor);
+        sanitized.appearance.accentColor = cleanColor(sanitized.appearance.accentColor, defaultSettings.appearance.accentColor);
+        sanitized.appearance.fontFamily = cleanText(sanitized.appearance.fontFamily, defaultSettings.appearance.fontFamily);
+        sanitized.dataMigrations.expensesV250 = Boolean(sanitized.dataMigrations.expensesV250);
+        sanitized.treasury.startDate = /^\d{4}-\d{2}-\d{2}$/.test(String(sanitized.treasury.startDate || "")) ? sanitized.treasury.startDate : "";
+        sanitized.treasury.openingBalance = toPositiveInteger(sanitized.treasury.openingBalance);
+
+        return sanitized;
+      };
+
       const safeParse = (rawValue) => {
         try {
           return rawValue ? JSON.parse(rawValue) : {};
@@ -1603,7 +1991,7 @@
         }
       };
 
-      let settings = mergeSettings(defaultSettings, safeParse(localStorage.getItem(storageKey)));
+      let settings = sanitizeSettings(safeParse(localStorage.getItem(storageKey)));
 
       const write = () => localStorage.setItem(storageKey, JSON.stringify(settings));
       const all = () => settings;
@@ -1611,7 +1999,7 @@
       const product = (key) => settings.products[key] || defaultSettings.products[key];
 
       const update = (nextSettings) => {
-        settings = mergeSettings(defaultSettings, nextSettings);
+        settings = sanitizeSettings(nextSettings);
         write();
         applyAppearance();
         return all();
@@ -1621,10 +2009,12 @@
 
       const applyAppearance = () => {
         const { appearance } = settings;
+        const themeColor = appearance.primaryColor || defaultSettings.appearance.primaryColor;
         document.documentElement.style.setProperty("--primary", appearance.primaryColor || defaultSettings.appearance.primaryColor);
         document.documentElement.style.setProperty("--accent", appearance.accentColor || defaultSettings.appearance.accentColor);
         document.body.style.fontFamily = appearance.fontFamily || defaultSettings.appearance.fontFamily;
         document.body.dataset.theme = appearance.theme || "light";
+        document.querySelector('meta[name="theme-color"]')?.setAttribute("content", themeColor);
       };
 
       write();
@@ -1674,6 +2064,35 @@
       const writeData = (data) => localStorage.setItem(storageKey, JSON.stringify(data));
 
       const sortByRecent = (records) => [...records].sort((a, b) => new Date(b.date) - new Date(a.date));
+      const normalizeDay = (day) => {
+        const cv = toNumber(day && day.cv);
+        const qn = toNumber(day && day.qn);
+        const total = toNumber(day && day.total) || cv + qn;
+        const ca = toNumber(day && day.ca);
+        const depenses = toNumber(day && day.depenses);
+        const benefice = Number.isFinite(Number(day && day.benefice)) ? Math.round(Number(day.benefice)) : ca - depenses;
+        const caisse = Number.isFinite(Number(day && day.caisse)) ? Math.round(Number(day.caisse)) : benefice;
+
+        return {
+          date: /^\d{4}-\d{2}-\d{2}$/.test(String(day && day.date)) ? day.date : todayIso(),
+          cv,
+          qn,
+          total,
+          ca,
+          depenses,
+          benefice,
+          caisse
+        };
+      };
+
+      const normalizeRecords = (records) => Array.isArray(records) ? records.map(normalizeDay) : [];
+
+      const recalculateDayExpenses = (day, depenses) => {
+        const normalized = normalizeDay(day);
+        const cleanDepenses = toNumber(depenses);
+        const benefice = normalized.ca - cleanDepenses;
+        return { ...normalized, depenses: cleanDepenses, benefice, caisse: benefice };
+      };
 
       const calculateDay = ({ cv, qn, depenses }) => {
         const cvProduct = Settings.product("cv");
@@ -1709,17 +2128,20 @@
         readData,
         writeData,
         sortByRecent,
-        calculateDay
+        normalizeDay,
+        normalizeRecords,
+        calculateDay,
+        recalculateDayExpenses
       };
     })();
 
     const Store = (() => {
-      let records = Utils.sortByRecent(Utils.readData());
+      let records = Utils.sortByRecent(Utils.normalizeRecords(Utils.readData()));
 
       const all = () => Utils.sortByRecent(records);
 
       const saveDay = (day) => {
-        records = Utils.sortByRecent([day, ...records]);
+        records = Utils.sortByRecent([Utils.normalizeDay(day), ...records]);
         Utils.writeData(records);
         return all();
       };
@@ -1730,7 +2152,7 @@
       };
 
       const replace = (nextRecords) => {
-        records = Utils.sortByRecent(Array.isArray(nextRecords) ? nextRecords : []);
+        records = Utils.sortByRecent(Utils.normalizeRecords(nextRecords));
         Utils.writeData(records);
         return all();
       };
@@ -1738,7 +2160,302 @@
       const latest = () => all()[0] || null;
       const today = () => all().find((day) => day.date === Utils.todayIso()) || null;
 
-      return { all, saveDay, clear, replace, latest, today };
+      const syncExpensesForDate = (date, amount) => {
+        let changed = false;
+        records = records.map((day) => {
+          if (day.date !== date) return day;
+          changed = true;
+          return Utils.recalculateDayExpenses(day, amount);
+        });
+        if (changed) Utils.writeData(records);
+        return changed;
+      };
+
+      return { all, saveDay, clear, replace, latest, today, syncExpensesForDate };
+    })();
+
+    const Expenses = (() => {
+      const storageKey = "nissa_expenses";
+      const categories = Object.freeze({
+        matieres_premieres: "Matières premières",
+        emballages: "Emballages",
+        electricite: "Électricité",
+        eau: "Eau",
+        transport: "Transport",
+        salaires: "Salaires / Main-d'œuvre",
+        entretien: "Entretien",
+        materiel: "Matériel",
+        marketing: "Marketing / Communication",
+        administratif: "Frais administratifs",
+        autres: "Autres"
+      });
+      let expenses = [];
+
+      const isValidDate = (value) => {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value || ""))) return false;
+        const [year, month, day] = value.split("-").map(Number);
+        const date = new Date(Date.UTC(year, month - 1, day));
+        return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+      };
+
+      const normalize = (expense, generateId = false) => {
+        if (!expense || typeof expense !== "object") return null;
+        const id = String(expense.id || "").trim();
+        const date = String(expense.date || "").trim();
+        const category = String(expense.category || "").trim();
+        const label = String(expense.label || "").trim().replace(/\s+/g, " ");
+        const amount = Number(expense.amount);
+        const note = String(expense.note ?? "").trim();
+        if ((!id && !generateId) || !isValidDate(date) || !(category in categories) || !label || !Number.isFinite(amount) || amount <= 0) return null;
+        return {
+          id: id || `exp_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+          date,
+          category,
+          label,
+          amount: Math.round(amount),
+          note
+        };
+      };
+
+      const load = () => {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(storageKey));
+          expenses = Array.isArray(parsed) ? parsed.map((item) => normalize(item)).filter(Boolean) : [];
+        } catch (error) {
+          expenses = [];
+        }
+        save();
+        return getAll();
+      };
+
+      const save = () => localStorage.setItem(storageKey, JSON.stringify(expenses));
+      const getAll = () => expenses.map((expense) => ({ ...expense }));
+      const replace = (items) => {
+        expenses = Array.isArray(items) ? items.map((item) => normalize(item)).filter(Boolean) : [];
+        save();
+        return getAll();
+      };
+
+      const getByDate = (date) => getAll().filter((expense) => expense.date === date);
+      const getByMonth = (month) => getAll().filter((expense) => expense.date.slice(0, 7) === month);
+      const getByCategory = (category) => getAll().filter((expense) => expense.category === category);
+      const total = (items) => items.reduce((sum, expense) => sum + expense.amount, 0);
+      const totalByDate = (date) => total(getByDate(date));
+      const totalByMonth = (month) => total(getByMonth(month));
+      const totalsByCategory = (month) => getByMonth(month).reduce((totals, expense) => {
+        totals[expense.category] = (totals[expense.category] || 0) + expense.amount;
+        return totals;
+      }, {});
+
+      const syncDayExpenses = (date) => Store.syncExpensesForDate(date, totalByDate(date));
+
+      const add = (item, options = {}) => {
+        const normalized = normalize(item, true);
+        if (!normalized) return null;
+        expenses.push(normalized);
+        save();
+        if (!options.skipSync) syncDayExpenses(normalized.date);
+        return { ...normalized };
+      };
+
+      const update = (id, item) => {
+        const index = expenses.findIndex((expense) => expense.id === id);
+        const normalized = normalize({ ...item, id });
+        if (index < 0 || !normalized) return null;
+        const oldDate = expenses[index].date;
+        expenses[index] = normalized;
+        save();
+        syncDayExpenses(oldDate);
+        if (normalized.date !== oldDate) syncDayExpenses(normalized.date);
+        return { ...normalized };
+      };
+
+      const remove = (id) => {
+        const target = expenses.find((expense) => expense.id === id);
+        if (!target) return false;
+        expenses = expenses.filter((expense) => expense.id !== id);
+        save();
+        syncDayExpenses(target.date);
+        return true;
+      };
+
+      const migrateLegacyExpenses = (force = false) => {
+        const settings = Settings.all();
+        if (!force && settings.dataMigrations.expensesV250) return 0;
+        let migrated = 0;
+        Store.all().forEach((day) => {
+          if (day.depenses > 0 && getByDate(day.date).length === 0) {
+            if (add({
+              date: day.date,
+              category: "autres",
+              label: "Dépense historique",
+              amount: day.depenses,
+              note: "Importée automatiquement depuis une ancienne version"
+            }, { skipSync: true })) migrated += 1;
+          }
+        });
+        settings.dataMigrations.expensesV250 = true;
+        Settings.update(settings);
+        save();
+        return migrated;
+      };
+
+      const currentMonth = () => Utils.todayIso().slice(0, 7);
+      const previousMonth = (month) => {
+        const [year, number] = month.split("-").map(Number);
+        const date = new Date(year, number - 2, 1);
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+      };
+
+      load();
+
+      return {
+        storageKey,
+        categories,
+        isValidDate,
+        normalize,
+        load,
+        save,
+        getAll,
+        replace,
+        add,
+        update,
+        remove,
+        getByDate,
+        getByMonth,
+        getByCategory,
+        totalByDate,
+        totalByMonth,
+        totalsByCategory,
+        syncDayExpenses,
+        migrateLegacyExpenses,
+        currentMonth,
+        previousMonth
+      };
+    })();
+
+    const Treasury = (() => {
+      const storageKey = "nissa_treasury";
+      const categories = Object.freeze({
+        in: Object.freeze({ apport: "Apport", autre_entree: "Autre entrée", correction_positive: "Correction positive" }),
+        out: Object.freeze({ retrait: "Retrait", remboursement: "Remboursement", achat_exceptionnel: "Achat exceptionnel", autre_sortie: "Autre sortie", correction_negative: "Correction négative" })
+      });
+      let movements = [];
+
+      const normalize = (movement, generateId = false) => {
+        if (!movement || typeof movement !== "object") return null;
+        const id = String(movement.id || "").trim();
+        const date = String(movement.date || "").trim();
+        const type = String(movement.type || "").trim();
+        const category = String(movement.category || "").trim();
+        const label = String(movement.label || "").trim().replace(/\s+/g, " ");
+        const amount = Number(movement.amount);
+        const note = String(movement.note ?? "").trim();
+        if ((!id && !generateId) || !Expenses.isValidDate(date) || !(type in categories) || !(category in categories[type]) || !label || !Number.isFinite(amount) || amount <= 0) return null;
+        return { id: id || `tre_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`, date, type, category, label, amount: Math.round(amount), note };
+      };
+
+      const save = () => localStorage.setItem(storageKey, JSON.stringify(movements));
+      const load = () => {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(storageKey));
+          movements = Array.isArray(parsed) ? parsed.map((item) => normalize(item)).filter(Boolean) : [];
+        } catch (error) { movements = []; }
+        save();
+        return getAll();
+      };
+      const getAll = () => movements.map((movement) => ({ ...movement }));
+      const replace = (items) => { movements = Array.isArray(items) ? items.map((item) => normalize(item)).filter(Boolean) : []; save(); return getAll(); };
+      const add = (item) => { const normalized = normalize(item, true); if (!normalized) return null; movements.push(normalized); save(); return { ...normalized }; };
+      const update = (id, item) => { const index = movements.findIndex((movement) => movement.id === id); const normalized = normalize({ ...item, id }); if (index < 0 || !normalized) return null; movements[index] = normalized; save(); return { ...normalized }; };
+      const remove = (id) => { const count = movements.length; movements = movements.filter((movement) => movement.id !== id); if (movements.length === count) return false; save(); return true; };
+      const getByDate = (date) => getAll().filter((movement) => movement.date === date);
+      const getByMonth = (month) => getAll().filter((movement) => movement.date.startsWith(month));
+      const configuration = () => Settings.all().treasury;
+      const isInitialized = () => Expenses.isValidDate(configuration().startDate);
+      const initialize = (startDate, openingBalance) => {
+        const amount = Number(openingBalance);
+        if (!Expenses.isValidDate(startDate) || !Number.isFinite(amount) || amount < 0) return false;
+        const settings = Settings.all();
+        settings.treasury = { startDate, openingBalance: Math.round(amount) };
+        Settings.update(settings);
+        return true;
+      };
+      const getOpeningBalance = () => configuration().openingBalance || 0;
+      const activityInflowsUntil = (endDate) => !isInitialized() ? 0 : Store.all().filter((day) => day.date >= configuration().startDate && day.date <= endDate).reduce((sum, day) => sum + Number(day.ca || 0), 0);
+      const activityOutflowsUntil = (endDate) => !isInitialized() ? 0 : Expenses.getAll().filter((expense) => expense.date >= configuration().startDate && expense.date <= endDate).reduce((sum, expense) => sum + expense.amount, 0);
+      const manualUntil = (type, endDate) => !isInitialized() ? 0 : getAll().filter((movement) => movement.type === type && movement.date >= configuration().startDate && movement.date <= endDate).reduce((sum, movement) => sum + movement.amount, 0);
+      const getBalance = (endDate = Utils.todayIso()) => !isInitialized() ? 0 : getOpeningBalance() + activityInflowsUntil(endDate) - activityOutflowsUntil(endDate) + manualUntil("in", endDate) - manualUntil("out", endDate);
+      const monthCutoff = (month) => month < Utils.todayIso().slice(0, 7) ? `${month}-31` : month === Utils.todayIso().slice(0, 7) ? Utils.todayIso() : `${month}-00`;
+      const getMonthlyInflows = (month) => !isInitialized() ? 0 : Store.all().filter((day) => day.date.startsWith(month) && day.date >= configuration().startDate && day.date <= monthCutoff(month)).reduce((sum, day) => sum + Number(day.ca || 0), 0) + getByMonth(month).filter((movement) => movement.type === "in" && movement.date >= configuration().startDate && movement.date <= monthCutoff(month)).reduce((sum, movement) => sum + movement.amount, 0);
+      const getMonthlyOutflows = (month) => !isInitialized() ? 0 : Expenses.getByMonth(month).filter((expense) => expense.date >= configuration().startDate && expense.date <= monthCutoff(month)).reduce((sum, expense) => sum + expense.amount, 0) + getByMonth(month).filter((movement) => movement.type === "out" && movement.date >= configuration().startDate && movement.date <= monthCutoff(month)).reduce((sum, movement) => sum + movement.amount, 0);
+      const availableMonths = () => {
+        if (!isInitialized()) return [];
+        const start = configuration().startDate.slice(0, 7);
+        const end = Utils.todayIso().slice(0, 7);
+        const months = [];
+        let [year, month] = start.split("-").map(Number);
+        while (`${year}-${String(month).padStart(2, "0")}` <= end) { months.push(`${year}-${String(month).padStart(2, "0")}`); month += 1; if (month === 13) { month = 1; year += 1; } }
+        return months;
+      };
+      load();
+      return { storageKey, categories, normalize, load, save, getAll, replace, add, update, remove, getByDate, getByMonth, isInitialized, initialize, getOpeningBalance, getBalance, getMonthlyInflows, getMonthlyOutflows, availableMonths };
+    })();
+
+    const Goals = (() => {
+      const storageKey = "nissa_goals";
+      let goals = [];
+      const numberOrZero = (value) => { const number = Number(value); return Number.isFinite(number) && number >= 0 ? Math.round(number) : 0; };
+      const normalize = (goal) => {
+        if (!goal || typeof goal !== "object" || !/^\d{4}-\d{2}$/.test(String(goal.month || ""))) return null;
+        const [year, month] = goal.month.split("-").map(Number);
+        if (month < 1 || month > 12 || year < 1000) return null;
+        const suppliedValues = [goal.revenueTarget, goal.salesTarget, goal.profitTarget, goal.expenseLimit].filter((value) => value !== undefined && value !== null && value !== "");
+        if (suppliedValues.some((value) => !Number.isFinite(Number(value)) || Number(value) < 0)) return null;
+        return { month: goal.month, revenueTarget: numberOrZero(goal.revenueTarget), salesTarget: numberOrZero(goal.salesTarget), profitTarget: numberOrZero(goal.profitTarget), expenseLimit: numberOrZero(goal.expenseLimit) };
+      };
+      const save = () => localStorage.setItem(storageKey, JSON.stringify(goals));
+      const load = () => { try { const parsed = JSON.parse(localStorage.getItem(storageKey)); goals = Array.isArray(parsed) ? parsed.map(normalize).filter(Boolean).reduce((items, goal) => { const index = items.findIndex((item) => item.month === goal.month); if (index >= 0) items[index] = goal; else items.push(goal); return items; }, []) : []; } catch (error) { goals = []; } save(); return getAll(); };
+      const getAll = () => goals.map((goal) => ({ ...goal }));
+      const replace = (items) => { goals = []; (Array.isArray(items) ? items : []).forEach((item) => { const normalized = normalize(item); if (normalized) setForMonth(normalized); }); save(); return getAll(); };
+      const getByMonth = (month) => getAll().find((goal) => goal.month === month) || null;
+      const setForMonth = (goal) => { const normalized = normalize(goal); if (!normalized) return null; const index = goals.findIndex((item) => item.month === normalized.month); if (index >= 0) goals[index] = normalized; else goals.push(normalized); save(); return { ...normalized }; };
+      const actuals = (month) => Store.all().filter((day) => day.date.startsWith(month)).reduce((totals, day) => ({ ...totals, revenue: totals.revenue + Number(day.ca || 0), sales: totals.sales + Number(day.total || 0), profit: totals.profit + Number(day.benefice || 0) }), { revenue: 0, sales: 0, profit: 0, expenses: Expenses.totalByMonth(month) });
+      const progress = (actual, target) => target > 0 ? actual / target * 100 : null;
+      const daysInfo = (month) => {
+        const [year, number] = month.split("-").map(Number);
+        const daysInMonth = new Date(year, number, 0).getDate();
+        const today = Utils.todayIso();
+        const current = today.slice(0, 7);
+        const day = Number(today.slice(8, 10));
+        const remaining = month < current ? 0 : month > current ? daysInMonth : Math.max(1, daysInMonth - day + 1);
+        const elapsed = month < current ? daysInMonth : month > current ? 0 : day;
+        return { daysInMonth, remaining, elapsed };
+      };
+      const getStatus = (value, isExpense, month) => {
+        if (value === null) return "Non défini";
+        if (isExpense) {
+          if (value > 100) return "Plafond dépassé";
+          const expected = daysInfo(month).elapsed / daysInfo(month).daysInMonth * 100;
+          return value <= expected + 10 ? "Dans le rythme" : "À surveiller";
+        }
+        if (value >= 100) return "Objectif atteint";
+        const expected = daysInfo(month).elapsed / daysInfo(month).daysInMonth * 100;
+        if (value >= expected + 10) return "En avance";
+        if (value >= expected - 5) return "Dans le rythme";
+        return "À surveiller";
+      };
+      const metrics = (month) => {
+        const goal = getByMonth(month);
+        const done = actuals(month);
+        const days = daysInfo(month);
+        const values = goal ? {
+          revenue: progress(done.revenue, goal.revenueTarget), sales: progress(done.sales, goal.salesTarget), profit: progress(done.profit, goal.profitTarget), expenses: progress(done.expenses, goal.expenseLimit)
+        } : { revenue: null, sales: null, profit: null, expenses: null };
+        return { goal, actuals: done, days, values, revenueRemaining: goal ? Math.max(0, goal.revenueTarget - done.revenue) : 0, salesRemaining: goal ? Math.max(0, goal.salesTarget - done.sales) : 0, requiredDailyRevenue: goal && days.remaining > 0 ? Math.ceil(Math.max(0, goal.revenueTarget - done.revenue) / days.remaining) : 0, requiredDailySales: goal && days.remaining > 0 ? Math.ceil(Math.max(0, goal.salesTarget - done.sales) / days.remaining) : 0 };
+      };
+      load();
+      return { storageKey, normalize, load, save, getAll, replace, getByMonth, setForMonth, actuals, progress, daysInfo, getStatus, metrics };
     })();
 
     const App = (() => {
@@ -1781,6 +2498,7 @@
         glacesJour: document.querySelector("#kpiGlacesJour"),
         beneficeJour: document.querySelector("#kpiBeneficeJour"),
         derniereCloture: document.querySelector("#kpiDerniereCloture"),
+        depensesMois: document.querySelector("#kpiDepensesMois"),
         recentDays: document.querySelector("#recentDays")
       };
 
@@ -1810,6 +2528,7 @@
         elements.glacesJour.textContent = Utils.formatNumber(today ? today.total : 0);
         elements.beneficeJour.textContent = Utils.formatMoney(today ? today.benefice : 0);
         elements.derniereCloture.textContent = latest ? Utils.formatDate(latest.date) : "Aucune";
+        elements.depensesMois.textContent = Utils.formatMoney(Expenses.totalByMonth(Expenses.currentMonth()));
         renderRecentDays(records);
       };
 
@@ -1880,6 +2599,270 @@
       };
 
       return { init, render };
+    })();
+
+    const ExpensesView = (() => {
+      const form = document.querySelector("#expenseForm");
+      const idInput = document.querySelector("#expenseId");
+      const dateInput = document.querySelector("#expenseDate");
+      const categoryInput = document.querySelector("#expenseCategory");
+      const labelInput = document.querySelector("#expenseLabel");
+      const amountInput = document.querySelector("#expenseAmount");
+      const noteInput = document.querySelector("#expenseNote");
+      const status = document.querySelector("#expenseStatus");
+      const saveButton = document.querySelector("#saveExpenseButton");
+      const cancelButton = document.querySelector("#cancelExpenseEdit");
+      const summary = document.querySelector("#expenseSummary");
+      const comparison = document.querySelector("#expenseComparison");
+      const periodFilter = document.querySelector("#expensePeriodFilter");
+      const categoryFilter = document.querySelector("#expenseCategoryFilter");
+      const statsMonth = document.querySelector("#expenseStatsMonth");
+      const historyMount = document.querySelector("#expenseHistoryMount");
+      const categoryStats = document.querySelector("#expenseCategoryStats");
+
+      const escapeHtml = (value) => String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+      const categoryOptions = (includeAll = false) => `${includeAll ? '<option value="all">Toutes les catégories</option>' : ""}${Object.entries(Expenses.categories).map(([key, label]) => `<option value="${key}">${escapeHtml(label)}</option>`).join("")}`;
+      const setStatus = (message, isError = false) => {
+        status.textContent = message;
+        status.classList.toggle("error", isError);
+      };
+
+      const resetForm = () => {
+        form.reset();
+        idInput.value = "";
+        dateInput.value = Utils.todayIso();
+        saveButton.textContent = "Enregistrer la dépense";
+        cancelButton.hidden = true;
+        setStatus("");
+      };
+
+      const readForm = () => ({
+        date: dateInput.value,
+        category: categoryInput.value,
+        label: labelInput.value,
+        amount: Number(amountInput.value),
+        note: noteInput.value
+      });
+
+      const edit = (id) => {
+        const expense = Expenses.getAll().find((item) => item.id === id);
+        if (!expense) return;
+        idInput.value = expense.id;
+        dateInput.value = expense.date;
+        categoryInput.value = expense.category;
+        labelInput.value = expense.label;
+        amountInput.value = expense.amount;
+        noteInput.value = expense.note;
+        saveButton.textContent = "Mettre à jour";
+        cancelButton.hidden = false;
+        form.scrollIntoView({ behavior: "smooth", block: "start" });
+      };
+
+      const filteredExpenses = () => {
+        const today = Utils.todayIso();
+        const current = today.slice(0, 7);
+        const previous = Expenses.previousMonth(current);
+        return Expenses.getAll().filter((expense) => {
+          const periodMatches = periodFilter.value === "all"
+            || (periodFilter.value === "today" && expense.date === today)
+            || (periodFilter.value === "current" && expense.date.startsWith(current))
+            || (periodFilter.value === "previous" && expense.date.startsWith(previous));
+          return periodMatches && (categoryFilter.value === "all" || expense.category === categoryFilter.value);
+        }).map((expense, index) => ({ expense, index }))
+          .sort((a, b) => b.expense.date.localeCompare(a.expense.date) || a.index - b.index)
+          .map(({ expense }) => expense);
+      };
+
+      const renderHistory = () => {
+        const items = filteredExpenses();
+        if (!items.length) {
+          historyMount.innerHTML = '<div class="empty-state">Aucune dépense pour ces filtres.</div>';
+          return;
+        }
+        historyMount.innerHTML = `
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Date</th><th>Catégorie</th><th>Libellé</th><th>Montant</th><th>Actions</th></tr></thead>
+              <tbody>${items.map((expense) => `
+                <tr>
+                  <td>${escapeHtml(Utils.formatDate(expense.date))}</td>
+                  <td>${escapeHtml(Expenses.categories[expense.category])}</td>
+                  <td>${escapeHtml(expense.label)}</td>
+                  <td>${escapeHtml(Utils.formatMoney(expense.amount))}</td>
+                  <td><div class="expense-actions">
+                    <button class="secondary-button" type="button" data-edit-expense="${escapeHtml(expense.id)}">Modifier</button>
+                    <button class="danger-button" type="button" data-remove-expense="${escapeHtml(expense.id)}">Supprimer</button>
+                  </div></td>
+                </tr>`).join("")}</tbody>
+            </table>
+          </div>`;
+      };
+
+      const renderSummary = () => {
+        const month = Expenses.currentMonth();
+        const monthItems = Expenses.getByMonth(month);
+        const totals = Expenses.totalsByCategory(month);
+        const leading = Object.entries(totals).sort((a, b) => b[1] - a[1])[0];
+        summary.innerHTML = [
+          ["Dépenses aujourd’hui", Utils.formatMoney(Expenses.totalByDate(Utils.todayIso()))],
+          ["Dépenses du mois", Utils.formatMoney(Expenses.totalByMonth(month))],
+          ["Nombre ce mois", Utils.formatNumber(monthItems.length)],
+          ["Principale catégorie", leading ? Expenses.categories[leading[0]] : "Aucune"]
+        ].map(([label, value]) => `<article class="kpi-card"><p class="kpi-label">${escapeHtml(label)}</p><p class="kpi-value">${escapeHtml(value)}</p></article>`).join("");
+        const previousTotal = Expenses.totalByMonth(Expenses.previousMonth(month));
+        comparison.innerHTML = previousTotal > 0
+          ? `<div class="advice-item">Évolution mensuelle : <strong>${escapeHtml(new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 }).format(((Expenses.totalByMonth(month) - previousTotal) / previousTotal) * 100))} %</strong></div>`
+          : '<div class="advice-item">Pas de comparaison disponible.</div>';
+      };
+
+      const renderStats = () => {
+        const month = statsMonth.value || Expenses.currentMonth();
+        const totals = Expenses.totalsByCategory(month);
+        const grandTotal = Expenses.totalByMonth(month);
+        const entries = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+        if (!entries.length) {
+          categoryStats.innerHTML = '<div class="empty-state">Aucune dépense pour ce mois.</div>';
+          return;
+        }
+        categoryStats.innerHTML = `<div class="category-bars">${entries.map(([key, amount]) => {
+          const share = grandTotal > 0 ? amount / grandTotal * 100 : 0;
+          return `<div class="category-bar-row"><strong>${escapeHtml(Expenses.categories[key])}</strong><div class="category-bar-track"><div class="category-bar-fill" style="width:${Math.min(100, share)}%"></div></div><span>${escapeHtml(Utils.formatMoney(amount))} · ${escapeHtml(new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 }).format(share))} %</span></div>`;
+        }).join("")}</div>`;
+      };
+
+      const render = () => {
+        renderSummary();
+        renderHistory();
+        renderStats();
+      };
+
+      const init = () => {
+        categoryInput.innerHTML = categoryOptions();
+        categoryFilter.innerHTML = categoryOptions(true);
+        statsMonth.value = Expenses.currentMonth();
+        resetForm();
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const item = readForm();
+          const saved = idInput.value ? Expenses.update(idInput.value, item) : Expenses.add(item);
+          if (!saved) {
+            setStatus("Vérifiez la date, la catégorie, le libellé et le montant.", true);
+            return;
+          }
+          resetForm();
+          renderAll();
+        });
+        cancelButton.addEventListener("click", resetForm);
+        [periodFilter, categoryFilter].forEach((input) => input.addEventListener("change", renderHistory));
+        statsMonth.addEventListener("change", renderStats);
+        historyMount.addEventListener("click", (event) => {
+          const editButton = event.target.closest("[data-edit-expense]");
+          const removeButton = event.target.closest("[data-remove-expense]");
+          if (editButton) edit(editButton.dataset.editExpense);
+          if (removeButton && window.confirm("Supprimer cette dépense ?")) {
+            Expenses.remove(removeButton.dataset.removeExpense);
+            renderAll();
+          }
+        });
+      };
+
+      return { init, render, renderStats };
+    })();
+
+    const TreasuryView = (() => {
+      const initializationPanel = document.querySelector("#treasuryInitializationPanel");
+      const initializationForm = document.querySelector("#treasuryInitializationForm");
+      const startDate = document.querySelector("#treasuryStartDate");
+      const openingBalance = document.querySelector("#treasuryOpeningBalance");
+      const initializationStatus = document.querySelector("#treasuryInitializationStatus");
+      const activeContent = document.querySelector("#treasuryActiveContent");
+      const summary = document.querySelector("#treasurySummary");
+      const form = document.querySelector("#treasuryForm");
+      const idInput = document.querySelector("#treasuryId");
+      const dateInput = document.querySelector("#treasuryDate");
+      const typeInput = document.querySelector("#treasuryType");
+      const categoryInput = document.querySelector("#treasuryCategory");
+      const labelInput = document.querySelector("#treasuryLabel");
+      const amountInput = document.querySelector("#treasuryAmount");
+      const noteInput = document.querySelector("#treasuryNote");
+      const status = document.querySelector("#treasuryStatus");
+      const saveButton = document.querySelector("#saveTreasuryButton");
+      const cancelButton = document.querySelector("#cancelTreasuryEdit");
+      const history = document.querySelector("#treasuryHistory");
+      const chart = document.querySelector("#treasuryChart");
+      const escapeHtml = (value) => String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+      const categoryOptions = () => { categoryInput.innerHTML = Object.entries(Treasury.categories[typeInput.value]).map(([key, label]) => `<option value="${key}">${escapeHtml(label)}</option>`).join(""); };
+      const resetForm = () => { form.reset(); idInput.value = ""; dateInput.value = Utils.todayIso(); typeInput.value = "in"; categoryOptions(); saveButton.textContent = "Enregistrer le mouvement"; cancelButton.hidden = true; status.textContent = ""; };
+      const readForm = () => ({ date: dateInput.value, type: typeInput.value, category: categoryInput.value, label: labelInput.value, amount: Number(amountInput.value), note: noteInput.value });
+      const edit = (id) => { const movement = Treasury.getAll().find((item) => item.id === id); if (!movement) return; idInput.value = movement.id; dateInput.value = movement.date; typeInput.value = movement.type; categoryOptions(); categoryInput.value = movement.category; labelInput.value = movement.label; amountInput.value = movement.amount; noteInput.value = movement.note; saveButton.textContent = "Mettre à jour"; cancelButton.hidden = false; form.scrollIntoView({ behavior: "smooth", block: "start" }); };
+      const renderSummary = () => {
+        const month = Utils.todayIso().slice(0, 7);
+        const inflows = Treasury.getMonthlyInflows(month);
+        const outflows = Treasury.getMonthlyOutflows(month);
+        summary.innerHTML = [["Trésorerie disponible", Treasury.getBalance()], ["Entrées du mois", inflows], ["Sorties du mois", outflows], ["Variation nette", inflows - outflows]].map(([label, value]) => `<article class="kpi-card"><p class="kpi-label">${escapeHtml(label)}</p><p class="kpi-value ${value < 0 ? "amount-negative" : ""}">${escapeHtml(Utils.formatMoney(value))}</p></article>`).join("");
+      };
+      const renderHistory = () => {
+        const items = Treasury.getAll().map((movement, index) => ({ movement, index })).sort((a, b) => b.movement.date.localeCompare(a.movement.date) || a.index - b.index).map(({ movement }) => movement);
+        if (!items.length) { history.innerHTML = '<div class="empty-state">Aucun mouvement manuel enregistré.</div>'; return; }
+        history.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Catégorie</th><th>Libellé</th><th>Montant</th><th>Actions</th></tr></thead><tbody>${items.map((movement) => `<tr><td>${escapeHtml(Utils.formatDate(movement.date))}</td><td>${movement.type === "in" ? "Entrée" : "Sortie"}</td><td>${escapeHtml(Treasury.categories[movement.type][movement.category])}</td><td>${escapeHtml(movement.label)}</td><td class="${movement.type === "in" ? "amount-positive" : "amount-negative"}">${movement.type === "in" ? "+" : "−"}${escapeHtml(Utils.formatMoney(movement.amount))}</td><td><div class="expense-actions"><button class="secondary-button" type="button" data-edit-treasury="${escapeHtml(movement.id)}">Modifier</button><button class="danger-button" type="button" data-remove-treasury="${escapeHtml(movement.id)}">Supprimer</button></div></td></tr>`).join("")}</tbody></table></div>`;
+      };
+      const renderChart = () => {
+        const months = Treasury.availableMonths();
+        if (!months.length) { chart.innerHTML = '<div class="empty-state">Initialisez la trésorerie pour afficher son évolution.</div>'; return; }
+        const values = months.map((month) => ({ month, balance: Treasury.getBalance(`${month}-${new Date(...month.split("-").map(Number), 0).getDate()}`) }));
+        const maximum = Math.max(1, ...values.map((item) => Math.abs(item.balance)));
+        chart.innerHTML = `<div class="treasury-chart">${values.map((item) => `<div class="treasury-chart-item" title="${escapeHtml(Utils.formatMoney(item.balance))}"><div class="treasury-chart-bar-wrap"><div class="treasury-chart-bar" style="height:${Math.max(3, Math.abs(item.balance) / maximum * 100)}%;${item.balance < 0 ? "background:var(--danger)" : ""}"></div></div><span>${escapeHtml(item.month.slice(5))}/${escapeHtml(item.month.slice(2, 4))}</span></div>`).join("")}</div>`;
+      };
+      const render = () => { const initialized = Treasury.isInitialized(); initializationPanel.hidden = initialized; activeContent.hidden = !initialized; if (!initialized) { startDate.value ||= Utils.todayIso(); return; } renderSummary(); renderHistory(); renderChart(); };
+      const init = () => {
+        initializationForm.addEventListener("submit", (event) => { event.preventDefault(); if (!Treasury.initialize(startDate.value, openingBalance.value)) { initializationStatus.textContent = "Vérifiez la date et le solde initial."; initializationStatus.classList.add("error"); return; } renderAll(); });
+        typeInput.addEventListener("change", categoryOptions);
+        form.addEventListener("submit", (event) => { event.preventDefault(); const saved = idInput.value ? Treasury.update(idInput.value, readForm()) : Treasury.add(readForm()); if (!saved) { status.textContent = "Vérifiez tous les champs du mouvement."; status.classList.add("error"); return; } resetForm(); renderAll(); });
+        cancelButton.addEventListener("click", resetForm);
+        history.addEventListener("click", (event) => { const editButton = event.target.closest("[data-edit-treasury]"); const removeButton = event.target.closest("[data-remove-treasury]"); if (editButton) edit(editButton.dataset.editTreasury); if (removeButton && window.confirm("Supprimer ce mouvement ?")) { Treasury.remove(removeButton.dataset.removeTreasury); renderAll(); } });
+        resetForm();
+      };
+      return { init, render };
+    })();
+
+    const GoalsView = (() => {
+      const form = document.querySelector("#goalsForm");
+      const monthInput = document.querySelector("#goalsMonth");
+      const revenueTarget = document.querySelector("#revenueTarget");
+      const salesTarget = document.querySelector("#salesTarget");
+      const profitTarget = document.querySelector("#profitTarget");
+      const expenseLimit = document.querySelector("#expenseLimit");
+      const status = document.querySelector("#goalsStatus");
+      const progressMount = document.querySelector("#goalsProgress");
+      const dashboardMount = document.querySelector("#dashboardGoals");
+      const escapeHtml = (value) => String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+      const formatPercent = (value) => value === null ? "Non défini" : `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 }).format(value)} %`;
+      const fillForm = () => { const goal = Goals.getByMonth(monthInput.value); revenueTarget.value = goal?.revenueTarget || ""; salesTarget.value = goal?.salesTarget || ""; profitTarget.value = goal?.profitTarget || ""; expenseLimit.value = goal?.expenseLimit || ""; };
+      const rows = (month) => {
+        const metrics = Goals.metrics(month);
+        if (!metrics.goal) return [];
+        return [
+          { key: "revenue", label: "CA", actual: metrics.actuals.revenue, target: metrics.goal.revenueTarget, value: metrics.values.revenue, money: true, note: `Reste ${Utils.formatMoney(metrics.revenueRemaining)} · ${Utils.formatMoney(metrics.requiredDailyRevenue)}/jour` },
+          { key: "sales", label: "Ventes", actual: metrics.actuals.sales, target: metrics.goal.salesTarget, value: metrics.values.sales, money: false, note: `Reste ${Utils.formatNumber(metrics.salesRemaining)} · ${Utils.formatNumber(metrics.requiredDailySales)}/jour` },
+          { key: "profit", label: "Bénéfice", actual: metrics.actuals.profit, target: metrics.goal.profitTarget, value: metrics.values.profit, money: true, note: "Performance cumulée" },
+          { key: "expenses", label: "Dépenses", actual: metrics.actuals.expenses, target: metrics.goal.expenseLimit, value: metrics.values.expenses, money: true, expense: true, note: metrics.goal.expenseLimit > 0 && metrics.actuals.expenses > metrics.goal.expenseLimit ? `Dépassement : ${Utils.formatMoney(metrics.actuals.expenses - metrics.goal.expenseLimit)}` : "Utilisation du plafond" }
+        ].filter((row) => row.target > 0).map((row) => ({ ...row, status: Goals.getStatus(row.value, Boolean(row.expense), month) }));
+      };
+      const renderRows = (mount, month, compact = false) => {
+        const items = rows(month);
+        if (!items.length) { mount.innerHTML = '<div class="empty-state">Aucun objectif défini pour ce mois.</div>'; return; }
+        mount.innerHTML = `<div class="progress-list">${items.map((row) => `<div class="progress-row"><div class="progress-head"><strong>${escapeHtml(row.label)}</strong><span>${escapeHtml(row.money ? `${Utils.formatMoney(row.actual)} / ${Utils.formatMoney(row.target)}` : `${Utils.formatNumber(row.actual)} / ${Utils.formatNumber(row.target)}`)} · ${escapeHtml(formatPercent(row.value))}</span></div><div class="progress-track"><div class="progress-fill ${row.status === "Plafond dépassé" ? "danger" : row.status === "À surveiller" ? "warning" : ""}" style="width:${Math.min(100, Math.max(0, row.value || 0))}%"></div></div><span class="stat-note">${escapeHtml(row.status)}${compact ? "" : ` · ${row.note}`}</span></div>`).join("")}</div>`;
+      };
+      const render = () => renderRows(progressMount, monthInput.value || Utils.todayIso().slice(0, 7));
+      const renderDashboard = () => renderRows(dashboardMount, Utils.todayIso().slice(0, 7), true);
+      const init = () => { monthInput.value = Utils.todayIso().slice(0, 7); fillForm(); monthInput.addEventListener("change", () => { fillForm(); render(); }); form.addEventListener("submit", (event) => { event.preventDefault(); const saved = Goals.setForMonth({ month: monthInput.value, revenueTarget: revenueTarget.value || 0, salesTarget: salesTarget.value || 0, profitTarget: profitTarget.value || 0, expenseLimit: expenseLimit.value || 0 }); if (!saved) { status.textContent = "Vérifiez le mois et les montants."; status.classList.add("error"); return; } status.textContent = "Objectifs enregistrés."; status.classList.remove("error"); renderAll(); }); };
+      return { init, render, renderDashboard, rows };
     })();
 
     const Statistiques = (() => {
@@ -2492,7 +3475,7 @@
         const monthRecords = sortAscending(records.filter((day) => monthKey(day.date) === key));
         const ca = sum(monthRecords, "ca");
         const benefice = sum(monthRecords, "benefice", statNumber);
-        const depenses = sum(monthRecords, "depenses");
+        const depenses = Expenses.totalByMonth(key);
         const total = sum(monthRecords, "total");
         const cv = sum(monthRecords, "cv");
         const qn = sum(monthRecords, "qn");
@@ -2502,14 +3485,44 @@
           key,
           label: monthLabel(key),
           records: monthRecords,
-          totals: { ca, benefice, depenses, total, cv, qn, marge }
+          totals: { ca, benefice, depenses, total, cv, qn, marge },
+          expenseCategories: Expenses.totalsByCategory(key),
+          goalMetrics: Goals.metrics(key),
+          treasury: Treasury.isInitialized() && `${key}-31` >= Settings.all().treasury.startDate ? {
+            inflows: Treasury.getMonthlyInflows(key),
+            outflows: Treasury.getMonthlyOutflows(key),
+            balance: Treasury.getBalance(`${key}-31`)
+          } : null
         };
       };
 
       const availableMonths = (records) => {
-        const months = [...new Set(records.map((day) => monthKey(day.date)).filter(Boolean))];
+        const months = [...new Set([
+          ...records.map((day) => monthKey(day.date)),
+          ...Expenses.getAll().map((expense) => monthKey(expense.date)),
+          ...Goals.getAll().map((goal) => goal.month),
+          ...Treasury.getAll().map((movement) => monthKey(movement.date))
+        ].filter(Boolean))];
         return months.sort((a, b) => b.localeCompare(a));
       };
+
+      const expenseBreakdownHtml = (report) => {
+        const entries = Object.entries(report.expenseCategories).sort((a, b) => b[1] - a[1]);
+        if (!entries.length) return '<div class="empty-state">Aucune dépense détaillée pour ce mois.</div>';
+        return `<h3>Répartition des dépenses</h3><table><thead><tr><th>Catégorie</th><th>Montant</th><th>Pourcentage</th></tr></thead><tbody>${entries.map(([key, amount]) => {
+          const share = report.totals.depenses > 0 ? amount / report.totals.depenses * 100 : 0;
+          return `<tr><td>${escapeHtml(Expenses.categories[key])}</td><td>${escapeHtml(Utils.formatMoney(amount))}</td><td>${escapeHtml(new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 }).format(share))} %</td></tr>`;
+        }).join("")}</tbody></table>`;
+      };
+
+      const goalsReportHtml = (report) => {
+        const metrics = report.goalMetrics;
+        if (!metrics.goal) return '<h3>Objectifs</h3><div class="empty-state">Aucun objectif défini pour ce mois.</div>';
+        const definitions = [["CA", metrics.goal.revenueTarget, metrics.actuals.revenue, metrics.values.revenue, false], ["Ventes", metrics.goal.salesTarget, metrics.actuals.sales, metrics.values.sales, false], ["Bénéfice", metrics.goal.profitTarget, metrics.actuals.profit, metrics.values.profit, false], ["Dépenses", metrics.goal.expenseLimit, metrics.actuals.expenses, metrics.values.expenses, true]].filter((item) => item[1] > 0);
+        return `<h3>Objectifs</h3><table><thead><tr><th>Indicateur</th><th>Objectif</th><th>Réalisé</th><th>Progression</th><th>Statut</th></tr></thead><tbody>${definitions.map(([label, target, actual, value, expense]) => `<tr><td>${label}</td><td>${label === "Ventes" ? Utils.formatNumber(target) : Utils.formatMoney(target)}</td><td>${label === "Ventes" ? Utils.formatNumber(actual) : Utils.formatMoney(actual)}</td><td>${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 }).format(value)} %</td><td>${Goals.getStatus(value, expense, report.key)}</td></tr>`).join("")}</tbody></table>`;
+      };
+
+      const treasuryReportHtml = (report) => report.treasury ? `<h3>Trésorerie</h3><div class="report-summary"><article class="month-card"><strong>Entrées</strong><span>${Utils.formatMoney(report.treasury.inflows)}</span></article><article class="month-card"><strong>Sorties</strong><span>${Utils.formatMoney(report.treasury.outflows)}</span></article><article class="month-card"><strong>Solde théorique</strong><span>${Utils.formatMoney(report.treasury.balance)}</span></article></div>` : "";
 
       const renderEmpty = () => {
         currentReport = null;
@@ -2574,6 +3587,9 @@
               </tbody>
             </table>
           </div>
+          <div class="table-wrap" style="margin-top:16px">${expenseBreakdownHtml(report)}</div>
+          <div class="table-wrap" style="margin-top:16px">${goalsReportHtml(report)}</div>
+          ${treasuryReportHtml(report)}
         `;
       };
 
@@ -2639,7 +3655,7 @@
         </head>
         <body>
           <h1>NISSA Manager - Rapport mensuel</h1>
-          <p>${escapeHtml(report.label)} · Version v2.4.1</p>
+          <p>${escapeHtml(report.label)} · Version v2.6.0</p>
           <div class="summary">
             <div class="card"><strong>CA</strong>${escapeHtml(Utils.formatMoney(report.totals.ca))}</div>
             <div class="card"><strong>Bénéfice</strong>${escapeHtml(Utils.formatMoney(report.totals.benefice))}</div>
@@ -2647,6 +3663,9 @@
             <div class="card"><strong>Glaces</strong>${escapeHtml(Utils.formatNumber(report.totals.total))}</div>
           </div>
           ${reportTableHtml(report)}
+          ${expenseBreakdownHtml(report)}
+          ${goalsReportHtml(report)}
+          ${treasuryReportHtml(report)}
         </body>
         </html>
       `;
@@ -2797,7 +3816,7 @@
       };
 
       const readForm = () => {
-        const nextSettings = Settings.defaults();
+        const nextSettings = JSON.parse(JSON.stringify(Settings.all()));
         [...form.elements].forEach((field) => {
           if (!field.name) return;
           let value = field.type === "checkbox" ? field.checked : field.value;
@@ -2821,10 +3840,13 @@
 
       const exportJson = () => {
         const payload = {
-          version: "v2.4.1",
+          version: "v2.6.0",
           exportedAt: new Date().toISOString(),
           settings: Settings.all(),
-          records: Store.all()
+          records: Store.all(),
+          expenses: Expenses.getAll(),
+          treasury: Treasury.getAll(),
+          goals: Goals.getAll()
         };
         downloadBlob(JSON.stringify(payload, null, 2), `nissa-manager-sauvegarde-${Utils.todayIso()}.json`, "application/json;charset=utf-8");
         const nextSettings = Settings.all();
@@ -2840,12 +3862,64 @@
         reader.addEventListener("load", () => {
           try {
             const parsed = JSON.parse(reader.result);
+            let importedSomething = false;
+            let importedRecords = null;
+            let importedExpenses = null;
+            let importedTreasury = null;
+            let importedGoals = null;
             if (Array.isArray(parsed)) {
-              Store.replace(parsed);
+              importedRecords = parsed;
+              importedSomething = true;
             } else {
-              if (parsed.settings) Settings.update(parsed.settings);
-              if (Array.isArray(parsed.records)) Store.replace(parsed.records);
+              if (!parsed || typeof parsed !== "object") {
+                throw new Error("Format JSON invalide.");
+              }
+              if (parsed.settings && typeof parsed.settings === "object") {
+                Settings.update(parsed.settings);
+                importedSomething = true;
+              }
+              if (Array.isArray(parsed.records)) {
+                importedRecords = parsed.records;
+                importedSomething = true;
+              } else if (Array.isArray(parsed.data)) {
+                importedRecords = parsed.data;
+                importedSomething = true;
+              }
+              if (Array.isArray(parsed.expenses)) {
+                importedExpenses = parsed.expenses;
+                importedSomething = true;
+              }
+              if (Array.isArray(parsed.treasury)) {
+                importedTreasury = parsed.treasury;
+                importedSomething = true;
+              }
+              if (Array.isArray(parsed.goals)) {
+                importedGoals = parsed.goals;
+                importedSomething = true;
+              }
             }
+            if (!importedSomething) throw new Error("Aucune donnee importable.");
+            if (importedRecords) Store.replace(importedRecords);
+            if (importedExpenses) {
+              Expenses.replace(importedExpenses);
+              Store.all().forEach((day) => Expenses.syncDayExpenses(day.date));
+              const settings = Settings.all();
+              settings.dataMigrations.expensesV250 = true;
+              Settings.update(settings);
+            } else if (importedRecords) {
+              Expenses.replace([]);
+              const settings = Settings.all();
+              settings.dataMigrations.expensesV250 = false;
+              Settings.update(settings);
+              Expenses.migrateLegacyExpenses(true);
+            }
+            Treasury.replace(importedTreasury || []);
+            if (importedTreasury === null) {
+              const settings = Settings.all();
+              settings.treasury = { startDate: "", openingBalance: 0 };
+              Settings.update(settings);
+            }
+            Goals.replace(importedGoals || []);
             fillForm();
             renderAll();
             setStatus("Import JSON terminé.");
@@ -2890,6 +3964,9 @@
         resetAllButton.addEventListener("click", () => {
           if (!window.confirm("Réinitialiser les paramètres et l'historique ?")) return;
           Store.clear();
+          Expenses.replace([]);
+          Treasury.replace([]);
+          Goals.replace([]);
           Settings.reset();
           fillForm();
           renderAll();
@@ -2897,7 +3974,10 @@
         });
       };
 
-      const render = () => fillForm();
+      const render = () => {
+        if (form.contains(document.activeElement)) return;
+        fillForm();
+      };
 
       return { init, render };
     })();
@@ -2916,7 +3996,9 @@
       });
 
       const updateSummary = (form) => {
-        const totals = Utils.calculateDay(getFormValues(form));
+        const calculated = Utils.calculateDay(getFormValues(form));
+        const existingExpenses = Expenses.totalByDate(Utils.todayIso());
+        const totals = Utils.recalculateDayExpenses({ date: Utils.todayIso(), ...calculated }, calculated.depenses + existingExpenses);
         form.querySelector('[data-summary="ca"]').textContent = Utils.formatMoney(totals.ca);
         form.querySelector('[data-summary="total"]').textContent = Utils.formatNumber(totals.total);
         form.querySelector('[data-summary="benefice"]').textContent = Utils.formatMoney(totals.benefice);
@@ -2957,6 +4039,27 @@
           ...totals
         };
 
+        const values = getFormValues(form);
+        const productCosts = Utils.calculateDay({ cv: values.cv, qn: values.qn, depenses: 0 }).depenses;
+        const complementaryExpenses = Utils.toNumber(values.depenses);
+        if (productCosts > 0) {
+          Expenses.add({
+            date: day.date,
+            category: "matieres_premieres",
+            label: "Coûts produits",
+            amount: productCosts,
+            note: "Calculés automatiquement lors de la validation de la journée"
+          }, { skipSync: true });
+        }
+        if (complementaryExpenses > 0) {
+          Expenses.add({
+            date: day.date,
+            category: "autres",
+            label: "Dépense journée",
+            amount: complementaryExpenses,
+            note: "Enregistrée depuis le formulaire de journée"
+          }, { skipSync: true });
+        }
         Store.saveDay(day);
         form.reset();
         updateSummary(form);
@@ -2975,8 +4078,6 @@
           const label = form.querySelector(`label[for="${input.id}"]`);
           input.id = `${input.id}${suffix}`;
           if (label) label.setAttribute("for", input.id);
-          if (label && input.name === "cv") label.textContent = `${Utils.productLabel("cv")} vendus`;
-          if (label && input.name === "qn") label.textContent = `${Utils.productLabel("qn")} vendus`;
         });
 
         form.addEventListener("input", () => {
@@ -2993,17 +4094,40 @@
 
         form.addEventListener("submit", (event) => handleSubmit(form, event));
         mount.appendChild(formFragment);
+        updateFormLabels(form);
         updateSummary(form);
       };
 
       const init = () => mounts.forEach(buildForm);
+      const updateFormLabels = (form) => {
+        const cvInput = form.elements.cv;
+        const qnInput = form.elements.qn;
+        const cvLabel = cvInput ? form.querySelector(`label[for="${cvInput.id}"]`) : null;
+        const qnLabel = qnInput ? form.querySelector(`label[for="${qnInput.id}"]`) : null;
+        if (cvLabel) cvLabel.textContent = `${Utils.productLabel("cv")} vendus`;
+        if (qnLabel) qnLabel.textContent = `${Utils.productLabel("qn")} vendus`;
+        if (cvInput) cvInput.disabled = !Settings.product("cv").active;
+        if (qnInput) qnInput.disabled = !Settings.product("qn").active;
+      };
 
-      return { init };
+      const render = () => {
+        document.querySelectorAll(".journee-form").forEach((form) => {
+          updateFormLabels(form);
+          updateSummary(form);
+        });
+      };
+
+      return { init, render };
     })();
 
     function renderAll() {
+      Journee.render();
       Dashboard.render();
       Historique.render();
+      ExpensesView.render();
+      TreasuryView.render();
+      GoalsView.render();
+      GoalsView.renderDashboard();
       Statistiques.render();
       Previsions.render();
       Rapports.render();
@@ -3011,9 +4135,13 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+      Expenses.migrateLegacyExpenses();
       App.init();
       Journee.init();
       Historique.init();
+      ExpensesView.init();
+      TreasuryView.init();
+      GoalsView.init();
       Rapports.init();
       Parametres.init();
       renderAll();

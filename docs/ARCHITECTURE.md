@@ -1,8 +1,8 @@
-# Architecture NISSA Manager v2.4.1
+# Architecture NISSA Manager v2.6.0
 
 ## Etat actuel
 
-NISSA Manager v2.4.1 est une application web hors ligne en vanilla HTML, CSS et JavaScript.
+NISSA Manager v2.6.0 est une application web hors ligne en vanilla HTML, CSS et JavaScript.
 
 Le projet contient actuellement une application complete dans `index.html` :
 
@@ -28,7 +28,12 @@ Versions planifiees :
 - `v2.2.0` : previsions avancees et intelligence metier.
 - `v2.3.0` : exports PDF, Excel compatible et rapport mensuel.
 - `v2.4.0` : premiere version PWA installable.
-- `v2.4.1` : version actuelle avec refonte du module Parametres.
+- `v2.4.1` : refonte du module Parametres.
+- `v2.4.2` : stabilisation du module Parametres.
+- `v2.4.3` : stabilisation UX du module Parametres.
+- `v2.5.0` : gestion avancee des depenses et migration compatible v2.4.x.
+- `v2.6.0` : tresorerie theorique et objectifs mensuels.
+- `v3.0.0` : prochaine version majeure a definir apres stabilisation.
 
 Chaque developpement doit mettre a jour :
 
@@ -44,6 +49,9 @@ L'application est organisee autour de vues affichees par onglets :
 - Tableau de bord
 - Journee
 - Historique
+- Depenses
+- Tresorerie
+- Objectifs
 - Statistiques
 - Previsions
 - Rapports
@@ -142,6 +150,34 @@ Responsabilites :
 - afficher le meilleur mois, le pire mois et les evolutions.
 
 Ce module pourra etre deplace plus tard dans `js/statistiques.js`.
+
+### Expenses
+
+Responsabilites :
+
+- stockage detaille sous la cle `nissa_expenses` ;
+- validation, ajout, modification et suppression des depenses ;
+- filtres, statistiques par categorie et comparaison mensuelle ;
+- migration anti-double des montants historiques ;
+- synchronisation de `jour.depenses`, `benefice` et `caisse` avec les calculs existants.
+
+### Treasury
+
+Responsabilites :
+
+- mouvements manuels sous la cle `nissa_treasury` ;
+- initialisation depuis `settings.treasury.startDate` et `openingBalance` ;
+- calcul parallele `solde initial + CA - depenses + entrees - sorties` depuis la date de depart ;
+- preservation integrale du champ historique `caisse`.
+
+### Goals
+
+Responsabilites :
+
+- objectifs uniques par mois sous la cle `nissa_goals` ;
+- progression CA, ventes, benefice et utilisation du plafond de depenses ;
+- effort quotidien restant avec inclusion de la journee courante ;
+- statuts deterministes sans IA.
 
 ### Previsions
 
@@ -246,6 +282,16 @@ nissa_settings
 
 Tous les parametres sont regroupes dans un seul objet `settings`. Les parametres ne doivent jamais stocker de resultats comme le CA, le benefice, les statistiques ou l'historique.
 
+La cle des depenses detaillees est :
+
+```text
+nissa_expenses
+```
+
+Elle contient des objets `{ id, date, category, label, amount, note }`. Le marqueur `settings.dataMigrations.expensesV250` empeche toute double migration.
+
+Les mouvements de tresorerie manuels sont stockes sous `nissa_treasury`. Les objectifs mensuels sont stockes sous `nissa_goals`. Ces nouvelles cles ne modifient ni `nissa_data`, ni `nissa_expenses`.
+
 ## Fonctionnement PWA
 
 La version `v2.4.0` ajoute :
@@ -285,7 +331,7 @@ Le service worker n'est pas enregistre quand l'application est ouverte en `file:
 
 - Modules en PascalCase : `Utils`, `Store`, `App`, `Dashboard`, `Historique`, `Statistiques`, `Previsions`, `Rapports`, `Journee`.
 - Fonctions et variables en camelCase : `renderAll`, `todayIso`, `formatMoney`.
-- Constantes metier centralisees dans `Utils`.
+- Parametres metier centralises dans `Settings`.
 
 ## Roadmap technique
 
@@ -301,6 +347,36 @@ Le service worker n'est pas enregistre quand l'application est ouverte en `file:
 - Objet `settings` centralise.
 - Prix et couts produits lus depuis les parametres.
 - Devise, previsions, sauvegarde et apparence configurables.
+
+### v2.4.2
+
+- Validation renforcee des parametres.
+- Normalisation des journees importees.
+- Protection contre les valeurs de configuration invalides.
+- Alignement de la version des exports et du cache PWA.
+
+### v2.4.3
+
+- Theme sombre applique depuis les parametres d'apparence.
+- Couleur de theme navigateur synchronisee avec la couleur principale.
+- Formulaire Parametres protege contre les rafraichissements pendant la saisie.
+
+### v2.5.0
+
+- Module de gestion avancee des depenses.
+- Synchronisation avec les journees, statistiques, rapports et sauvegardes.
+- Migration des depenses historiques sans perte de montant.
+
+### v2.6.0
+
+- Tresorerie theorique initialisee a une date choisie.
+- Mouvements exceptionnels et corrections explicites.
+- Objectifs mensuels, progressions et effort restant.
+
+### v3.0.0
+
+- Perimetre a definir apres stabilisation de `v2.6.0`.
+- Aucun nouveau module ne doit etre engage avant validation complete du module Parametres.
 
 ### Refactorisation future
 

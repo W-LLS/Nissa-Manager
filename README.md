@@ -1,6 +1,6 @@
 # NISSA Manager
 
-Version actuelle : `v2.4.1`
+Version actuelle : `v2.6.0`
 
 NISSA Manager est un logiciel de gestion commerciale hors ligne pour une activite de vente de glaces.
 
@@ -87,6 +87,9 @@ Les modules JavaScript internes sont organises ainsi :
 - `Previsions` : previsions avancees, projections et intelligence metier.
 - `Rapports` : rapport mensuel, export Excel compatible et export PDF/impression.
 - `Journee` : formulaire, calcul en direct et validation de journee.
+- `Expenses` : depenses detaillees, migration et synchronisation.
+- `Treasury` : tresorerie theorique et mouvements exceptionnels.
+- `Goals` : objectifs mensuels, progression et effort restant.
 
 Des dossiers de preparation existent deja pour une future separation technique :
 
@@ -112,7 +115,7 @@ La separation effective du code applicatif est prevue pour une version ulterieur
 
 ## Fonctionnalites
 
-Fonctionnalites disponibles en `v2.4.1` :
+Fonctionnalites disponibles en `v2.6.0` :
 
 - tableau de bord ;
 - module Journee ;
@@ -155,6 +158,16 @@ Fonctionnalites disponibles en `v2.4.1` :
 - preferences de sauvegarde ;
 - apparence ;
 - export/import JSON et reinitialisations.
+- gestion detaillee des depenses par categorie ;
+- ajout, modification, suppression et filtres de depenses ;
+- statistiques et comparaison mensuelle des depenses ;
+- synchronisation automatique des depenses avec les journees ;
+- migration compatible avec les donnees et sauvegardes v2.4.x.
+- initialisation et suivi de la tresorerie theorique ;
+- entrees, sorties et corrections exceptionnelles ;
+- objectifs mensuels de CA, ventes et benefice ;
+- plafond de depenses, progression et effort quotidien restant ;
+- rapports et sauvegardes JSON etendus a la v2.6.0.
 
 ## Roadmap
 
@@ -193,12 +206,43 @@ Fonctionnalites disponibles en `v2.4.1` :
 - Service worker.
 - Experience hors ligne renforcee.
 
-### v2.4.1 - Version actuelle
+### v2.4.1
 
 - Refonte du module Parametres.
 - Configuration centralisee dans `settings`.
 - Prix, couts et devise configurables.
 - Export/import JSON et reinitialisations dans Parametres.
+
+### v2.4.2
+
+- Stabilisation du module Parametres.
+- Validation renforcee des parametres et imports JSON.
+- Normalisation des journees importees sans changer leur structure.
+- Alignement des versions application, exports et cache PWA.
+
+### v2.4.3
+
+- Stabilisation UX du module Parametres.
+- Theme sombre applique depuis les preferences d'apparence.
+- Couleur de theme navigateur synchronisee avec les parametres.
+- Protection des champs Parametres pendant la saisie.
+
+### v2.5.0
+
+- Gestion avancee des depenses.
+- Migration des depenses historiques.
+- Synchronisation des journees, statistiques, rapports et sauvegardes JSON.
+
+### v2.6.0 - Version actuelle
+
+- Tresorerie theorique parallele au champ historique `caisse`.
+- Mouvements financiers exceptionnels et corrections.
+- Objectifs mensuels et suivi de progression.
+
+### v3.0.0 - Prochaine version majeure
+
+- Objectif a definir apres stabilisation de `v2.6.0`.
+- Aucun nouveau module ne doit etre engage avant validation du module Parametres.
 
 ## Guide d'installation
 
@@ -327,6 +371,20 @@ Le module Rapports permet de :
 - exporter un fichier Excel compatible ;
 - ouvrir un rapport imprimable en PDF depuis le navigateur.
 
+### Tresorerie
+
+La tresorerie commence a la date et au solde initial choisis par l'utilisateur. Son calcul theorique est :
+
+```text
+solde initial + CA enregistre - depenses detaillees + entrees manuelles - sorties manuelles
+```
+
+Les donnees anterieures a la date de depart ne sont pas reconstruites. Le champ historique `caisse` reste inchange et distinct de cette tresorerie.
+
+### Objectifs
+
+Un ensemble unique d'objectifs peut etre defini pour chaque mois : CA, ventes, benefice et plafond de depenses. Les jours restants incluent la journee courante. Les statuts utilisent les seuils suivants : objectif atteint a 100 %, en avance a au moins 10 points au-dessus du rythme calendaire, dans le rythme jusqu'a 5 points sous ce rythme, sinon a surveiller. Un plafond depasse est toujours signale comme tel.
+
 ### PWA
 
 La version `v2.4.0` permet :
@@ -398,11 +456,56 @@ nissa_settings
 
 Ils sont regroupes dans un seul objet `settings`.
 
+Les depenses detaillees sont enregistrees sous la cle :
+
+```text
+nissa_expenses
+```
+
+Chaque depense contient un identifiant, une date, une categorie, un libelle, un montant numerique et une note. Les anciennes journees sont migrees une seule fois sans modifier leur structure historique.
+
+Les mouvements manuels de tresorerie sont enregistres sous :
+
+```text
+nissa_treasury
+```
+
+Les objectifs mensuels sont enregistres sous :
+
+```text
+nissa_goals
+```
+
 ## Historique des versions
 
-### v2.4.1 - 2026-07-03
+### v2.6.0 - 2026-08-15
 
-- Version actuelle.
+- Tresorerie, initialisation, mouvements et corrections.
+- Objectifs mensuels, progression et effort restant.
+- Dashboard, rapports, imports, exports et cache PWA enrichis.
+
+### v2.5.0 - 2026-08-14
+
+- Gestion detaillee des depenses et categories.
+- CRUD, filtres, statistiques et comparaison mensuelle.
+- Synchronisation avec les journees, le tableau de bord et les rapports.
+- Import/export JSON compatible v2.4.x et cache PWA v2.5.0.
+
+### v2.4.3 - 2026-08-02
+
+- Theme sombre rendu effectif.
+- Couleur de theme navigateur mise a jour depuis les parametres.
+- Formulaire Parametres protege pendant l'edition.
+
+### v2.4.2 - 2026-08-01
+
+- Stabilisation du module Parametres.
+- Validation et nettoyage des parametres sauvegardes ou importes.
+- Import JSON plus robuste.
+- Cache PWA et exports alignes sur la version courante.
+
+### v2.4.1 - 2026-08-01
+
 - Refonte du module Parametres.
 - Configuration centralisee dans `settings`.
 - Produits, devise, previsions, sauvegarde et apparence configurables.
