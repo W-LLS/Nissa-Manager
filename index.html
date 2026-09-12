@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NISSA Manager v2.6.0</title>
+  <title>NISSA Manager v2.7.0</title>
   <meta name="theme-color" content="#1f3b5b">
   <meta name="application-name" content="NISSA Manager">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -964,6 +964,76 @@
     .progress-fill.warning { background: var(--warning); }
     .progress-fill.danger { background: var(--danger); }
 
+    .seller-list {
+      display: grid;
+      gap: 18px;
+    }
+
+    .seller-card {
+      display: grid;
+      gap: 16px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface-muted);
+    }
+
+    .seller-card-head,
+    .seller-actions {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .seller-actions .secondary-button,
+    .seller-cycle-table .primary-button {
+      width: auto;
+      min-height: 38px;
+      padding: 7px 10px;
+      font-size: 13px;
+    }
+
+    .seller-metrics {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .seller-cycle-table {
+      box-shadow: none;
+    }
+
+    .seller-history summary {
+      cursor: pointer;
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .seller-history[open] summary {
+      margin-bottom: 10px;
+    }
+
+    .cycle-status {
+      display: inline-flex;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .cycle-status.payable {
+      background: #fff1d8;
+      color: #9a5d00;
+    }
+
+    .cycle-status.paid {
+      background: #dcf5ed;
+      color: #08765b;
+    }
+
     .treasury-chart {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
@@ -1181,6 +1251,10 @@
       .chart-grid {
         grid-template-columns: 1fr;
       }
+
+      .seller-metrics {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
     }
 
     @media (max-width: 720px) {
@@ -1216,6 +1290,14 @@
       .goals-form-grid,
       .product-row {
         grid-template-columns: 1fr;
+      }
+
+      .seller-metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .seller-card {
+        padding: 16px;
       }
 
       .expenses-form-grid .field-wide {
@@ -1275,7 +1357,7 @@
         <div class="brand-mark" aria-hidden="true">N</div>
         <div>
           <h1 class="brand-title">NISSA Manager</h1>
-          <p class="brand-subtitle">v2.6.0</p>
+          <p class="brand-subtitle">v2.7.0</p>
         </div>
       </div>
 
@@ -1287,6 +1369,10 @@
         <button class="nav-button" type="button" data-view="journee">
           <span class="nav-icon" aria-hidden="true">$</span>
           <span class="nav-label">Journée</span>
+        </button>
+        <button class="nav-button" type="button" data-view="vendeurs">
+          <span class="nav-icon" aria-hidden="true">♙</span>
+          <span class="nav-label">Vendeurs</span>
         </button>
         <button class="nav-button" type="button" data-view="historique">
           <span class="nav-icon" aria-hidden="true">≡</span>
@@ -1400,6 +1486,10 @@
           <div class="panel-header"><div><h3 class="panel-title">Objectifs du mois</h3><p class="panel-subtitle">Progression et effort restant pour le mois courant.</p></div></div>
           <div id="dashboardGoals"></div>
         </section>
+        <section class="panel" style="margin-top:18px">
+          <div class="panel-header"><div><h3 class="panel-title">Performance vendeurs</h3><p class="panel-subtitle">Classement sur les ventes moyennes par jour travaillé.</p></div></div>
+          <div id="dashboardSellers"></div>
+        </section>
       </section>
 
       <section class="view" id="view-journee" data-title="Journée" data-kicker="Saisie des ventes">
@@ -1412,6 +1502,52 @@
           </div>
           <div id="journeeFormMount"></div>
         </section>
+      </section>
+
+      <section class="view" id="view-vendeurs" data-title="Vendeurs" data-kicker="Cycles et rémunérations">
+        <div class="finance-stack">
+          <section class="panel">
+            <div class="panel-header"><div><h3 class="panel-title">Performance commerciale</h3><p class="panel-subtitle">Suivi individuel des ventes et des cycles de 26 journées travaillées.</p></div></div>
+            <div class="kpi-grid" id="sellerSummary"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header"><div><h3 class="panel-title">Ajouter un vendeur</h3><p class="panel-subtitle">Le salaire est historisé à partir de sa date d’effet.</p></div></div>
+            <form id="sellerForm" novalidate><div class="finance-form-grid">
+              <div class="field"><label for="sellerName">Nom du vendeur</label><input id="sellerName" type="text" required placeholder="Ex. Vendeur A"></div>
+              <div class="field"><label for="sellerStartDate">Date d’entrée</label><input id="sellerStartDate" type="date" required></div>
+              <div class="field"><label for="sellerSalary">Salaire de base par cycle</label><input id="sellerSalary" type="number" min="0" step="1" inputmode="numeric" required></div>
+            </div><div class="actions"><p class="status-message" id="sellerStatus"></p><button class="primary-button" type="submit">Ajouter le vendeur</button></div></form>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header"><div><h3 class="panel-title">Enregistrer une vente individuelle</h3><p class="panel-subtitle">Une journée enregistrée est automatiquement rattachée au cycle ouvert du vendeur.</p></div></div>
+            <form id="sellerSaleForm" novalidate><div class="finance-form-grid">
+              <div class="field"><label for="sellerSaleDate">Date travaillée</label><input id="sellerSaleDate" type="date" required></div>
+              <div class="field"><label for="sellerSaleSeller">Vendeur</label><select id="sellerSaleSeller" required></select></div>
+              <div class="field"><label for="sellerSaleCv">CV vendus</label><input id="sellerSaleCv" type="number" min="0" step="1" inputmode="numeric" value="0"></div>
+              <div class="field"><label for="sellerSaleQn">QN vendus</label><input id="sellerSaleQn" type="number" min="0" step="1" inputmode="numeric" value="0"></div>
+            </div><div class="actions"><p class="status-message" id="sellerSaleStatus"></p><button class="primary-button" type="submit">Enregistrer la journée vendeur</button></div></form>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header"><div><h3 class="panel-title">Enregistrer une absence</h3><p class="panel-subtitle">Une absence est tracée dans le cycle ouvert mais ne compte jamais parmi les 26 journées travaillées.</p></div></div>
+            <form id="sellerAbsenceForm" novalidate><div class="finance-form-grid">
+              <div class="field"><label for="sellerAbsenceDate">Date d’absence</label><input id="sellerAbsenceDate" type="date" required></div>
+              <div class="field"><label for="sellerAbsenceSeller">Vendeur</label><select id="sellerAbsenceSeller" required></select></div>
+            </div><div class="actions"><p class="status-message" id="sellerAbsenceStatus"></p><button class="secondary-button" type="submit">Enregistrer l’absence</button></div></form>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header"><div><h3 class="panel-title">Règles de prime</h3><p class="panel-subtitle">Une prime est cumulative : chaque seuil atteint ajoute son bonus au cycle de 26 jours.</p></div></div>
+            <form id="sellerBonusForm"><div class="field"><label for="sellerBonusRules">Seuil:prime, séparés par des virgules</label><input id="sellerBonusRules" type="text" placeholder="3000:10000, 3200:10000, 3500:10000"></div><div class="actions"><p class="status-message" id="sellerBonusStatus"></p><button class="secondary-button" type="submit">Enregistrer les règles</button></div></form>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header"><div><h3 class="panel-title">Équipe, cycles et paiements</h3><p class="panel-subtitle">Un cycle terminé devient à payer. Le paiement crée une sortie réelle de trésorerie.</p></div></div>
+            <div id="sellerManagementMount"></div>
+          </section>
+        </div>
       </section>
 
       <section class="view" id="view-historique" data-title="Historique" data-kicker="Clôtures enregistrées">
@@ -1974,6 +2110,11 @@
           accentColor: "#16a085",
           fontFamily: "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif"
         },
+        sellerBonusRules: [
+          { threshold: 3000, bonus: 10000 },
+          { threshold: 3200, bonus: 10000 },
+          { threshold: 3500, bonus: 10000 }
+        ],
         dataMigrations: {
           expensesV250: false
         },
@@ -2052,6 +2193,11 @@
         sanitized.appearance.primaryColor = cleanColor(sanitized.appearance.primaryColor, defaultSettings.appearance.primaryColor);
         sanitized.appearance.accentColor = cleanColor(sanitized.appearance.accentColor, defaultSettings.appearance.accentColor);
         sanitized.appearance.fontFamily = cleanText(sanitized.appearance.fontFamily, defaultSettings.appearance.fontFamily);
+        sanitized.sellerBonusRules = (Array.isArray(sanitized.sellerBonusRules) ? sanitized.sellerBonusRules : defaultSettings.sellerBonusRules)
+          .map((rule) => ({ threshold: toPositiveInteger(rule?.threshold), bonus: toPositiveInteger(rule?.bonus) }))
+          .filter((rule) => rule.threshold > 0 && rule.bonus > 0)
+          .sort((a, b) => a.threshold - b.threshold);
+        if (!sanitized.sellerBonusRules.length) sanitized.sellerBonusRules = clone(defaultSettings.sellerBonusRules);
         sanitized.dataMigrations.expensesV250 = Boolean(sanitized.dataMigrations.expensesV250);
         sanitized.treasury.startDate = /^\d{4}-\d{2}-\d{2}$/.test(String(sanitized.treasury.startDate || "")) ? sanitized.treasury.startDate : "";
         sanitized.treasury.openingBalance = toPositiveInteger(sanitized.treasury.openingBalance);
@@ -2234,7 +2380,20 @@
       };
 
       const latest = () => all()[0] || null;
-      const today = () => all().find((day) => day.date === Utils.todayIso()) || null;
+      const today = () => {
+        const days = all().filter((day) => day.date === Utils.todayIso());
+        if (!days.length) return null;
+        return days.reduce((total, day) => ({
+          date: day.date,
+          cv: total.cv + day.cv,
+          qn: total.qn + day.qn,
+          total: total.total + day.total,
+          ca: total.ca + day.ca,
+          depenses: total.depenses + day.depenses,
+          benefice: total.benefice + day.benefice,
+          caisse: total.caisse + day.caisse
+        }), { date: days[0].date, cv: 0, qn: 0, total: 0, ca: 0, depenses: 0, benefice: 0, caisse: 0 });
+      };
 
       const syncExpensesForDate = (date, amount) => {
         let changed = false;
@@ -2414,7 +2573,7 @@
       const storageKey = "nissa_treasury";
       const categories = Object.freeze({
         in: Object.freeze({ apport: "Apport", autre_entree: "Autre entrée", correction_positive: "Correction positive" }),
-        out: Object.freeze({ retrait: "Retrait", remboursement: "Remboursement", achat_exceptionnel: "Achat exceptionnel", autre_sortie: "Autre sortie", correction_negative: "Correction négative" })
+        out: Object.freeze({ retrait: "Retrait", remboursement: "Remboursement", achat_exceptionnel: "Achat exceptionnel", salaires: "Salaires", autre_sortie: "Autre sortie", correction_negative: "Correction négative" })
       });
       let movements = [];
 
@@ -2428,7 +2587,11 @@
         const amount = Number(movement.amount);
         const note = String(movement.note ?? "").trim();
         if ((!id && !generateId) || !Expenses.isValidDate(date) || !(type in categories) || !(category in categories[type]) || !label || !Number.isFinite(amount) || amount <= 0) return null;
-        return { id: id || `tre_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`, date, type, category, label, amount: Math.round(amount), note };
+        const reference = movement.reference && typeof movement.reference === "object" ? {
+          sellerId: String(movement.reference.sellerId || ""),
+          cycleId: String(movement.reference.cycleId || "")
+        } : null;
+        return { id: id || `tre_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`, date, type, category, label, amount: Math.round(amount), note, reference };
       };
 
       const save = () => localStorage.setItem(storageKey, JSON.stringify(movements));
@@ -2532,6 +2695,104 @@
       };
       load();
       return { storageKey, normalize, load, save, getAll, replace, getByMonth, setForMonth, actuals, progress, daysInfo, getStatus, metrics };
+    })();
+
+    const Sellers = (() => {
+      const sellersKey = "nissa_sellers";
+      const salesKey = "nissa_seller_sales";
+      const cyclesKey = "nissa_seller_cycles";
+      const absencesKey = "nissa_seller_absences";
+      let sellers = [];
+      let sales = [];
+      let cycles = [];
+      let absences = [];
+
+      const clone = (value) => JSON.parse(JSON.stringify(value));
+      const safeArray = (key) => { try { const value = JSON.parse(localStorage.getItem(key)); return Array.isArray(value) ? value : []; } catch (error) { return []; } };
+      const id = (prefix) => `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+      const cleanText = (value) => String(value ?? "").trim().replace(/\s+/g, " ");
+      const validDate = (value) => Expenses.isValidDate(value);
+      const number = (value) => Number.isFinite(Number(value)) && Number(value) >= 0 ? Math.round(Number(value)) : 0;
+      const monthLabel = (date) => new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric" }).format(new Date(`${date}T12:00:00`));
+
+      const normalizeSeller = (seller) => {
+        if (!seller || typeof seller !== "object") return null;
+        const name = cleanText(seller.name);
+        const joinedAt = validDate(seller.joinedAt) ? seller.joinedAt : Utils.todayIso();
+        if (!name) return null;
+        const history = (Array.isArray(seller.salaryHistory) ? seller.salaryHistory : []).map((entry) => ({
+          effectiveDate: validDate(entry?.effectiveDate) ? entry.effectiveDate : joinedAt,
+          amount: number(entry?.amount)
+        })).sort((a, b) => a.effectiveDate.localeCompare(b.effectiveDate));
+        if (!history.length) history.push({ effectiveDate: joinedAt, amount: number(seller.baseSalary) });
+        return { id: cleanText(seller.id) || id("sel"), name, active: seller.active !== false, joinedAt, salaryHistory: history };
+      };
+
+      const normalizeCycle = (cycle) => {
+        if (!cycle || typeof cycle !== "object" || !cleanText(cycle.sellerId) || !validDate(cycle.startDate)) return null;
+        return {
+          id: cleanText(cycle.id) || id("cyc"), sellerId: cleanText(cycle.sellerId), label: cleanText(cycle.label) || monthLabel(cycle.startDate), startDate: cycle.startDate,
+          completedAt: validDate(cycle.completedAt) ? cycle.completedAt : "", targetDays: 26, baseSalary: number(cycle.baseSalary),
+          status: ["OPEN", "TO_COMPLETE", "COMPLETED", "PAYABLE", "PAID"].includes(cycle.status) ? cycle.status : "OPEN",
+          paymentDate: validDate(cycle.paymentDate) ? cycle.paymentDate : "", paidAmount: number(cycle.paidAmount), treasuryMovementId: cleanText(cycle.treasuryMovementId)
+        };
+      };
+
+      const normalizeSale = (sale) => {
+        if (!sale || typeof sale !== "object" || !cleanText(sale.sellerId) || !cleanText(sale.cycleId) || !validDate(sale.date)) return null;
+        const cv = number(sale.cv); const qn = number(sale.qn); const total = cv + qn;
+        if (total <= 0) return null;
+        const calculated = Utils.calculateDay({ cv, qn, depenses: 0 });
+        return { id: cleanText(sale.id) || id("sale"), sellerId: cleanText(sale.sellerId), cycleId: cleanText(sale.cycleId), date: sale.date, cv, qn, total, ca: calculated.ca, directCost: calculated.depenses };
+      };
+
+      const normalizeAbsence = (absence) => {
+        if (!absence || typeof absence !== "object" || !cleanText(absence.sellerId) || !cleanText(absence.cycleId) || !validDate(absence.date)) return null;
+        return { id: cleanText(absence.id) || id("abs"), sellerId: cleanText(absence.sellerId), cycleId: cleanText(absence.cycleId), date: absence.date };
+      };
+
+      const save = () => { localStorage.setItem(sellersKey, JSON.stringify(sellers)); localStorage.setItem(salesKey, JSON.stringify(sales)); localStorage.setItem(cyclesKey, JSON.stringify(cycles)); localStorage.setItem(absencesKey, JSON.stringify(absences)); };
+      const load = () => { sellers = safeArray(sellersKey).map(normalizeSeller).filter(Boolean); cycles = safeArray(cyclesKey).map(normalizeCycle).filter(Boolean); sales = safeArray(salesKey).map(normalizeSale).filter(Boolean); absences = safeArray(absencesKey).map(normalizeAbsence).filter(Boolean); save(); };
+      const getAll = () => sellers.map(clone);
+      const getSales = () => sales.map(clone);
+      const getCycles = () => cycles.map(clone);
+      const getAbsences = () => absences.map(clone);
+      const sellerById = (sellerId) => sellers.find((seller) => seller.id === sellerId) || null;
+      const cycleById = (cycleId) => cycles.find((cycle) => cycle.id === cycleId) || null;
+      const salaryAt = (seller, date) => [...seller.salaryHistory].filter((entry) => entry.effectiveDate <= date).pop()?.amount ?? seller.salaryHistory[0]?.amount ?? 0;
+      const salesForCycle = (cycleId) => sales.filter((sale) => sale.cycleId === cycleId);
+      const cycleTotals = (cycle) => salesForCycle(cycle.id).reduce((total, sale) => ({ days: total.days + 1, sales: total.sales + sale.total, ca: total.ca + sale.ca, directCost: total.directCost + sale.directCost }), { days: 0, sales: 0, ca: 0, directCost: 0 });
+      const bonusFor = (quantity) => Settings.all().sellerBonusRules.reduce((sum, rule) => sum + (quantity >= rule.threshold ? rule.bonus : 0), 0);
+      const hydrateCycle = (cycle) => { const totals = cycleTotals(cycle); const completed = totals.days >= 26; const status = cycle.status === "PAID" ? "PAID" : completed ? "PAYABLE" : totals.days ? "TO_COMPLETE" : "OPEN"; return { ...clone(cycle), ...totals, absences: absences.filter((absence) => absence.cycleId === cycle.id).length, remainingDays: Math.max(0, 26 - totals.days), bonus: bonusFor(totals.sales), totalDue: cycle.baseSalary + bonusFor(totals.sales), status }; };
+      const activeCycle = (sellerId) => cycles.find((cycle) => cycle.sellerId === sellerId && ["OPEN", "TO_COMPLETE"].includes(cycle.status)) || null;
+      const createCycle = (sellerId, startDate) => { const seller = sellerById(sellerId); if (!seller) return null; const cycle = normalizeCycle({ id: id("cyc"), sellerId, label: monthLabel(startDate), startDate, targetDays: 26, baseSalary: salaryAt(seller, startDate), status: "OPEN" }); cycles.push(cycle); return cycle; };
+      const refreshCycle = (cycle) => { const totals = cycleTotals(cycle); if (totals.days >= 26 && cycle.status !== "PAID") { cycle.status = "PAYABLE"; cycle.completedAt = salesForCycle(cycle.id).sort((a, b) => a.date.localeCompare(b.date))[25]?.date || cycle.completedAt; } else if (totals.days > 0 && cycle.status === "OPEN") cycle.status = "TO_COMPLETE"; return hydrateCycle(cycle); };
+
+      const create = ({ name, joinedAt, baseSalary }) => { const seller = normalizeSeller({ id: id("sel"), name, joinedAt, baseSalary, active: true, salaryHistory: [{ effectiveDate: joinedAt, amount: baseSalary }] }); if (!seller) return null; sellers.push(seller); save(); return clone(seller); };
+      const changeSalary = (sellerId, amount, effectiveDate = Utils.todayIso()) => { const seller = sellerById(sellerId); if (!seller || !validDate(effectiveDate) || !Number.isFinite(Number(amount)) || Number(amount) < 0) return null; seller.salaryHistory = seller.salaryHistory.filter((entry) => entry.effectiveDate !== effectiveDate); seller.salaryHistory.push({ effectiveDate, amount: number(amount) }); seller.salaryHistory.sort((a, b) => a.effectiveDate.localeCompare(b.effectiveDate)); save(); return clone(seller); };
+      const setActive = (sellerId, active) => { const seller = sellerById(sellerId); if (!seller) return false; seller.active = Boolean(active); save(); return true; };
+      const addSale = ({ sellerId, date, cv, qn }) => {
+        const seller = sellerById(sellerId); const cleanCv = number(cv); const cleanQn = number(qn);
+        if (!seller || !seller.active || !validDate(date) || cleanCv + cleanQn <= 0) return { error: "Renseignez un vendeur actif, une date et au moins une vente." };
+        if (sales.some((sale) => sale.sellerId === sellerId && sale.date === date) || absences.some((absence) => absence.sellerId === sellerId && absence.date === date)) return { error: "Cette date est déjà enregistrée pour ce vendeur." };
+        let cycle = activeCycle(sellerId); if (!cycle) cycle = createCycle(sellerId, date);
+        if (!cycle) return { error: "Impossible de créer le cycle vendeur." };
+        const sale = normalizeSale({ id: id("sale"), sellerId, cycleId: cycle.id, date, cv: cleanCv, qn: cleanQn }); sales.push(sale); const hydrated = refreshCycle(cycle); save(); return { sale: clone(sale), cycle: hydrated };
+      };
+      const addAbsence = ({ sellerId, date }) => {
+        const seller = sellerById(sellerId); const cycle = activeCycle(sellerId);
+        if (!seller || !seller.active || !validDate(date)) return { error: "Renseignez un vendeur actif et une date valide." };
+        if (!cycle) return { error: "Le vendeur n’a pas de cycle ouvert à compléter." };
+        if (sales.some((sale) => sale.sellerId === sellerId && sale.date === date) || absences.some((absence) => absence.sellerId === sellerId && absence.date === date)) return { error: "Cette date est déjà enregistrée pour ce vendeur." };
+        const absence = normalizeAbsence({ id: id("abs"), sellerId, cycleId: cycle.id, date }); absences.push(absence); save(); return { absence: clone(absence), cycle: hydrateCycle(cycle) };
+      };
+      const sellerStats = (sellerId) => { const seller = sellerById(sellerId); const sellerSales = sales.filter((sale) => sale.sellerId === sellerId); const totals = sellerSales.reduce((total, sale) => ({ sales: total.sales + sale.total, ca: total.ca + sale.ca, directCost: total.directCost + sale.directCost }), { sales: 0, ca: 0, directCost: 0 }); const days = sellerSales.length; const totalCa = sales.reduce((sum, sale) => sum + sale.ca, 0); const hydratedCycles = cycles.filter((cycle) => cycle.sellerId === sellerId).map(hydrateCycle); return { seller: seller ? clone(seller) : null, ...totals, days, averageSales: days ? totals.sales / days : 0, averageCa: days ? totals.ca / days : 0, caShare: totalCa ? totals.ca / totalCa * 100 : 0, completedCycles: hydratedCycles.filter((cycle) => ["PAYABLE", "PAID"].includes(cycle.status)).length, bonuses: hydratedCycles.reduce((sum, cycle) => sum + cycle.bonus, 0), currentCycle: hydratedCycles.find((cycle) => ["OPEN", "TO_COMPLETE"].includes(cycle.status)) || null, cycles: hydratedCycles }; };
+      const performance = () => sellers.map((seller) => sellerStats(seller.id)).sort((a, b) => b.averageSales - a.averageSales);
+      const totals = () => sales.reduce((output, sale) => ({ sales: output.sales + sale.total, ca: output.ca + sale.ca, days: output.days + 1 }), { sales: 0, ca: 0, days: 0 });
+      const pay = (cycleId, paymentDate = Utils.todayIso()) => { const cycle = cycleById(cycleId); if (!cycle) return { error: "Cycle introuvable." }; const hydrated = refreshCycle(cycle); if (hydrated.status === "PAID" || cycle.treasuryMovementId) return { error: "Ce cycle a déjà été payé." }; if (hydrated.status !== "PAYABLE") return { error: "Le cycle doit atteindre 26 journées avant paiement." }; if (!Treasury.isInitialized()) return { error: "Initialisez d’abord la trésorerie pour enregistrer ce paiement." }; if (!validDate(paymentDate)) return { error: "Date de paiement invalide." }; const seller = sellerById(cycle.sellerId); const movement = Treasury.add({ date: paymentDate, type: "out", category: "salaires", label: `Salaire · ${seller?.name || "Vendeur"} · ${cycle.label}`, amount: hydrated.totalDue, note: `Cycle ${cycle.label} · prime ${Utils.formatMoney(hydrated.bonus)}`, reference: { sellerId: cycle.sellerId, cycleId: cycle.id } }); if (!movement) return { error: "Impossible d’enregistrer la sortie de trésorerie." }; cycle.status = "PAID"; cycle.paymentDate = paymentDate; cycle.paidAmount = hydrated.totalDue; cycle.treasuryMovementId = movement.id; save(); return { cycle: hydrateCycle(cycle), movement: clone(movement) }; };
+      const replace = (payload = {}) => { sellers = (payload.sellers || []).map(normalizeSeller).filter(Boolean); cycles = (payload.cycles || []).map(normalizeCycle).filter(Boolean); sales = (payload.sales || []).map(normalizeSale).filter(Boolean); absences = (payload.absences || []).map(normalizeAbsence).filter(Boolean); save(); };
+      load();
+      return { getAll, getSales, getCycles, getAbsences, create, changeSalary, setActive, addSale, addAbsence, sellerStats, performance, totals, bonusFor, pay, replace };
     })();
 
     const App = (() => {
@@ -3731,7 +3992,7 @@
         </head>
         <body>
           <h1>NISSA Manager - Rapport mensuel</h1>
-          <p>${escapeHtml(report.label)} · Version v2.6.0</p>
+          <p>${escapeHtml(report.label)} · Version v2.7.0</p>
           <div class="summary">
             <div class="card"><strong>CA</strong>${escapeHtml(Utils.formatMoney(report.totals.ca))}</div>
             <div class="card"><strong>Bénéfice</strong>${escapeHtml(Utils.formatMoney(report.totals.benefice))}</div>
@@ -3806,6 +4067,104 @@
       };
 
       return { init, render };
+    })();
+
+    const SellersView = (() => {
+      const sellerForm = document.querySelector("#sellerForm");
+      const sellerName = document.querySelector("#sellerName");
+      const sellerStartDate = document.querySelector("#sellerStartDate");
+      const sellerSalary = document.querySelector("#sellerSalary");
+      const sellerStatus = document.querySelector("#sellerStatus");
+      const saleForm = document.querySelector("#sellerSaleForm");
+      const saleDate = document.querySelector("#sellerSaleDate");
+      const saleSeller = document.querySelector("#sellerSaleSeller");
+      const saleCv = document.querySelector("#sellerSaleCv");
+      const saleQn = document.querySelector("#sellerSaleQn");
+      const saleStatus = document.querySelector("#sellerSaleStatus");
+      const absenceForm = document.querySelector("#sellerAbsenceForm");
+      const absenceDate = document.querySelector("#sellerAbsenceDate");
+      const absenceSeller = document.querySelector("#sellerAbsenceSeller");
+      const absenceStatus = document.querySelector("#sellerAbsenceStatus");
+      const bonusForm = document.querySelector("#sellerBonusForm");
+      const bonusRules = document.querySelector("#sellerBonusRules");
+      const bonusStatus = document.querySelector("#sellerBonusStatus");
+      const summary = document.querySelector("#sellerSummary");
+      const mount = document.querySelector("#sellerManagementMount");
+      const dashboardMount = document.querySelector("#dashboardSellers");
+      const escapeHtml = (value) => String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+      const setStatus = (element, message, error = false) => { element.textContent = message; element.classList.toggle("error", error); };
+      const percent = (value) => `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 }).format(value)} %`;
+      const money = (value) => Utils.formatMoney(value || 0);
+      const number = (value) => Utils.formatNumber(Math.round(value || 0));
+      const stateLabel = (status) => ({ OPEN: "Ouvert", TO_COMPLETE: "À compléter", PAYABLE: "À payer", PAID: "Payé", COMPLETED: "Terminé" }[status] || status);
+
+      const renderSummary = () => {
+        const total = Sellers.totals();
+        const rankings = Sellers.performance();
+        const due = rankings.flatMap((item) => item.cycles).filter((cycle) => cycle.status === "PAYABLE").reduce((sum, cycle) => sum + cycle.totalDue, 0);
+        summary.innerHTML = [
+          ["Vendeurs actifs", Sellers.getAll().filter((seller) => seller.active).length],
+          ["Ventes individuelles", number(total.sales)],
+          ["CA individuel", money(total.ca)],
+          ["Salaires à payer", money(due)]
+        ].map(([label, value]) => `<article class="kpi-card"><p class="kpi-label">${escapeHtml(label)}</p><p class="kpi-value">${escapeHtml(value)}</p></article>`).join("");
+      };
+
+      const renderOptions = () => {
+        const selected = saleSeller.value;
+        const absenceSelected = absenceSeller.value;
+        const active = Sellers.getAll().filter((seller) => seller.active);
+        const options = active.length ? `<option value="">Choisir un vendeur</option>${active.map((seller) => `<option value="${escapeHtml(seller.id)}">${escapeHtml(seller.name)}</option>`).join("")}` : '<option value="">Ajoutez d’abord un vendeur</option>';
+        saleSeller.innerHTML = options;
+        absenceSeller.innerHTML = options;
+        if (active.some((seller) => seller.id === selected)) saleSeller.value = selected;
+        if (active.some((seller) => seller.id === absenceSelected)) absenceSeller.value = absenceSelected;
+        saleSeller.disabled = !active.length;
+        absenceSeller.disabled = !active.length;
+      };
+
+      const cycleRow = (cycle) => `<tr>
+        <td>${escapeHtml(cycle.label)}</td><td>${escapeHtml(`${cycle.days} / 26`)}</td><td>${escapeHtml(number(cycle.sales))}</td><td>${escapeHtml(money(cycle.ca))}</td>
+        <td>${escapeHtml(money(cycle.baseSalary))}</td><td>${escapeHtml(money(cycle.bonus))}</td><td>${escapeHtml(money(cycle.totalDue))}</td>
+        <td><span class="cycle-status ${cycle.status.toLowerCase()}">${escapeHtml(stateLabel(cycle.status))}</span>${cycle.paymentDate ? `<br><small>${escapeHtml(Utils.formatDate(cycle.paymentDate))}</small>` : ""}</td>
+        <td>${cycle.status === "PAYABLE" ? `<button class="primary-button" type="button" data-pay-cycle="${escapeHtml(cycle.id)}">Payer</button>` : ""}</td>
+      </tr>`;
+
+      const sellerCard = (stats, rank) => {
+        const { seller, currentCycle, cycles } = stats;
+        const current = currentCycle ? `<div class="progress-row"><div class="progress-head"><strong>Cycle actuel · ${escapeHtml(currentCycle.label)}</strong><span>${escapeHtml(`${currentCycle.days} / 26 jours`)}</span></div><div class="progress-track"><div class="progress-fill" style="width:${Math.min(100, currentCycle.days / 26 * 100)}%"></div></div><span class="stat-note">${escapeHtml(`${currentCycle.remainingDays} jour(s) restant(s) · ${currentCycle.absences} absence(s) enregistrée(s) · salaire appliqué ${money(currentCycle.baseSalary)} · ${stateLabel(currentCycle.status)}`)}</span></div>` : '<div class="advice-item"><strong>Aucun cycle ouvert.</strong> La prochaine vente démarrera un nouveau cycle de 26 jours.</div>';
+        const rules = Settings.all().sellerBonusRules.map((rule) => `${number(rule.threshold)} : +${money(rule.bonus)}`).join(" · ");
+        return `<article class="seller-card"><div class="seller-card-head"><div><p class="page-kicker">Classement quotidien #${rank}</p><h3 class="panel-title">${escapeHtml(seller.name)}</h3><p class="panel-subtitle">${seller.active ? "Actif" : "Inactif"} · Entrée le ${escapeHtml(Utils.formatDate(seller.joinedAt))} · salaire actuel ${escapeHtml(money(seller.salaryHistory[seller.salaryHistory.length - 1]?.amount))}</p></div><div class="seller-actions"><button class="secondary-button" type="button" data-toggle-seller="${escapeHtml(seller.id)}">${seller.active ? "Désactiver" : "Activer"}</button><button class="secondary-button" type="button" data-change-salary="${escapeHtml(seller.id)}">Changer salaire</button></div></div>
+          <div class="stats-grid seller-metrics"><article class="stat-card"><p class="stat-label">Ventes</p><p class="stat-value">${escapeHtml(number(stats.sales))}</p><p class="stat-note">${escapeHtml(`${number(stats.averageSales)} / jour`)}</p></article><article class="stat-card"><p class="stat-label">CA</p><p class="stat-value">${escapeHtml(money(stats.ca))}</p><p class="stat-note">${escapeHtml(`${money(stats.averageCa)} / jour · ${percent(stats.caShare)} du CA individuel`)}</p></article><article class="stat-card"><p class="stat-label">Marge brute</p><p class="stat-value">${escapeHtml(money(stats.ca - stats.directCost))}</p><p class="stat-note">Coûts directs seulement</p></article></div>
+          ${current}
+          <p class="stat-note">Prime cumulative : ${escapeHtml(rules)}</p>
+          <details class="seller-history"><summary>Historique des salaires</summary><div class="mini-list">${seller.salaryHistory.slice().reverse().map((entry) => `<div class="mini-row"><strong>À partir du ${escapeHtml(Utils.formatDate(entry.effectiveDate))}</strong><span>${escapeHtml(money(entry.amount))} par cycle</span></div>`).join("")}</div></details>
+          <div class="table-wrap seller-cycle-table"><table><thead><tr><th>Cycle</th><th>Jours</th><th>Ventes</th><th>CA</th><th>Base</th><th>Prime</th><th>Total dû</th><th>Statut</th><th></th></tr></thead><tbody>${cycles.length ? cycles.sort((a, b) => b.startDate.localeCompare(a.startDate)).map(cycleRow).join("") : '<tr><td colspan="9">Aucun cycle pour le moment.</td></tr>'}</tbody></table></div>
+        </article>`;
+      };
+
+      const render = () => {
+        renderSummary(); renderOptions();
+        bonusRules.value = Settings.all().sellerBonusRules.map((rule) => `${rule.threshold}:${rule.bonus}`).join(", ");
+        const rankings = Sellers.performance();
+        mount.innerHTML = rankings.length ? `<div class="seller-list">${rankings.map((stats, index) => sellerCard(stats, index + 1)).join("")}</div>` : '<div class="empty-state">Ajoutez un vendeur pour commencer le suivi des cycles et rémunérations.</div>';
+      };
+
+      const renderDashboard = () => {
+        const rankings = Sellers.performance();
+        if (!rankings.length) { dashboardMount.innerHTML = '<div class="empty-state">Aucune performance vendeur à afficher.</div>'; return; }
+        dashboardMount.innerHTML = `<div class="mini-list">${rankings.map((stats, index) => `<div class="mini-row"><div><strong>#${index + 1} · ${escapeHtml(stats.seller.name)}</strong><span>${escapeHtml(`${number(stats.days)} jour(s) · ${number(stats.averageSales)} ventes/jour · ${percent(stats.caShare)} du CA individuel`)}</span></div><div class="mini-amount">${escapeHtml(money(stats.ca))}</div></div>`).join("")}</div>`;
+      };
+
+      const init = () => {
+        sellerStartDate.value = Utils.todayIso(); saleDate.value = Utils.todayIso(); absenceDate.value = Utils.todayIso();
+        sellerForm.addEventListener("submit", (event) => { event.preventDefault(); const seller = Sellers.create({ name: sellerName.value, joinedAt: sellerStartDate.value, baseSalary: sellerSalary.value }); if (!seller) { setStatus(sellerStatus, "Renseignez un nom et une date valides.", true); return; } sellerForm.reset(); sellerStartDate.value = Utils.todayIso(); setStatus(sellerStatus, "Vendeur ajouté."); renderAll(); });
+        saleForm.addEventListener("submit", (event) => { event.preventDefault(); const result = Sellers.addSale({ sellerId: saleSeller.value, date: saleDate.value, cv: saleCv.value, qn: saleQn.value }); if (result.error) { setStatus(saleStatus, result.error, true); return; } const totals = result.sale; Expenses.add({ date: totals.date, category: "matieres_premieres", label: `Coûts produits · vente vendeur`, amount: totals.directCost, note: "Calculés automatiquement depuis la vente individuelle" }, { skipSync: true }); Store.saveDay({ date: totals.date, cv: totals.cv, qn: totals.qn, total: totals.total, ca: totals.ca, depenses: totals.directCost, benefice: totals.ca - totals.directCost, caisse: totals.ca - totals.directCost }); saleCv.value = "0"; saleQn.value = "0"; setStatus(saleStatus, result.cycle.status === "PAYABLE" ? "Vente enregistrée : cycle terminé et salaire à payer." : `Vente enregistrée : ${result.cycle.days} / 26 jours dans le cycle ${result.cycle.label}.`); renderAll(); });
+        absenceForm.addEventListener("submit", (event) => { event.preventDefault(); const result = Sellers.addAbsence({ sellerId: absenceSeller.value, date: absenceDate.value }); if (result.error) { setStatus(absenceStatus, result.error, true); return; } setStatus(absenceStatus, `Absence enregistrée dans le cycle ${result.cycle.label}.`); renderAll(); });
+        bonusForm.addEventListener("submit", (event) => { event.preventDefault(); const rules = bonusRules.value.split(",").map((value) => value.trim().split(":")).map(([threshold, bonus]) => ({ threshold: Number(threshold), bonus: Number(bonus) })).filter((rule) => Number.isFinite(rule.threshold) && rule.threshold > 0 && Number.isFinite(rule.bonus) && rule.bonus > 0).sort((a, b) => a.threshold - b.threshold); if (!rules.length) { setStatus(bonusStatus, "Utilisez le format 3000:10000, 3200:10000.", true); return; } const settings = Settings.all(); settings.sellerBonusRules = rules; Settings.update(settings); setStatus(bonusStatus, "Règles de prime enregistrées."); renderAll(); });
+        mount.addEventListener("click", (event) => { const pay = event.target.closest("[data-pay-cycle]"); const toggle = event.target.closest("[data-toggle-seller]"); const salary = event.target.closest("[data-change-salary]"); if (pay) { if (!window.confirm("Confirmer le paiement de ce cycle ? Une sortie de trésorerie sera créée.")) return; const result = Sellers.pay(pay.dataset.payCycle); if (result.error) window.alert(result.error); else renderAll(); } if (toggle) { const seller = Sellers.getAll().find((item) => item.id === toggle.dataset.toggleSeller); if (seller) { Sellers.setActive(seller.id, !seller.active); renderAll(); } } if (salary) { const seller = Sellers.getAll().find((item) => item.id === salary.dataset.changeSalary); const amount = window.prompt(`Nouveau salaire de base pour ${seller?.name || "ce vendeur"} :`); if (amount === null) return; const effectiveDate = window.prompt("Date d’effet (AAAA-MM-JJ) :", Utils.todayIso()); if (effectiveDate === null) return; if (!Sellers.changeSalary(salary.dataset.changeSalary, amount, effectiveDate)) window.alert("Salaire ou date d’effet invalide."); else renderAll(); } });
+      };
+      return { init, render, renderDashboard };
     })();
 
     const Parametres = (() => {
@@ -3916,13 +4275,17 @@
 
       const exportJson = () => {
         const payload = {
-          version: "v2.6.0",
+          version: "v2.7.0",
           exportedAt: new Date().toISOString(),
           settings: Settings.all(),
           records: Store.all(),
           expenses: Expenses.getAll(),
           treasury: Treasury.getAll(),
-          goals: Goals.getAll()
+          goals: Goals.getAll(),
+          sellers: Sellers.getAll(),
+          sellerSales: Sellers.getSales(),
+          sellerCycles: Sellers.getCycles(),
+          sellerAbsences: Sellers.getAbsences()
         };
         downloadBlob(JSON.stringify(payload, null, 2), `nissa-manager-sauvegarde-${Utils.todayIso()}.json`, "application/json;charset=utf-8");
         const nextSettings = Settings.all();
@@ -3943,6 +4306,10 @@
             let importedExpenses = null;
             let importedTreasury = null;
             let importedGoals = null;
+            let importedSellers = null;
+            let importedSellerSales = null;
+            let importedSellerCycles = null;
+            let importedSellerAbsences = null;
             if (Array.isArray(parsed)) {
               importedRecords = parsed;
               importedSomething = true;
@@ -3973,6 +4340,10 @@
                 importedGoals = parsed.goals;
                 importedSomething = true;
               }
+              if (Array.isArray(parsed.sellers)) { importedSellers = parsed.sellers; importedSomething = true; }
+              if (Array.isArray(parsed.sellerSales)) { importedSellerSales = parsed.sellerSales; importedSomething = true; }
+              if (Array.isArray(parsed.sellerCycles)) { importedSellerCycles = parsed.sellerCycles; importedSomething = true; }
+              if (Array.isArray(parsed.sellerAbsences)) { importedSellerAbsences = parsed.sellerAbsences; importedSomething = true; }
             }
             if (!importedSomething) throw new Error("Aucune donnee importable.");
             if (importedRecords) Store.replace(importedRecords);
@@ -3996,6 +4367,7 @@
               Settings.update(settings);
             }
             Goals.replace(importedGoals || []);
+            if (importedSellers || importedSellerSales || importedSellerCycles || importedSellerAbsences) Sellers.replace({ sellers: importedSellers || [], sales: importedSellerSales || [], cycles: importedSellerCycles || [], absences: importedSellerAbsences || [] });
             fillForm();
             renderAll();
             setStatus("Import JSON terminé.");
@@ -4043,6 +4415,7 @@
           Expenses.replace([]);
           Treasury.replace([]);
           Goals.replace([]);
+          Sellers.replace({});
           Settings.reset();
           fillForm();
           renderAll();
@@ -4204,6 +4577,8 @@
       TreasuryView.render();
       GoalsView.render();
       GoalsView.renderDashboard();
+      SellersView.render();
+      SellersView.renderDashboard();
       Statistiques.render();
       Previsions.render();
       Rapports.render();
@@ -4218,6 +4593,7 @@
       ExpensesView.init();
       TreasuryView.init();
       GoalsView.init();
+      SellersView.init();
       Rapports.init();
       Parametres.init();
       renderAll();
