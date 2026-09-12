@@ -1366,10 +1366,6 @@
           <span class="nav-icon" aria-hidden="true">⌂</span>
           <span class="nav-label">Tableau de bord</span>
         </button>
-        <button class="nav-button" type="button" data-view="journee">
-          <span class="nav-icon" aria-hidden="true">$</span>
-          <span class="nav-label">Journée</span>
-        </button>
         <button class="nav-button" type="button" data-view="vendeurs">
           <span class="nav-icon" aria-hidden="true">♙</span>
           <span class="nav-label">Vendeurs</span>
@@ -1465,16 +1461,6 @@
           <section class="panel">
             <div class="panel-header">
               <div>
-                <h3 class="panel-title">Saisie rapide</h3>
-                <p class="panel-subtitle">Enregistrez la journée et retrouvez-la directement dans l'historique.</p>
-              </div>
-            </div>
-            <div id="dashboardFormMount"></div>
-          </section>
-
-          <section class="panel">
-            <div class="panel-header">
-              <div>
                 <h3 class="panel-title">Dernières journées</h3>
                 <p class="panel-subtitle">Les cinq dernières clôtures enregistrées.</p>
               </div>
@@ -1489,18 +1475,6 @@
         <section class="panel" style="margin-top:18px">
           <div class="panel-header"><div><h3 class="panel-title">Performance vendeurs</h3><p class="panel-subtitle">Classement sur les ventes moyennes par jour travaillé.</p></div></div>
           <div id="dashboardSellers"></div>
-        </section>
-      </section>
-
-      <section class="view" id="view-journee" data-title="Journée" data-kicker="Saisie des ventes">
-        <section class="panel">
-          <div class="panel-header">
-            <div>
-              <h3 class="panel-title">Valider une journée</h3>
-              <p class="panel-subtitle">Prix, coûts et devise configurables dans les paramètres.</p>
-            </div>
-          </div>
-          <div id="journeeFormMount"></div>
         </section>
       </section>
 
@@ -2020,52 +1994,6 @@
     </main>
   </div>
 
-  <template id="journeeFormTemplate">
-    <form class="journee-form" novalidate>
-      <div class="form-grid">
-        <div class="field">
-          <label for="inputCv">CV vendus</label>
-          <input id="inputCv" name="cv" type="number" min="0" step="1" inputmode="numeric" placeholder="0">
-        </div>
-        <div class="field">
-          <label for="inputQn">QN vendus</label>
-          <input id="inputQn" name="qn" type="number" min="0" step="1" inputmode="numeric" placeholder="0">
-        </div>
-        <div class="field">
-          <label for="inputDepenses">Dépenses complémentaires</label>
-          <input id="inputDepenses" name="depenses" type="number" min="0" step="1" inputmode="numeric" placeholder="0">
-        </div>
-      </div>
-
-      <div class="summary-grid" aria-live="polite">
-        <div class="summary-item">
-          <p class="summary-label">CA calculé</p>
-          <p class="summary-value" data-summary="ca">0 Ar</p>
-        </div>
-        <div class="summary-item">
-          <p class="summary-label">Total glaces</p>
-          <p class="summary-value" data-summary="total">0</p>
-        </div>
-        <div class="summary-item">
-          <p class="summary-label">Bénéfice</p>
-          <p class="summary-value" data-summary="benefice">0 Ar</p>
-        </div>
-        <div class="summary-item">
-          <p class="summary-label">Caisse</p>
-          <p class="summary-value" data-summary="caisse">0 Ar</p>
-        </div>
-      </div>
-
-      <div class="actions">
-        <p class="status-message" data-status></p>
-        <div class="actions">
-          <button class="secondary-button" type="reset">Réinitialiser</button>
-          <button class="primary-button" type="submit">Valider la journée</button>
-        </div>
-      </div>
-    </form>
-  </template>
-
   <script>
     const Settings = (() => {
       const storageKey = "nissa_settings";
@@ -2287,15 +2215,19 @@
 
       const sortByRecent = (records) => [...records].sort((a, b) => new Date(b.date) - new Date(a.date));
       const normalizeDay = (day) => {
+        const recordId = String(day && day.id || "").trim() || `day_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
         const cv = toNumber(day && day.cv);
         const qn = toNumber(day && day.qn);
-        const total = toNumber(day && day.total) || cv + qn;
+        const suppliedTotal = Number(day && day.total);
+        const total = Number.isFinite(suppliedTotal) && suppliedTotal >= 0 ? Math.floor(suppliedTotal) : cv + qn;
         const ca = toNumber(day && day.ca);
         const depenses = toNumber(day && day.depenses);
         const benefice = Number.isFinite(Number(day && day.benefice)) ? Math.round(Number(day.benefice)) : ca - depenses;
         const caisse = Number.isFinite(Number(day && day.caisse)) ? Math.round(Number(day.caisse)) : benefice;
 
         return {
+          id: recordId,
+          source: day && day.source === "seller-sales" ? "seller-sales" : "",
           date: /^\d{4}-\d{2}-\d{2}$/.test(String(day && day.date)) ? day.date : todayIso(),
           cv,
           qn,
@@ -2360,12 +2292,34 @@
     const Store = (() => {
       let records = Utils.sortByRecent(Utils.normalizeRecords(Utils.readData()));
 
+      // Ajoute des identifiants aux anciennes clôtures afin qu'elles puissent être
+      // modifiées ou supprimées individuellement, même si plusieurs ont la même date.
+      Utils.writeData(records);
+
       const all = () => Utils.sortByRecent(records);
 
       const saveDay = (day) => {
         records = Utils.sortByRecent([Utils.normalizeDay(day), ...records]);
         Utils.writeData(records);
         return all();
+      };
+
+      const addSellerSale = (sale) => {
+        const existing = records.find((day) => day.source === "seller-sales" && day.date === sale.date);
+        const nextDay = existing ? {
+          ...existing,
+          cv: existing.cv + sale.cv,
+          qn: existing.qn + sale.qn,
+          total: existing.total + sale.total,
+          ca: existing.ca + sale.ca,
+          depenses: existing.depenses + sale.directCost,
+          benefice: existing.benefice + sale.ca - sale.directCost,
+          caisse: existing.caisse + sale.ca - sale.directCost
+        } : {
+          source: "seller-sales", date: sale.date, cv: sale.cv, qn: sale.qn, total: sale.total,
+          ca: sale.ca, depenses: sale.directCost, benefice: sale.ca - sale.directCost, caisse: sale.ca - sale.directCost
+        };
+        return existing ? update(existing.id, nextDay) : (saveDay(nextDay), all().find((day) => day.source === "seller-sales" && day.date === sale.date));
       };
 
       const clear = () => {
@@ -2406,7 +2360,23 @@
         return changed;
       };
 
-      return { all, saveDay, clear, replace, latest, today, syncExpensesForDate };
+      const update = (recordId, day) => {
+        const index = records.findIndex((record) => record.id === recordId);
+        if (index < 0) return null;
+        records[index] = Utils.normalizeDay({ ...records[index], ...day, id: recordId });
+        Utils.writeData(records);
+        return { ...records[index] };
+      };
+
+      const remove = (recordId) => {
+        const count = records.length;
+        records = records.filter((record) => record.id !== recordId);
+        if (records.length === count) return false;
+        Utils.writeData(records);
+        return true;
+      };
+
+      return { all, saveDay, addSellerSale, clear, replace, latest, today, syncExpensesForDate, update, remove };
     })();
 
     const Expenses = (() => {
@@ -2777,7 +2747,17 @@
         if (sales.some((sale) => sale.sellerId === sellerId && sale.date === date) || absences.some((absence) => absence.sellerId === sellerId && absence.date === date)) return { error: "Cette date est déjà enregistrée pour ce vendeur." };
         let cycle = activeCycle(sellerId); if (!cycle) cycle = createCycle(sellerId, date);
         if (!cycle) return { error: "Impossible de créer le cycle vendeur." };
-        const sale = normalizeSale({ id: id("sale"), sellerId, cycleId: cycle.id, date, cv: cleanCv, qn: cleanQn }); sales.push(sale); const hydrated = refreshCycle(cycle); save(); return { sale: clone(sale), cycle: hydrated };
+        const sale = normalizeSale({ id: id("sale"), sellerId, cycleId: cycle.id, date, cv: cleanCv, qn: cleanQn });
+        sales.push(sale);
+        Expenses.add({
+          date: sale.date,
+          category: "matieres_premieres",
+          label: `Coûts produits · ${seller.name}`,
+          amount: sale.directCost,
+          note: "Calculés automatiquement depuis une vente vendeur"
+        }, { skipSync: true });
+        Store.addSellerSale(sale);
+        const hydrated = refreshCycle(cycle); save(); return { sale: clone(sale), cycle: hydrated };
       };
       const addAbsence = ({ sellerId, date }) => {
         const seller = sellerById(sellerId); const cycle = activeCycle(sellerId);
@@ -2875,9 +2855,10 @@
     const Historique = (() => {
       const mount = document.querySelector("#historyMount");
       const clearButton = document.querySelector("#clearDataButton");
+      const escapeHtml = (value) => String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
 
       const renderEmpty = () => {
-        mount.innerHTML = '<div class="empty-state">L\'historique est vide. Validez une journée pour commencer.</div>';
+        mount.innerHTML = '<div class="empty-state">L\'historique est vide. Enregistrez une vente depuis Vendeurs pour commencer.</div>';
       };
 
       const renderTable = (records) => {
@@ -2894,6 +2875,7 @@
                   <th>Dépenses</th>
                   <th>Bénéfice</th>
                   <th>Caisse</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -2907,12 +2889,42 @@
                     <td>${Utils.formatMoney(day.depenses)}</td>
                     <td class="${day.benefice >= 0 ? "amount-positive" : "amount-negative"}">${Utils.formatMoney(day.benefice)}</td>
                     <td>${Utils.formatMoney(day.caisse)}</td>
+                    <td><div class="expense-actions"><button class="secondary-button" type="button" data-edit-day="${escapeHtml(day.id)}">Modifier</button><button class="danger-button" type="button" data-remove-day="${escapeHtml(day.id)}">Supprimer</button></div></td>
                   </tr>
                 `).join("")}
               </tbody>
             </table>
           </div>
         `;
+      };
+
+      const editRow = (recordId) => {
+        const day = Store.all().find((record) => record.id === recordId);
+        const row = mount.querySelector(`[data-day-row="${CSS.escape(recordId)}"]`) || mount.querySelector(`[data-edit-day="${CSS.escape(recordId)}"]`)?.closest("tr");
+        if (!day || !row) return;
+        row.dataset.dayRow = recordId;
+        row.innerHTML = `
+          <td><input aria-label="Date" name="date" type="date" value="${escapeHtml(day.date)}"></td>
+          <td><input aria-label="${escapeHtml(Utils.productLabel("cv"))}" name="cv" type="number" min="0" step="1" value="${day.cv}"></td>
+          <td><input aria-label="${escapeHtml(Utils.productLabel("qn"))}" name="qn" type="number" min="0" step="1" value="${day.qn}"></td>
+          <td><input aria-label="Total" name="total" type="number" min="0" step="1" value="${day.total}"></td>
+          <td><input aria-label="CA" name="ca" type="number" min="0" step="1" value="${day.ca}"></td>
+          <td><input aria-label="Dépenses" name="depenses" type="number" min="0" step="1" value="${day.depenses}"></td>
+          <td><input aria-label="Bénéfice" name="benefice" type="number" step="1" value="${day.benefice}"></td>
+          <td><input aria-label="Caisse" name="caisse" type="number" step="1" value="${day.caisse}"></td>
+          <td><div class="expense-actions"><button class="primary-button" type="button" data-save-day="${escapeHtml(recordId)}">Enregistrer</button><button class="secondary-button" type="button" data-cancel-day>Annuler</button></div></td>`;
+      };
+
+      const readEditedDay = (row) => {
+        const value = (name) => row.querySelector(`[name="${name}"]`).value;
+        const nonNegative = (name) => Number.isFinite(Number(value(name))) && Number(value(name)) >= 0;
+        const integerFields = ["cv", "qn", "total", "ca", "depenses"];
+        if (!Expenses.isValidDate(value("date")) || !integerFields.every(nonNegative) || !["benefice", "caisse"].every((name) => Number.isFinite(Number(value(name))))) return null;
+        return {
+          date: value("date"), cv: Math.floor(Number(value("cv"))), qn: Math.floor(Number(value("qn"))), total: Math.floor(Number(value("total"))),
+          ca: Math.floor(Number(value("ca"))), depenses: Math.floor(Number(value("depenses"))),
+          benefice: Math.round(Number(value("benefice"))), caisse: Math.round(Number(value("caisse")))
+        };
       };
 
       const render = () => {
@@ -2932,6 +2944,23 @@
           if (!confirmed) return;
           Store.clear();
           renderAll();
+        });
+        mount.addEventListener("click", (event) => {
+          const editButton = event.target.closest("[data-edit-day]");
+          const removeButton = event.target.closest("[data-remove-day]");
+          const saveButton = event.target.closest("[data-save-day]");
+          if (editButton) { editRow(editButton.dataset.editDay); return; }
+          if (removeButton) {
+            if (window.confirm("Supprimer cette journée de l'historique ?")) { Store.remove(removeButton.dataset.removeDay); renderAll(); }
+            return;
+          }
+          if (event.target.closest("[data-cancel-day]")) { render(); return; }
+          if (saveButton) {
+            const day = readEditedDay(saveButton.closest("tr"));
+            if (!day) { window.alert("Vérifiez la date et les montants saisis."); return; }
+            Store.update(saveButton.dataset.saveDay, day);
+            renderAll();
+          }
         });
       };
 
@@ -4431,146 +4460,7 @@
       return { init, render };
     })();
 
-    const Journee = (() => {
-      const template = document.querySelector("#journeeFormTemplate");
-      const mounts = [
-        document.querySelector("#dashboardFormMount"),
-        document.querySelector("#journeeFormMount")
-      ];
-
-      const getFormValues = (form) => ({
-        cv: form.elements.cv.value,
-        qn: form.elements.qn.value,
-        depenses: form.elements.depenses.value
-      });
-
-      const updateSummary = (form) => {
-        const calculated = Utils.calculateDay(getFormValues(form));
-        const existingExpenses = Expenses.totalByDate(Utils.todayIso());
-        const totals = Utils.recalculateDayExpenses({ date: Utils.todayIso(), ...calculated }, calculated.depenses + existingExpenses);
-        form.querySelector('[data-summary="ca"]').textContent = Utils.formatMoney(totals.ca);
-        form.querySelector('[data-summary="total"]').textContent = Utils.formatNumber(totals.total);
-        form.querySelector('[data-summary="benefice"]').textContent = Utils.formatMoney(totals.benefice);
-        form.querySelector('[data-summary="caisse"]').textContent = Utils.formatMoney(totals.caisse);
-        return totals;
-      };
-
-      const setStatus = (form, message, isError = false) => {
-        const status = form.querySelector("[data-status]");
-        status.textContent = message;
-        status.classList.toggle("error", isError);
-      };
-
-      const clearStatusLater = (form) => {
-        window.setTimeout(() => setStatus(form, ""), 3200);
-      };
-
-      const resetOtherForms = (activeForm) => {
-        document.querySelectorAll(".journee-form").forEach((form) => {
-          if (form === activeForm) return;
-          form.reset();
-          updateSummary(form);
-          setStatus(form, "");
-        });
-      };
-
-      const handleSubmit = (form, event) => {
-        event.preventDefault();
-        const totals = updateSummary(form);
-
-        if (totals.total === 0 && totals.depenses === 0) {
-          setStatus(form, "Saisissez au moins une vente ou une dépense.", true);
-          return;
-        }
-
-        const day = {
-          date: Utils.todayIso(),
-          ...totals
-        };
-
-        const values = getFormValues(form);
-        const productCosts = Utils.calculateDay({ cv: values.cv, qn: values.qn, depenses: 0 }).depenses;
-        const complementaryExpenses = Utils.toNumber(values.depenses);
-        if (productCosts > 0) {
-          Expenses.add({
-            date: day.date,
-            category: "matieres_premieres",
-            label: "Coûts produits",
-            amount: productCosts,
-            note: "Calculés automatiquement lors de la validation de la journée"
-          }, { skipSync: true });
-        }
-        if (complementaryExpenses > 0) {
-          Expenses.add({
-            date: day.date,
-            category: "autres",
-            label: "Dépense journée",
-            amount: complementaryExpenses,
-            note: "Enregistrée depuis le formulaire de journée"
-          }, { skipSync: true });
-        }
-        Store.saveDay(day);
-        form.reset();
-        updateSummary(form);
-        resetOtherForms(form);
-        setStatus(form, "Journée validée et ajoutée à l'historique.");
-        clearStatusLater(form);
-        renderAll();
-      };
-
-      const buildForm = (mount, index) => {
-        const formFragment = template.content.cloneNode(true);
-        const form = formFragment.querySelector("form");
-        const suffix = index === 0 ? "Dashboard" : "Journee";
-
-        form.querySelectorAll("input").forEach((input) => {
-          const label = form.querySelector(`label[for="${input.id}"]`);
-          input.id = `${input.id}${suffix}`;
-          if (label) label.setAttribute("for", input.id);
-        });
-
-        form.addEventListener("input", () => {
-          updateSummary(form);
-          setStatus(form, "");
-        });
-
-        form.addEventListener("reset", () => {
-          window.setTimeout(() => {
-            updateSummary(form);
-            setStatus(form, "");
-          }, 0);
-        });
-
-        form.addEventListener("submit", (event) => handleSubmit(form, event));
-        mount.appendChild(formFragment);
-        updateFormLabels(form);
-        updateSummary(form);
-      };
-
-      const init = () => mounts.forEach(buildForm);
-      const updateFormLabels = (form) => {
-        const cvInput = form.elements.cv;
-        const qnInput = form.elements.qn;
-        const cvLabel = cvInput ? form.querySelector(`label[for="${cvInput.id}"]`) : null;
-        const qnLabel = qnInput ? form.querySelector(`label[for="${qnInput.id}"]`) : null;
-        if (cvLabel) cvLabel.textContent = `${Utils.productLabel("cv")} vendus`;
-        if (qnLabel) qnLabel.textContent = `${Utils.productLabel("qn")} vendus`;
-        if (cvInput) cvInput.disabled = !Settings.product("cv").active;
-        if (qnInput) qnInput.disabled = !Settings.product("qn").active;
-      };
-
-      const render = () => {
-        document.querySelectorAll(".journee-form").forEach((form) => {
-          updateFormLabels(form);
-          updateSummary(form);
-        });
-      };
-
-      return { init, render };
-    })();
-
     function renderAll() {
-      Journee.render();
       Dashboard.render();
       Historique.render();
       ExpensesView.render();
@@ -4588,7 +4478,6 @@
     document.addEventListener("DOMContentLoaded", () => {
       Expenses.migrateLegacyExpenses();
       App.init();
-      Journee.init();
       Historique.init();
       ExpensesView.init();
       TreasuryView.init();
