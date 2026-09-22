@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NISSA Manager v2.7.0</title>
+  <title>NISSA Manager v2.7.1</title>
   <meta name="theme-color" content="#1f3b5b">
   <meta name="application-name" content="NISSA Manager">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1357,7 +1357,7 @@
         <div class="brand-mark" aria-hidden="true">N</div>
         <div>
           <h1 class="brand-title">NISSA Manager</h1>
-          <p class="brand-subtitle">v2.7.0</p>
+          <p class="brand-subtitle">v2.7.1</p>
         </div>
       </div>
 
@@ -4098,7 +4098,7 @@
         </head>
         <body>
           <h1>NISSA Manager - Rapport mensuel</h1>
-          <p>${escapeHtml(report.label)} · Version v2.7.0</p>
+          <p>${escapeHtml(report.label)} · Version v2.7.1</p>
           <div class="summary">
             <div class="card"><strong>CA</strong>${escapeHtml(Utils.formatMoney(report.totals.ca))}</div>
             <div class="card"><strong>Bénéfice</strong>${escapeHtml(Utils.formatMoney(report.totals.benefice))}</div>
@@ -4381,7 +4381,7 @@
 
       const exportJson = () => {
         const payload = {
-          version: "v2.7.0",
+          version: "v2.7.1",
           exportedAt: new Date().toISOString(),
           settings: Settings.all(),
           records: Store.all(),
