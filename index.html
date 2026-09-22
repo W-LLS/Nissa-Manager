@@ -2411,6 +2411,8 @@
         const label = String(expense.label || "").trim().replace(/\s+/g, " ");
         const amount = Number(expense.amount);
         const note = String(expense.note ?? "").trim();
+        const source = expense.source === "seller-sale" ? "seller-sale" : "";
+        const sellerSaleId = source ? String(expense.sellerSaleId || "").trim() : "";
         if ((!id && !generateId) || !isValidDate(date) || !(category in categories) || !label || !Number.isFinite(amount) || amount <= 0) return null;
         return {
           id: id || `exp_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
@@ -2418,7 +2420,9 @@
           category,
           label,
           amount: Math.round(amount),
-          note
+          note,
+          source,
+          sellerSaleId
         };
       };
 
@@ -2465,7 +2469,7 @@
 
       const update = (id, item) => {
         const index = expenses.findIndex((expense) => expense.id === id);
-        const normalized = normalize({ ...item, id });
+        const normalized = normalize({ ...expenses[index], ...item, id });
         if (index < 0 || !normalized) return null;
         const oldDate = expenses[index].date;
         expenses[index] = normalized;
@@ -2482,6 +2486,17 @@
         save();
         syncDayExpenses(target.date);
         return true;
+      };
+
+      const removeSellerSaleExpenses = (saleIds) => {
+        const ids = new Set(saleIds);
+        const affectedDates = [...new Set(expenses.filter((expense) => expense.source === "seller-sale" && ids.has(expense.sellerSaleId)).map((expense) => expense.date))];
+        if (!affectedDates.length) return 0;
+        const count = expenses.length;
+        expenses = expenses.filter((expense) => expense.source !== "seller-sale" || !ids.has(expense.sellerSaleId));
+        save();
+        affectedDates.forEach(syncDayExpenses);
+        return count - expenses.length;
       };
 
       const migrateLegacyExpenses = (force = false) => {
@@ -2526,6 +2541,7 @@
         add,
         update,
         remove,
+        removeSellerSaleExpenses,
         getByDate,
         getByMonth,
         getByCategory,
@@ -2576,8 +2592,8 @@
       const getAll = () => movements.map((movement) => ({ ...movement }));
       const replace = (items) => { movements = Array.isArray(items) ? items.map((item) => normalize(item)).filter(Boolean) : []; save(); return getAll(); };
       const add = (item) => { const normalized = normalize(item, true); if (!normalized) return null; movements.push(normalized); save(); return { ...normalized }; };
-      const update = (id, item) => { const index = movements.findIndex((movement) => movement.id === id); const normalized = normalize({ ...item, id }); if (index < 0 || !normalized) return null; movements[index] = normalized; save(); return { ...normalized }; };
-      const remove = (id) => { const count = movements.length; movements = movements.filter((movement) => movement.id !== id); if (movements.length === count) return false; save(); return true; };
+      const update = (id, item) => { const index = movements.findIndex((movement) => movement.id === id); if (index < 0) return null; const normalized = normalize({ ...movements[index], ...item, id }); if (!normalized) return null; movements[index] = normalized; save(); Sellers.syncPaymentMovement(normalized); return { ...normalized }; };
+      const remove = (id) => { const target = movements.find((movement) => movement.id === id); if (!target) return false; movements = movements.filter((movement) => movement.id !== id); save(); Sellers.unlinkPayment(id); return true; };
       const getByDate = (date) => getAll().filter((movement) => movement.date === date);
       const getByMonth = (month) => getAll().filter((movement) => movement.date.startsWith(month));
       const configuration = () => Settings.all().treasury;
@@ -2713,7 +2729,13 @@
         const cv = number(sale.cv); const qn = number(sale.qn); const total = cv + qn;
         if (total <= 0) return null;
         const calculated = Utils.calculateDay({ cv, qn, depenses: 0 });
-        return { id: cleanText(sale.id) || id("sale"), sellerId: cleanText(sale.sellerId), cycleId: cleanText(sale.cycleId), date: sale.date, cv, qn, total, ca: calculated.ca, directCost: calculated.depenses };
+        const savedCa = Number(sale.ca);
+        const savedDirectCost = Number(sale.directCost);
+        return {
+          id: cleanText(sale.id) || id("sale"), sellerId: cleanText(sale.sellerId), cycleId: cleanText(sale.cycleId), date: sale.date, cv, qn, total,
+          ca: Number.isFinite(savedCa) && savedCa >= 0 ? Math.round(savedCa) : calculated.ca,
+          directCost: Number.isFinite(savedDirectCost) && savedDirectCost >= 0 ? Math.round(savedDirectCost) : calculated.depenses
+        };
       };
 
       const normalizeAbsence = (absence) => {
@@ -2754,7 +2776,9 @@
           category: "matieres_premieres",
           label: `Coûts produits · ${seller.name}`,
           amount: sale.directCost,
-          note: "Calculés automatiquement depuis une vente vendeur"
+          note: "Calculés automatiquement depuis une vente vendeur",
+          source: "seller-sale",
+          sellerSaleId: sale.id
         }, { skipSync: true });
         Store.addSellerSale(sale);
         const hydrated = refreshCycle(cycle); save(); return { sale: clone(sale), cycle: hydrated };
@@ -2766,13 +2790,53 @@
         if (sales.some((sale) => sale.sellerId === sellerId && sale.date === date) || absences.some((absence) => absence.sellerId === sellerId && absence.date === date)) return { error: "Cette date est déjà enregistrée pour ce vendeur." };
         const absence = normalizeAbsence({ id: id("abs"), sellerId, cycleId: cycle.id, date }); absences.push(absence); save(); return { absence: clone(absence), cycle: hydrateCycle(cycle) };
       };
+      const clearActivity = () => {
+        const saleIds = sales.map((sale) => sale.id);
+        sales = [];
+        cycles = [];
+        absences = [];
+        Expenses.removeSellerSaleExpenses(saleIds);
+        save();
+      };
+      const removeSalesForDate = (date) => {
+        const targets = sales.filter((sale) => sale.date === date);
+        if (!targets.length) return { removed: 0 };
+        if (targets.some((sale) => cycleById(sale.cycleId)?.status === "PAID")) return { error: "Impossible de supprimer une vente liée à un cycle déjà payé. Annulez d’abord le paiement dans la trésorerie." };
+        const ids = targets.map((sale) => sale.id);
+        sales = sales.filter((sale) => sale.date !== date);
+        Expenses.removeSellerSaleExpenses(ids);
+        save();
+        return { removed: targets.length };
+      };
       const sellerStats = (sellerId) => { const seller = sellerById(sellerId); const sellerSales = sales.filter((sale) => sale.sellerId === sellerId); const totals = sellerSales.reduce((total, sale) => ({ sales: total.sales + sale.total, ca: total.ca + sale.ca, directCost: total.directCost + sale.directCost }), { sales: 0, ca: 0, directCost: 0 }); const days = sellerSales.length; const totalCa = sales.reduce((sum, sale) => sum + sale.ca, 0); const hydratedCycles = cycles.filter((cycle) => cycle.sellerId === sellerId).map(hydrateCycle); return { seller: seller ? clone(seller) : null, ...totals, days, averageSales: days ? totals.sales / days : 0, averageCa: days ? totals.ca / days : 0, caShare: totalCa ? totals.ca / totalCa * 100 : 0, completedCycles: hydratedCycles.filter((cycle) => ["PAYABLE", "PAID"].includes(cycle.status)).length, bonuses: hydratedCycles.reduce((sum, cycle) => sum + cycle.bonus, 0), currentCycle: hydratedCycles.find((cycle) => ["OPEN", "TO_COMPLETE"].includes(cycle.status)) || null, cycles: hydratedCycles }; };
       const performance = () => sellers.map((seller) => sellerStats(seller.id)).sort((a, b) => b.averageSales - a.averageSales);
       const totals = () => sales.reduce((output, sale) => ({ sales: output.sales + sale.total, ca: output.ca + sale.ca, days: output.days + 1 }), { sales: 0, ca: 0, days: 0 });
       const pay = (cycleId, paymentDate = Utils.todayIso()) => { const cycle = cycleById(cycleId); if (!cycle) return { error: "Cycle introuvable." }; const hydrated = refreshCycle(cycle); if (hydrated.status === "PAID" || cycle.treasuryMovementId) return { error: "Ce cycle a déjà été payé." }; if (hydrated.status !== "PAYABLE") return { error: "Le cycle doit atteindre 26 journées avant paiement." }; if (!Treasury.isInitialized()) return { error: "Initialisez d’abord la trésorerie pour enregistrer ce paiement." }; if (!validDate(paymentDate)) return { error: "Date de paiement invalide." }; const seller = sellerById(cycle.sellerId); const movement = Treasury.add({ date: paymentDate, type: "out", category: "salaires", label: `Salaire · ${seller?.name || "Vendeur"} · ${cycle.label}`, amount: hydrated.totalDue, note: `Cycle ${cycle.label} · prime ${Utils.formatMoney(hydrated.bonus)}`, reference: { sellerId: cycle.sellerId, cycleId: cycle.id } }); if (!movement) return { error: "Impossible d’enregistrer la sortie de trésorerie." }; cycle.status = "PAID"; cycle.paymentDate = paymentDate; cycle.paidAmount = hydrated.totalDue; cycle.treasuryMovementId = movement.id; save(); return { cycle: hydrateCycle(cycle), movement: clone(movement) }; };
+      const unlinkPayment = (movementId) => {
+        const cycle = cycles.find((item) => item.treasuryMovementId === movementId);
+        if (!cycle) return false;
+        cycle.status = cycleTotals(cycle).days >= 26 ? "PAYABLE" : "TO_COMPLETE";
+        cycle.paymentDate = "";
+        cycle.paidAmount = 0;
+        cycle.treasuryMovementId = "";
+        save();
+        return true;
+      };
+      const syncPaymentMovement = (movement) => {
+        const cycleId = movement?.reference?.cycleId;
+        const cycle = cycleId ? cycleById(cycleId) : null;
+        if (!cycle) return false;
+        if (movement.type !== "out" || movement.category !== "salaires") return unlinkPayment(movement.id);
+        cycle.status = "PAID";
+        cycle.paymentDate = movement.date;
+        cycle.paidAmount = movement.amount;
+        cycle.treasuryMovementId = movement.id;
+        save();
+        return true;
+      };
       const replace = (payload = {}) => { sellers = (payload.sellers || []).map(normalizeSeller).filter(Boolean); cycles = (payload.cycles || []).map(normalizeCycle).filter(Boolean); sales = (payload.sales || []).map(normalizeSale).filter(Boolean); absences = (payload.absences || []).map(normalizeAbsence).filter(Boolean); save(); };
       load();
-      return { getAll, getSales, getCycles, getAbsences, create, changeSalary, setActive, addSale, addAbsence, sellerStats, performance, totals, bonusFor, pay, replace };
+      return { getAll, getSales, getCycles, getAbsences, create, changeSalary, setActive, addSale, addAbsence, clearActivity, removeSalesForDate, sellerStats, performance, totals, bonusFor, pay, unlinkPayment, syncPaymentMovement, replace };
     })();
 
     const App = (() => {
@@ -2940,8 +3004,9 @@
       const init = () => {
         clearButton.addEventListener("click", () => {
           if (!Store.all().length) return;
-          const confirmed = window.confirm("Effacer tout l'historique NISSA Manager sur cet appareil ?");
+          const confirmed = window.confirm("Effacer tout l'historique NISSA Manager, y compris les ventes vendeur, sur cet appareil ?");
           if (!confirmed) return;
+          Sellers.clearActivity();
           Store.clear();
           renderAll();
         });
@@ -2951,7 +3016,18 @@
           const saveButton = event.target.closest("[data-save-day]");
           if (editButton) { editRow(editButton.dataset.editDay); return; }
           if (removeButton) {
-            if (window.confirm("Supprimer cette journée de l'historique ?")) { Store.remove(removeButton.dataset.removeDay); renderAll(); }
+            const day = Store.all().find((record) => record.id === removeButton.dataset.removeDay);
+            const message = day?.source === "seller-sales"
+              ? "Supprimer cette journée et toutes les ventes vendeur associées ?"
+              : "Supprimer cette journée de l'historique ?";
+            if (window.confirm(message)) {
+              if (day?.source === "seller-sales") {
+                const result = Sellers.removeSalesForDate(day.date);
+                if (result.error) { window.alert(result.error); return; }
+              }
+              Store.remove(removeButton.dataset.removeDay);
+              renderAll();
+            }
             return;
           }
           if (event.target.closest("[data-cancel-day]")) { render(); return; }
@@ -4188,7 +4264,7 @@
       const init = () => {
         sellerStartDate.value = Utils.todayIso(); saleDate.value = Utils.todayIso(); absenceDate.value = Utils.todayIso();
         sellerForm.addEventListener("submit", (event) => { event.preventDefault(); const seller = Sellers.create({ name: sellerName.value, joinedAt: sellerStartDate.value, baseSalary: sellerSalary.value }); if (!seller) { setStatus(sellerStatus, "Renseignez un nom et une date valides.", true); return; } sellerForm.reset(); sellerStartDate.value = Utils.todayIso(); setStatus(sellerStatus, "Vendeur ajouté."); renderAll(); });
-        saleForm.addEventListener("submit", (event) => { event.preventDefault(); const result = Sellers.addSale({ sellerId: saleSeller.value, date: saleDate.value, cv: saleCv.value, qn: saleQn.value }); if (result.error) { setStatus(saleStatus, result.error, true); return; } const totals = result.sale; Expenses.add({ date: totals.date, category: "matieres_premieres", label: `Coûts produits · vente vendeur`, amount: totals.directCost, note: "Calculés automatiquement depuis la vente individuelle" }, { skipSync: true }); Store.saveDay({ date: totals.date, cv: totals.cv, qn: totals.qn, total: totals.total, ca: totals.ca, depenses: totals.directCost, benefice: totals.ca - totals.directCost, caisse: totals.ca - totals.directCost }); saleCv.value = "0"; saleQn.value = "0"; setStatus(saleStatus, result.cycle.status === "PAYABLE" ? "Vente enregistrée : cycle terminé et salaire à payer." : `Vente enregistrée : ${result.cycle.days} / 26 jours dans le cycle ${result.cycle.label}.`); renderAll(); });
+        saleForm.addEventListener("submit", (event) => { event.preventDefault(); const result = Sellers.addSale({ sellerId: saleSeller.value, date: saleDate.value, cv: saleCv.value, qn: saleQn.value }); if (result.error) { setStatus(saleStatus, result.error, true); return; } saleCv.value = "0"; saleQn.value = "0"; setStatus(saleStatus, result.cycle.status === "PAYABLE" ? "Vente enregistrée : cycle terminé et salaire à payer." : `Vente enregistrée : ${result.cycle.days} / 26 jours dans le cycle ${result.cycle.label}.`); renderAll(); });
         absenceForm.addEventListener("submit", (event) => { event.preventDefault(); const result = Sellers.addAbsence({ sellerId: absenceSeller.value, date: absenceDate.value }); if (result.error) { setStatus(absenceStatus, result.error, true); return; } setStatus(absenceStatus, `Absence enregistrée dans le cycle ${result.cycle.label}.`); renderAll(); });
         bonusForm.addEventListener("submit", (event) => { event.preventDefault(); const rules = bonusRules.value.split(",").map((value) => value.trim().split(":")).map(([threshold, bonus]) => ({ threshold: Number(threshold), bonus: Number(bonus) })).filter((rule) => Number.isFinite(rule.threshold) && rule.threshold > 0 && Number.isFinite(rule.bonus) && rule.bonus > 0).sort((a, b) => a.threshold - b.threshold); if (!rules.length) { setStatus(bonusStatus, "Utilisez le format 3000:10000, 3200:10000.", true); return; } const settings = Settings.all(); settings.sellerBonusRules = rules; Settings.update(settings); setStatus(bonusStatus, "Règles de prime enregistrées."); renderAll(); });
         mount.addEventListener("click", (event) => { const pay = event.target.closest("[data-pay-cycle]"); const toggle = event.target.closest("[data-toggle-seller]"); const salary = event.target.closest("[data-change-salary]"); if (pay) { if (!window.confirm("Confirmer le paiement de ce cycle ? Une sortie de trésorerie sera créée.")) return; const result = Sellers.pay(pay.dataset.payCycle); if (result.error) window.alert(result.error); else renderAll(); } if (toggle) { const seller = Sellers.getAll().find((item) => item.id === toggle.dataset.toggleSeller); if (seller) { Sellers.setActive(seller.id, !seller.active); renderAll(); } } if (salary) { const seller = Sellers.getAll().find((item) => item.id === salary.dataset.changeSalary); const amount = window.prompt(`Nouveau salaire de base pour ${seller?.name || "ce vendeur"} :`); if (amount === null) return; const effectiveDate = window.prompt("Date d’effet (AAAA-MM-JJ) :", Utils.todayIso()); if (effectiveDate === null) return; if (!Sellers.changeSalary(salary.dataset.changeSalary, amount, effectiveDate)) window.alert("Salaire ou date d’effet invalide."); else renderAll(); } });
@@ -4432,7 +4508,8 @@
         });
 
         resetHistoryButton.addEventListener("click", () => {
-          if (!window.confirm("Réinitialiser uniquement l'historique ?")) return;
+          if (!window.confirm("Réinitialiser l'historique, y compris les ventes vendeur ? Les fiches vendeurs et leurs salaires seront conservés.")) return;
+          Sellers.clearActivity();
           Store.clear();
           renderAll();
           setStatus("Historique réinitialisé.");
