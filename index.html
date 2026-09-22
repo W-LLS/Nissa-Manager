@@ -3017,11 +3017,12 @@
           if (editButton) { editRow(editButton.dataset.editDay); return; }
           if (removeButton) {
             const day = Store.all().find((record) => record.id === removeButton.dataset.removeDay);
-            const message = day?.source === "seller-sales"
+            const hasSellerSales = day && Sellers.getSales().some((sale) => sale.date === day.date);
+            const message = hasSellerSales
               ? "Supprimer cette journée et toutes les ventes vendeur associées ?"
               : "Supprimer cette journée de l'historique ?";
             if (window.confirm(message)) {
-              if (day?.source === "seller-sales") {
+              if (hasSellerSales) {
                 const result = Sellers.removeSalesForDate(day.date);
                 if (result.error) { window.alert(result.error); return; }
               }
