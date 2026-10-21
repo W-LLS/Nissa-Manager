@@ -1,4 +1,4 @@
-const CACHE_NAME = "nissa-manager-v2.6.1";
+const CACHE_NAME = "nissa-manager-v2.7.1";
 const APP_ASSETS = [
   "./",
   "./index.html",

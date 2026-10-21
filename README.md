@@ -1,6 +1,6 @@
 # NISSA Manager
 
-Version actuelle : `v2.6.0`
+Version actuelle : `v2.7.1`
 
 NISSA Manager est un logiciel de gestion commerciale hors ligne pour une activite de vente de glaces.
 
@@ -55,6 +55,7 @@ A chaque developpement :
 - la version doit etre incrementee ;
 - `CHANGELOG.md` doit etre mis a jour ;
 - `docs/TODO.md` doit etre mis a jour ;
+- la recette de `docs/TESTS_MANUELS.md` doit etre executee avant une livraison majeure ;
 - la version doit etre affichee dans l'application ;
 - la version doit etre utilisee dans le rapport final.
 
@@ -115,7 +116,7 @@ La separation effective du code applicatif est prevue pour une version ulterieur
 
 ## Fonctionnalites
 
-Fonctionnalites disponibles en `v2.6.0` :
+Fonctionnalites disponibles en `v2.7.1` :
 
 - tableau de bord ;
 - module Journee ;
@@ -168,6 +169,9 @@ Fonctionnalites disponibles en `v2.6.0` :
 - objectifs mensuels de CA, ventes et benefice ;
 - plafond de depenses, progression et effort quotidien restant ;
 - rapports et sauvegardes JSON etendus a la v2.6.0.
+- gestion multi-vendeurs et ventes individuelles ;
+- cycles de 26 jours avec rattrapage sur le mois suivant ;
+- salaires historiques, primes cumulatives configurables et paiements relies a la tresorerie.
 
 ## Roadmap
 
@@ -233,15 +237,22 @@ Fonctionnalites disponibles en `v2.6.0` :
 - Migration des depenses historiques.
 - Synchronisation des journees, statistiques, rapports et sauvegardes JSON.
 
-### v2.6.0 - Version actuelle
+### v2.6.0
 
 - Tresorerie theorique parallele au champ historique `caisse`.
 - Mouvements financiers exceptionnels et corrections.
 - Objectifs mensuels et suivi de progression.
 
+### v2.7.1 - Version actuelle
+
+- Vendeurs, ventes individuelles et classement par performance quotidienne.
+- Cycles de travail de 26 jours, y compris le rattrapage d’un mois sur l’autre.
+- Historique de salaire, primes cumulatives configurables et rémunérations dues.
+- Paiements de salaire idempotents et sorties de trésorerie associées.
+
 ### v3.0.0 - Prochaine version majeure
 
-- Objectif a definir apres stabilisation de `v2.6.0`.
+- Objectif a definir apres stabilisation de `v2.7.1`.
 - Aucun nouveau module ne doit etre engage avant validation du module Parametres.
 
 ## Guide d'installation
@@ -476,7 +487,14 @@ Les objectifs mensuels sont enregistres sous :
 nissa_goals
 ```
 
+Les données de la gestion vendeurs sont conservées séparément sous les clés `nissa_sellers`, `nissa_seller_sales` et `nissa_seller_cycles`. Les journées historiques existantes ne sont pas modifiées.
+
 ## Historique des versions
+
+### v2.7.0 - 2026-09-12
+
+- Gestion des vendeurs, cycles de 26 jours et ventes individuelles.
+- Prime cumulative configurable, salaire historisé et paiement relié à la trésorerie.
 
 ### v2.6.0 - 2026-08-15
 

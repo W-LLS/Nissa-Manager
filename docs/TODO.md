@@ -2,7 +2,7 @@
 
 ## Version actuelle
 
-- [x] `v2.6.0` - Tresorerie et objectifs mensuels.
+- [x] `v2.7.1` - Stabilisation de la gestion vendeurs, des ventes individuelles et des paiements de salaires.
 
 ## Regles permanentes de versionnement
 
@@ -85,9 +85,24 @@
 - [x] Etendre les imports et exports JSON aux donnees v2.6.0.
 - [x] Aligner l'application et le cache PWA sur `v2.6.0`.
 
+## v2.7.0 - Gestion des vendeurs et des cycles de salaire
+
+- [x] Ajouter les vendeurs actifs ou inactifs et leur historique de salaire.
+- [x] Enregistrer les ventes individuelles avec leurs couts directs.
+- [x] Gerer les cycles de 26 journees travaillees et les absences.
+- [x] Ajouter des primes cumulatives configurables.
+- [x] Calculer les remunerations dues et les relier a la tresorerie.
+- [x] Etendre l'export et l'import JSON aux donnees vendeurs.
+
+## v2.7.1 - Stabilisation de la gestion vendeurs
+
+- [x] Synchroniser les ventes vendeur avec l'historique, les depenses et les paiements de salaires.
+- [x] Permettre la suppression d'une vente vendeur depuis l'historique.
+- [ ] Realiser la recette de regression des cycles, paiements et imports/exports.
+
 ## v3.0.0 - Prochaine version majeure
 
-- [ ] Definir le perimetre apres stabilisation de `v2.6.0`.
+- [ ] Definir le perimetre apres stabilisation de `v2.7.1`.
 - [ ] Ne pas demarrer de nouveau module avant validation complete du module Parametres.
 
 ## Refactorisation future
@@ -103,7 +118,7 @@
 
 ## Qualite
 
-- [ ] Ajouter des tests manuels documentes.
+- [x] Ajouter des tests manuels documentes dans `docs/TESTS_MANUELS.md`.
 - [ ] Ajouter une validation plus stricte des donnees chargees depuis `localStorage`.
 - [ ] Prevoir une version de schema pour les futures migrations de donnees.
 - [ ] Verifier l'accessibilite clavier des onglets.

@@ -16,6 +16,28 @@ Exemples :
 - `v2.2.0` : nouveau module.
 - `v3.0.0` : evolution majeure de l'application.
 
+## [v2.7.1] - 2026-09-22
+
+### Corrige
+
+- Synchronisation des ventes vendeur avec l’historique, les dépenses et les paiements de salaires.
+- Suppression d’une vente vendeur depuis l’historique.
+
+## [v2.7.0] - 2026-09-12
+
+### Ajoute
+
+- Gestion de vendeurs actifs ou inactifs, historique de salaire et performance individuelle.
+- Cycles de 26 journées travaillées, avec rattachement automatique des journées de rattrapage au cycle précédent.
+- Ventes individuelles, classement par moyenne quotidienne et visibilité sur la marge brute des coûts directs.
+- Règles de primes cumulatives configurables depuis l’interface.
+- Rémunérations dues, paiement unique par cycle et sortie de trésorerie `Salaires` associée.
+
+### Compatibilite
+
+- Les données v2.6.0 restent inchangées ; les nouveaux enregistrements utilisent des clés localStorage distinctes.
+- Les exports/imports JSON incluent désormais les vendeurs, ventes individuelles et cycles.
+
 ## [v2.6.0] - 2026-08-15
 
 ### Ajoute

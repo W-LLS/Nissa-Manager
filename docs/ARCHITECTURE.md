@@ -1,8 +1,8 @@
-# Architecture NISSA Manager v2.6.0
+# Architecture NISSA Manager v2.7.1
 
 ## Etat actuel
 
-NISSA Manager v2.6.0 est une application web hors ligne en vanilla HTML, CSS et JavaScript.
+NISSA Manager v2.7.1 est une application web hors ligne en vanilla HTML, CSS et JavaScript.
 
 Le projet contient actuellement une application complete dans `index.html` :
 
@@ -33,7 +33,9 @@ Versions planifiees :
 - `v2.4.3` : stabilisation UX du module Parametres.
 - `v2.5.0` : gestion avancee des depenses et migration compatible v2.4.x.
 - `v2.6.0` : tresorerie theorique et objectifs mensuels.
-- `v3.0.0` : prochaine version majeure a definir apres stabilisation.
+- `v2.7.0` : gestion des vendeurs, ventes individuelles et cycles de salaire.
+- `v2.7.1` : synchronisation et suppression des ventes vendeur depuis l'historique.
+- `v3.0.0` : prochaine version majeure a definir apres stabilisation de `v2.7.1`.
 
 Chaque developpement doit mettre a jour :
 
@@ -47,6 +49,7 @@ Chaque developpement doit mettre a jour :
 L'application est organisee autour de vues affichees par onglets :
 
 - Tableau de bord
+- Vendeurs
 - Journee
 - Historique
 - Depenses
@@ -66,6 +69,8 @@ Le flux principal est :
 3. Le module Store enregistre la journee.
 4. Les donnees sont ecrites dans `localStorage`.
 5. Le tableau de bord, l'historique, les statistiques, les previsions et les rapports sont rendus a nouveau.
+
+Les ventes individuelles des vendeurs sont enregistrees avec leurs couts directs. Elles alimentent l'historique, les depenses et les cycles de remuneration sans modifier la structure des journees historiques.
 
 ## Modules JavaScript actuels
 
@@ -178,6 +183,17 @@ Responsabilites :
 - progression CA, ventes, benefice et utilisation du plafond de depenses ;
 - effort quotidien restant avec inclusion de la journee courante ;
 - statuts deterministes sans IA.
+
+### Sellers
+
+Responsabilites :
+
+- gerer les vendeurs actifs, leur date d'arrivee et leur historique de salaire ;
+- enregistrer les ventes individuelles et les absences ;
+- organiser les ventes en cycles de 26 journees travaillees ;
+- calculer les primes cumulatives et les remunerations dues ;
+- creer un paiement unique par cycle et le synchroniser avec la tresorerie ;
+- synchroniser les ventes vendeur avec l'historique et les depenses associees.
 
 ### Previsions
 
@@ -292,6 +308,8 @@ Elle contient des objets `{ id, date, category, label, amount, note }`. Le marqu
 
 Les mouvements de tresorerie manuels sont stockes sous `nissa_treasury`. Les objectifs mensuels sont stockes sous `nissa_goals`. Ces nouvelles cles ne modifient ni `nissa_data`, ni `nissa_expenses`.
 
+Les donnees vendeurs sont conservees separement : `nissa_sellers`, `nissa_seller_sales`, `nissa_seller_cycles` et `nissa_seller_absences`. Elles ne modifient pas la structure des journees historiques.
+
 ## Fonctionnement PWA
 
 La version `v2.4.0` ajoute :
@@ -373,9 +391,15 @@ Le service worker n'est pas enregistre quand l'application est ouverte en `file:
 - Mouvements exceptionnels et corrections explicites.
 - Objectifs mensuels, progressions et effort restant.
 
+### v2.7.0 et v2.7.1
+
+- Gestion de vendeurs, de ventes individuelles, d'absences et de cycles de 26 journees.
+- Historique de salaire, primes cumulatives et paiements relies a la tresorerie.
+- Synchronisation des ventes vendeur avec l'historique et les depenses ; suppression protegee des ventes liees a un cycle deja paye.
+
 ### v3.0.0
 
-- Perimetre a definir apres stabilisation de `v2.6.0`.
+- Perimetre a definir apres stabilisation de `v2.7.1`.
 - Aucun nouveau module ne doit etre engage avant validation complete du module Parametres.
 
 ### Refactorisation future
