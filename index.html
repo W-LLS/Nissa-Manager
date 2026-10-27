@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NISSA Manager v2.7.1</title>
+  <title>NISSA Manager</title>
   <meta name="theme-color" content="#1f3b5b">
   <meta name="application-name" content="NISSA Manager">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <script src="app-version.js"></script>
   <meta name="apple-mobile-web-app-title" content="NISSA Manager">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="manifest" href="manifest.webmanifest">
@@ -324,7 +325,8 @@
       gap: 7px;
     }
 
-    .field label {
+    .field label,
+    .field-label {
       color: #4d5a70;
       font-size: 13px;
       font-weight: 700;
@@ -349,6 +351,11 @@
     .field textarea:focus {
       border-color: var(--primary);
       box-shadow: 0 0 0 4px rgba(23, 59, 105, 0.12);
+    }
+
+    :where(button, input, select, textarea, [tabindex]):focus-visible {
+      outline: 3px solid #58a6e7;
+      outline-offset: 3px;
     }
 
     .field textarea {
@@ -496,9 +503,51 @@
     .table-wrap {
       width: 100%;
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
       border: 1px solid var(--border);
       border-radius: var(--radius);
       background: var(--surface);
+    }
+
+    .history-controls {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) minmax(180px, 1fr) minmax(130px, 0.5fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .pagination-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .pagination-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .pagination-actions button {
+      min-height: 42px;
+    }
+
+    .shortcut-hint {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    kbd {
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 5px;
+      padding: 1px 5px;
+      background: var(--surface-muted);
+      color: var(--text);
+      font: inherit;
+      font-size: 12px;
     }
 
     table {
@@ -1244,6 +1293,10 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
+      .history-controls {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
       .content-grid {
         grid-template-columns: 1fr;
       }
@@ -1292,6 +1345,10 @@
         grid-template-columns: 1fr;
       }
 
+      .history-controls {
+        grid-template-columns: 1fr;
+      }
+
       .seller-metrics {
         grid-template-columns: 1fr;
       }
@@ -1327,6 +1384,57 @@
       .actions > .actions {
         width: 100%;
       }
+
+      .pagination-bar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .pagination-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .responsive-table {
+        min-width: 0;
+      }
+
+      .responsive-table thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+      }
+
+      .responsive-table tbody,
+      .responsive-table tr,
+      .responsive-table td {
+        display: block;
+        width: 100%;
+      }
+
+      .responsive-table tr {
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .responsive-table td {
+        display: grid;
+        grid-template-columns: minmax(110px, 0.8fr) minmax(0, 1.2fr);
+        gap: 12px;
+        padding: 7px 0;
+        border: 0;
+        white-space: normal;
+      }
+
+      .responsive-table td::before {
+        content: attr(data-label);
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
     }
 
     @media (max-width: 380px) {
@@ -1357,7 +1465,7 @@
         <div class="brand-mark" aria-hidden="true">N</div>
         <div>
           <h1 class="brand-title">NISSA Manager</h1>
-          <p class="brand-subtitle">v2.7.1</p>
+          <p class="brand-subtitle" id="appVersionLabel">Version</p>
         </div>
       </div>
 
@@ -1501,7 +1609,7 @@
               <div class="field"><label for="sellerSaleSeller">Vendeur</label><select id="sellerSaleSeller" required></select></div>
               <div class="field"><label for="sellerSaleCv">CV vendus</label><input id="sellerSaleCv" type="number" min="0" step="1" inputmode="numeric" value="0"></div>
               <div class="field"><label for="sellerSaleQn">QN vendus</label><input id="sellerSaleQn" type="number" min="0" step="1" inputmode="numeric" value="0"></div>
-            </div><div class="actions"><p class="status-message" id="sellerSaleStatus"></p><button class="primary-button" type="submit">Enregistrer la journée vendeur</button></div></form>
+            </div><div class="actions"><p class="status-message" id="sellerSaleStatus" role="status" aria-live="polite"></p><div class="actions"><button class="secondary-button" id="clearSellerSaleDraft" type="button">Effacer le brouillon</button><button class="primary-button" type="submit">Enregistrer la journée vendeur</button></div></div><p class="shortcut-hint">Brouillon enregistré localement · <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Entrée</kbd> pour enregistrer · <kbd>Alt</kbd> + <kbd>V</kbd> pour ouvrir cette saisie.</p></form>
           </section>
 
           <section class="panel">
@@ -1533,7 +1641,17 @@
             </div>
             <button class="danger-button" id="clearDataButton" type="button">Effacer l'historique</button>
           </div>
+          <div class="history-controls" aria-label="Filtres de l’historique">
+            <div class="field"><label for="historySearch">Recherche</label><input id="historySearch" type="search" placeholder="Date, montant ou quantité"></div>
+            <div class="field"><label for="historyMonth">Mois</label><input id="historyMonth" type="month"></div>
+            <div class="field"><label for="historyPageSize">Lignes par page</label><select id="historyPageSize"><option value="25">25</option><option value="50">50</option><option value="100">100</option></select></div>
+          </div>
+          <p class="panel-subtitle" id="historyResultsStatus" role="status" aria-live="polite"></p>
           <div id="historyMount"></div>
+          <div class="pagination-bar" id="historyPagination" hidden>
+            <span id="historyPageLabel"></span>
+            <div class="pagination-actions"><button class="secondary-button" id="historyPreviousPage" type="button">Page précédente</button><button class="secondary-button" id="historyNextPage" type="button">Page suivante</button></div>
+          </div>
         </section>
       </section>
 
@@ -1647,6 +1765,7 @@
 
           <div id="treasuryActiveContent">
             <section class="panel"><div class="panel-header"><div><h3 class="panel-title">Synthèse</h3><p class="panel-subtitle">Solde théorique depuis la date de départ.</p></div></div><div class="kpi-grid" id="treasurySummary"></div></section>
+            <section class="panel" style="margin-top:18px"><div class="panel-header"><div><h3 class="panel-title">Rapprochement avec la caisse historique</h3><p class="panel-subtitle">Comparaison indicative : les deux soldes ne doivent pas être additionnés.</p></div></div><div id="treasuryReconciliation"></div></section>
             <section class="panel" style="margin-top:18px">
               <div class="panel-header"><div><h3 class="panel-title">Ajouter un mouvement</h3><p class="panel-subtitle">Uniquement les entrées, sorties et corrections exceptionnelles.</p></div></div>
               <form id="treasuryForm" novalidate><input id="treasuryId" type="hidden"><div class="finance-form-grid">
@@ -1969,6 +2088,20 @@
           <section class="panel">
             <div class="panel-header">
               <div>
+                <h3 class="panel-title">Application et mise à jour</h3>
+                <p class="panel-subtitle">Version réellement chargée et contrôle manuel du cache hors ligne.</p>
+              </div>
+            </div>
+            <div class="settings-grid two">
+              <div class="field"><label for="activeAppVersion">Version active</label><input id="activeAppVersion" type="text" readonly></div>
+              <div class="field"><span class="field-label">État PWA</span><p class="status-message" id="pwaStatus" role="status" aria-live="polite">Vérification…</p></div>
+            </div>
+            <div class="settings-actions"><button class="secondary-button" id="forceAppUpdate" type="button">Forcer la mise à jour</button></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
                 <h3 class="panel-title">Données</h3>
                 <p class="panel-subtitle">Exports, imports et réinitialisations.</p>
               </div>
@@ -1995,6 +2128,8 @@
   </div>
 
   <script>
+    const APP_VERSION = globalThis.NISSA_APP_VERSION || "Version inconnue";
+
     const Settings = (() => {
       const storageKey = "nissa_settings";
       const defaultSettings = Object.freeze({
@@ -2592,10 +2727,11 @@
       const getAll = () => movements.map((movement) => ({ ...movement }));
       const replace = (items) => { movements = Array.isArray(items) ? items.map((item) => normalize(item)).filter(Boolean) : []; save(); return getAll(); };
       const add = (item) => { const normalized = normalize(item, true); if (!normalized) return null; movements.push(normalized); save(); return { ...normalized }; };
-      const update = (id, item) => { const index = movements.findIndex((movement) => movement.id === id); if (index < 0) return null; const normalized = normalize({ ...movements[index], ...item, id }); if (!normalized) return null; movements[index] = normalized; save(); Sellers.syncPaymentMovement(normalized); return { ...normalized }; };
-      const remove = (id) => { const target = movements.find((movement) => movement.id === id); if (!target) return false; movements = movements.filter((movement) => movement.id !== id); save(); Sellers.unlinkPayment(id); return true; };
+      const update = (id, item) => { const index = movements.findIndex((movement) => movement.id === id); if (index < 0 || movements[index].reference?.cycleId) return null; const normalized = normalize({ ...movements[index], ...item, id }); if (!normalized) return null; movements[index] = normalized; save(); Sellers.syncPaymentMovement(normalized); return { ...normalized }; };
+      const remove = (id) => { const target = movements.find((movement) => movement.id === id); if (!target) return false; movements = movements.filter((movement) => movement.id !== id); save(); Sellers.unlinkPayment(target); return true; };
       const getByDate = (date) => getAll().filter((movement) => movement.date === date);
       const getByMonth = (month) => getAll().filter((movement) => movement.date.startsWith(month));
+      const getSellerPayment = (cycleId) => getAll().find((movement) => movement.type === "out" && movement.category === "salaires" && movement.reference?.cycleId === cycleId) || null;
       const configuration = () => Settings.all().treasury;
       const isInitialized = () => Expenses.isValidDate(configuration().startDate);
       const initialize = (startDate, openingBalance) => {
@@ -2611,6 +2747,16 @@
       const activityOutflowsUntil = (endDate) => !isInitialized() ? 0 : Expenses.getAll().filter((expense) => expense.date >= configuration().startDate && expense.date <= endDate).reduce((sum, expense) => sum + expense.amount, 0);
       const manualUntil = (type, endDate) => !isInitialized() ? 0 : getAll().filter((movement) => movement.type === type && movement.date >= configuration().startDate && movement.date <= endDate).reduce((sum, movement) => sum + movement.amount, 0);
       const getBalance = (endDate = Utils.todayIso()) => !isInitialized() ? 0 : getOpeningBalance() + activityInflowsUntil(endDate) - activityOutflowsUntil(endDate) + manualUntil("in", endDate) - manualUntil("out", endDate);
+      const reconciliation = (endDate = Utils.todayIso()) => {
+        if (!isInitialized()) return null;
+        const startDate = configuration().startDate;
+        const days = Store.all().filter((day) => day.date >= startDate && day.date <= endDate);
+        const historicalCaisse = getOpeningBalance() + days.reduce((sum, day) => sum + Number(day.caisse || 0), 0);
+        const activityNet = activityInflowsUntil(endDate) - activityOutflowsUntil(endDate);
+        const manualNet = manualUntil("in", endDate) - manualUntil("out", endDate);
+        const theoretical = getBalance(endDate);
+        return { startDate, endDate, historicalCaisse, theoretical, discrepancy: theoretical - historicalCaisse, manualNet, calculationVariance: activityNet - days.reduce((sum, day) => sum + Number(day.caisse || 0), 0) };
+      };
       const monthCutoff = (month) => month < Utils.todayIso().slice(0, 7) ? `${month}-31` : month === Utils.todayIso().slice(0, 7) ? Utils.todayIso() : `${month}-00`;
       const getMonthlyInflows = (month) => !isInitialized() ? 0 : Store.all().filter((day) => day.date.startsWith(month) && day.date >= configuration().startDate && day.date <= monthCutoff(month)).reduce((sum, day) => sum + Number(day.ca || 0), 0) + getByMonth(month).filter((movement) => movement.type === "in" && movement.date >= configuration().startDate && movement.date <= monthCutoff(month)).reduce((sum, movement) => sum + movement.amount, 0);
       const getMonthlyOutflows = (month) => !isInitialized() ? 0 : Expenses.getByMonth(month).filter((expense) => expense.date >= configuration().startDate && expense.date <= monthCutoff(month)).reduce((sum, expense) => sum + expense.amount, 0) + getByMonth(month).filter((movement) => movement.type === "out" && movement.date >= configuration().startDate && movement.date <= monthCutoff(month)).reduce((sum, movement) => sum + movement.amount, 0);
@@ -2624,7 +2770,7 @@
         return months;
       };
       load();
-      return { storageKey, categories, normalize, load, save, getAll, replace, add, update, remove, getByDate, getByMonth, isInitialized, initialize, getOpeningBalance, getBalance, getMonthlyInflows, getMonthlyOutflows, availableMonths };
+      return { storageKey, categories, normalize, load, save, getAll, replace, add, update, remove, getByDate, getByMonth, getSellerPayment, isInitialized, initialize, getOpeningBalance, getBalance, getMonthlyInflows, getMonthlyOutflows, availableMonths, reconciliation };
     })();
 
     const Goals = (() => {
@@ -2755,7 +2901,8 @@
       const salesForCycle = (cycleId) => sales.filter((sale) => sale.cycleId === cycleId);
       const cycleTotals = (cycle) => salesForCycle(cycle.id).reduce((total, sale) => ({ days: total.days + 1, sales: total.sales + sale.total, ca: total.ca + sale.ca, directCost: total.directCost + sale.directCost }), { days: 0, sales: 0, ca: 0, directCost: 0 });
       const bonusFor = (quantity) => Settings.all().sellerBonusRules.reduce((sum, rule) => sum + (quantity >= rule.threshold ? rule.bonus : 0), 0);
-      const hydrateCycle = (cycle) => { const totals = cycleTotals(cycle); const completed = totals.days >= 26; const status = cycle.status === "PAID" ? "PAID" : completed ? "PAYABLE" : totals.days ? "TO_COMPLETE" : "OPEN"; return { ...clone(cycle), ...totals, absences: absences.filter((absence) => absence.cycleId === cycle.id).length, remainingDays: Math.max(0, 26 - totals.days), bonus: bonusFor(totals.sales), totalDue: cycle.baseSalary + bonusFor(totals.sales), status }; };
+      const paymentForCycle = (cycleId) => Treasury.getSellerPayment(cycleId);
+      const hydrateCycle = (cycle) => { const totals = cycleTotals(cycle); const completed = totals.days >= 26; const payment = paymentForCycle(cycle.id); const locked = cycle.status === "PAID" || Boolean(cycle.treasuryMovementId) || Boolean(payment); const status = locked ? "PAID" : completed ? "PAYABLE" : totals.days ? "TO_COMPLETE" : "OPEN"; return { ...clone(cycle), ...totals, absences: absences.filter((absence) => absence.cycleId === cycle.id).length, remainingDays: Math.max(0, 26 - totals.days), bonus: bonusFor(totals.sales), totalDue: cycle.baseSalary + bonusFor(totals.sales), status, paymentLocked: locked, paymentDate: payment?.date || cycle.paymentDate, paidAmount: payment?.amount || cycle.paidAmount, treasuryMovementId: payment?.id || cycle.treasuryMovementId }; };
       const activeCycle = (sellerId) => cycles.find((cycle) => cycle.sellerId === sellerId && ["OPEN", "TO_COMPLETE"].includes(cycle.status)) || null;
       const createCycle = (sellerId, startDate) => { const seller = sellerById(sellerId); if (!seller) return null; const cycle = normalizeCycle({ id: id("cyc"), sellerId, label: monthLabel(startDate), startDate, targetDays: 26, baseSalary: salaryAt(seller, startDate), status: "OPEN" }); cycles.push(cycle); return cycle; };
       const refreshCycle = (cycle) => { const totals = cycleTotals(cycle); if (totals.days >= 26 && cycle.status !== "PAID") { cycle.status = "PAYABLE"; cycle.completedAt = salesForCycle(cycle.id).sort((a, b) => a.date.localeCompare(b.date))[25]?.date || cycle.completedAt; } else if (totals.days > 0 && cycle.status === "OPEN") cycle.status = "TO_COMPLETE"; return hydrateCycle(cycle); };
@@ -2801,7 +2948,7 @@
       const removeSalesForDate = (date) => {
         const targets = sales.filter((sale) => sale.date === date);
         if (!targets.length) return { removed: 0 };
-        if (targets.some((sale) => cycleById(sale.cycleId)?.status === "PAID")) return { error: "Impossible de supprimer une vente liée à un cycle déjà payé. Annulez d’abord le paiement dans la trésorerie." };
+        if (targets.some((sale) => { const cycle = cycleById(sale.cycleId); return cycle && hydrateCycle(cycle).paymentLocked; })) return { error: "Impossible de supprimer une vente liée à un cycle déjà payé. Annulez d’abord le paiement dans la trésorerie." };
         const ids = targets.map((sale) => sale.id);
         sales = sales.filter((sale) => sale.date !== date);
         Expenses.removeSellerSaleExpenses(ids);
@@ -2811,9 +2958,44 @@
       const sellerStats = (sellerId) => { const seller = sellerById(sellerId); const sellerSales = sales.filter((sale) => sale.sellerId === sellerId); const totals = sellerSales.reduce((total, sale) => ({ sales: total.sales + sale.total, ca: total.ca + sale.ca, directCost: total.directCost + sale.directCost }), { sales: 0, ca: 0, directCost: 0 }); const days = sellerSales.length; const totalCa = sales.reduce((sum, sale) => sum + sale.ca, 0); const hydratedCycles = cycles.filter((cycle) => cycle.sellerId === sellerId).map(hydrateCycle); return { seller: seller ? clone(seller) : null, ...totals, days, averageSales: days ? totals.sales / days : 0, averageCa: days ? totals.ca / days : 0, caShare: totalCa ? totals.ca / totalCa * 100 : 0, completedCycles: hydratedCycles.filter((cycle) => ["PAYABLE", "PAID"].includes(cycle.status)).length, bonuses: hydratedCycles.reduce((sum, cycle) => sum + cycle.bonus, 0), currentCycle: hydratedCycles.find((cycle) => ["OPEN", "TO_COMPLETE"].includes(cycle.status)) || null, cycles: hydratedCycles }; };
       const performance = () => sellers.map((seller) => sellerStats(seller.id)).sort((a, b) => b.averageSales - a.averageSales);
       const totals = () => sales.reduce((output, sale) => ({ sales: output.sales + sale.total, ca: output.ca + sale.ca, days: output.days + 1 }), { sales: 0, ca: 0, days: 0 });
-      const pay = (cycleId, paymentDate = Utils.todayIso()) => { const cycle = cycleById(cycleId); if (!cycle) return { error: "Cycle introuvable." }; const hydrated = refreshCycle(cycle); if (hydrated.status === "PAID" || cycle.treasuryMovementId) return { error: "Ce cycle a déjà été payé." }; if (hydrated.status !== "PAYABLE") return { error: "Le cycle doit atteindre 26 journées avant paiement." }; if (!Treasury.isInitialized()) return { error: "Initialisez d’abord la trésorerie pour enregistrer ce paiement." }; if (!validDate(paymentDate)) return { error: "Date de paiement invalide." }; const seller = sellerById(cycle.sellerId); const movement = Treasury.add({ date: paymentDate, type: "out", category: "salaires", label: `Salaire · ${seller?.name || "Vendeur"} · ${cycle.label}`, amount: hydrated.totalDue, note: `Cycle ${cycle.label} · prime ${Utils.formatMoney(hydrated.bonus)}`, reference: { sellerId: cycle.sellerId, cycleId: cycle.id } }); if (!movement) return { error: "Impossible d’enregistrer la sortie de trésorerie." }; cycle.status = "PAID"; cycle.paymentDate = paymentDate; cycle.paidAmount = hydrated.totalDue; cycle.treasuryMovementId = movement.id; save(); return { cycle: hydrateCycle(cycle), movement: clone(movement) }; };
-      const unlinkPayment = (movementId) => {
-        const cycle = cycles.find((item) => item.treasuryMovementId === movementId);
+      const monthlyReport = (month) => {
+        const monthSales = sales.filter((sale) => sale.date.startsWith(month));
+        const monthCa = monthSales.reduce((sum, sale) => sum + sale.ca, 0);
+        const performanceRows = sellers.map((seller) => {
+          const rows = monthSales.filter((sale) => sale.sellerId === seller.id);
+          const values = rows.reduce((output, sale) => ({ sales: output.sales + sale.total, ca: output.ca + sale.ca, directCost: output.directCost + sale.directCost }), { sales: 0, ca: 0, directCost: 0 });
+          return { sellerId: seller.id, sellerName: seller.name, days: rows.length, ...values, grossMargin: values.ca - values.directCost, averageSales: rows.length ? values.sales / rows.length : 0, averageCa: rows.length ? values.ca / rows.length : 0, caShare: monthCa ? values.ca / monthCa * 100 : 0 };
+        }).filter((row) => row.days > 0).sort((a, b) => b.averageSales - a.averageSales || b.sales - a.sales || a.sellerName.localeCompare(b.sellerName)).map((row, index) => ({ ...row, rank: index + 1 }));
+        const relevantCycleIds = new Set([
+          ...monthSales.map((sale) => sale.cycleId),
+          ...absences.filter((absence) => absence.date.startsWith(month)).map((absence) => absence.cycleId),
+          ...cycles.filter((cycle) => cycle.startDate.startsWith(month) || cycle.completedAt.startsWith(month) || cycle.paymentDate.startsWith(month)).map((cycle) => cycle.id),
+          ...Treasury.getByMonth(month).filter((movement) => movement.reference?.cycleId).map((movement) => movement.reference.cycleId)
+        ]);
+        const cycleRows = cycles.filter((cycle) => relevantCycleIds.has(cycle.id)).map((cycle) => {
+          const hydrated = hydrateCycle(cycle); const seller = sellerById(cycle.sellerId); const payment = paymentForCycle(cycle.id);
+          return { ...hydrated, sellerName: seller?.name || "Vendeur inconnu", treasuryOutflow: payment?.amount || 0, treasuryMovementId: payment?.id || hydrated.treasuryMovementId };
+        }).sort((a, b) => b.startDate.localeCompare(a.startDate) || a.sellerName.localeCompare(b.sellerName));
+        const payments = Treasury.getByMonth(month).filter((movement) => movement.type === "out" && movement.category === "salaires" && movement.reference?.cycleId);
+        return {
+          performance: performanceRows,
+          payroll: cycleRows,
+          totals: {
+            sales: performanceRows.reduce((sum, row) => sum + row.sales, 0),
+            ca: performanceRows.reduce((sum, row) => sum + row.ca, 0),
+            grossMargin: performanceRows.reduce((sum, row) => sum + row.grossMargin, 0),
+            accruedBonuses: cycleRows.reduce((sum, cycle) => sum + cycle.bonus, 0),
+            compensationDue: cycleRows.filter((cycle) => cycle.status === "PAYABLE").reduce((sum, cycle) => sum + cycle.totalDue, 0),
+            paymentsMade: payments.reduce((sum, movement) => sum + movement.amount, 0),
+            treasuryOutflows: payments.reduce((sum, movement) => sum + movement.amount, 0)
+          }
+        };
+      };
+      const pay = (cycleId, paymentDate = Utils.todayIso()) => { const cycle = cycleById(cycleId); if (!cycle) return { error: "Cycle introuvable." }; const hydrated = refreshCycle(cycle); if (hydrated.paymentLocked || paymentForCycle(cycleId)) return { error: "Ce cycle est verrouillé : un paiement existe déjà. Supprimez explicitement la sortie de trésorerie associée pour l’annuler." }; if (hydrated.status !== "PAYABLE") return { error: "Le cycle doit atteindre 26 journées avant paiement." }; if (!Treasury.isInitialized()) return { error: "Initialisez d’abord la trésorerie pour enregistrer ce paiement." }; if (!validDate(paymentDate)) return { error: "Date de paiement invalide." }; const seller = sellerById(cycle.sellerId); const movement = Treasury.add({ date: paymentDate, type: "out", category: "salaires", label: `Salaire · ${seller?.name || "Vendeur"} · ${cycle.label}`, amount: hydrated.totalDue, note: `Cycle ${cycle.label} · prime ${Utils.formatMoney(hydrated.bonus)}`, reference: { sellerId: cycle.sellerId, cycleId: cycle.id } }); if (!movement) return { error: "Impossible d’enregistrer la sortie de trésorerie." }; cycle.status = "PAID"; cycle.paymentDate = paymentDate; cycle.paidAmount = hydrated.totalDue; cycle.treasuryMovementId = movement.id; save(); return { cycle: hydrateCycle(cycle), movement: clone(movement) }; };
+      const unlinkPayment = (movement) => {
+        const movementId = typeof movement === "string" ? movement : movement?.id;
+        const cycleId = typeof movement === "object" ? movement?.reference?.cycleId : "";
+        const cycle = cycles.find((item) => item.treasuryMovementId === movementId || (cycleId && item.id === cycleId));
         if (!cycle) return false;
         cycle.status = cycleTotals(cycle).days >= 26 ? "PAYABLE" : "TO_COMPLETE";
         cycle.paymentDate = "";
@@ -2836,7 +3018,7 @@
       };
       const replace = (payload = {}) => { sellers = (payload.sellers || []).map(normalizeSeller).filter(Boolean); cycles = (payload.cycles || []).map(normalizeCycle).filter(Boolean); sales = (payload.sales || []).map(normalizeSale).filter(Boolean); absences = (payload.absences || []).map(normalizeAbsence).filter(Boolean); save(); };
       load();
-      return { getAll, getSales, getCycles, getAbsences, create, changeSalary, setActive, addSale, addAbsence, clearActivity, removeSalesForDate, sellerStats, performance, totals, bonusFor, pay, unlinkPayment, syncPaymentMovement, replace };
+      return { getAll, getSales, getCycles, getAbsences, create, changeSalary, setActive, addSale, addAbsence, clearActivity, removeSalesForDate, sellerStats, performance, totals, bonusFor, monthlyReport, pay, unlinkPayment, syncPaymentMovement, replace };
     })();
 
     const App = (() => {
@@ -2845,6 +3027,7 @@
       const pageTitle = document.querySelector("#pageTitle");
       const pageKicker = document.querySelector("#pageKicker");
       const todayLabel = document.querySelector("#todayLabel");
+      const versionLabel = document.querySelector("#appVersionLabel");
 
       const setView = (viewName) => {
         views.forEach((view) => view.classList.toggle("active", view.id === `view-${viewName}`));
@@ -2864,13 +3047,25 @@
       };
 
       const init = () => {
+        document.title = `NISSA Manager ${APP_VERSION}`;
+        versionLabel.textContent = APP_VERSION;
+        document.querySelectorAll(".status-message").forEach((element) => { element.setAttribute("role", "status"); element.setAttribute("aria-live", "polite"); });
         todayLabel.textContent = `Aujourd'hui · ${Utils.formatDate(Utils.todayIso())}`;
         navButtons.forEach((button) => {
           button.addEventListener("click", () => setView(button.dataset.view));
         });
+        document.querySelector("#appNav").addEventListener("keydown", (event) => {
+          if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+          const current = navButtons.indexOf(document.activeElement);
+          if (current < 0) return;
+          event.preventDefault();
+          const next = event.key === "Home" ? 0 : event.key === "End" ? navButtons.length - 1 : (current + (event.key === "ArrowRight" ? 1 : -1) + navButtons.length) % navButtons.length;
+          navButtons[next].focus();
+          setView(navButtons[next].dataset.view);
+        });
       };
 
-      return { init };
+      return { init, setView };
     })();
 
     const Dashboard = (() => {
@@ -2919,6 +3114,16 @@
     const Historique = (() => {
       const mount = document.querySelector("#historyMount");
       const clearButton = document.querySelector("#clearDataButton");
+      const searchInput = document.querySelector("#historySearch");
+      const monthInput = document.querySelector("#historyMonth");
+      const pageSizeInput = document.querySelector("#historyPageSize");
+      const resultsStatus = document.querySelector("#historyResultsStatus");
+      const pagination = document.querySelector("#historyPagination");
+      const pageLabel = document.querySelector("#historyPageLabel");
+      const previousPage = document.querySelector("#historyPreviousPage");
+      const nextPage = document.querySelector("#historyNextPage");
+      let page = 1;
+      let filterTimer = 0;
       const escapeHtml = (value) => String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
 
       const renderEmpty = () => {
@@ -2927,8 +3132,8 @@
 
       const renderTable = (records) => {
         mount.innerHTML = `
-          <div class="table-wrap">
-            <table>
+          <div class="table-wrap" tabindex="0" aria-label="Historique filtré, défilement horizontal disponible">
+            <table class="responsive-table">
               <thead>
                 <tr>
                   <th>Date</th>
@@ -2945,15 +3150,15 @@
               <tbody>
                 ${records.map((day) => `
                   <tr>
-                    <td>${Utils.formatDate(day.date)}</td>
-                    <td>${Utils.formatNumber(day.cv)}</td>
-                    <td>${Utils.formatNumber(day.qn)}</td>
-                    <td>${Utils.formatNumber(day.total)}</td>
-                    <td>${Utils.formatMoney(day.ca)}</td>
-                    <td>${Utils.formatMoney(day.depenses)}</td>
-                    <td class="${day.benefice >= 0 ? "amount-positive" : "amount-negative"}">${Utils.formatMoney(day.benefice)}</td>
-                    <td>${Utils.formatMoney(day.caisse)}</td>
-                    <td><div class="expense-actions"><button class="secondary-button" type="button" data-edit-day="${escapeHtml(day.id)}">Modifier</button><button class="danger-button" type="button" data-remove-day="${escapeHtml(day.id)}">Supprimer</button></div></td>
+                    <td data-label="Date">${Utils.formatDate(day.date)}</td>
+                    <td data-label="${escapeHtml(Utils.productLabel("cv"))}">${Utils.formatNumber(day.cv)}</td>
+                    <td data-label="${escapeHtml(Utils.productLabel("qn"))}">${Utils.formatNumber(day.qn)}</td>
+                    <td data-label="Total">${Utils.formatNumber(day.total)}</td>
+                    <td data-label="CA">${Utils.formatMoney(day.ca)}</td>
+                    <td data-label="Dépenses">${Utils.formatMoney(day.depenses)}</td>
+                    <td data-label="Bénéfice" class="${day.benefice >= 0 ? "amount-positive" : "amount-negative"}">${Utils.formatMoney(day.benefice)}</td>
+                    <td data-label="Caisse">${Utils.formatMoney(day.caisse)}</td>
+                    <td data-label="Actions"><div class="expense-actions"><button class="secondary-button" type="button" data-edit-day="${escapeHtml(day.id)}">Modifier</button><button class="danger-button" type="button" data-remove-day="${escapeHtml(day.id)}">Supprimer</button></div></td>
                   </tr>
                 `).join("")}
               </tbody>
@@ -2995,18 +3200,41 @@
         const records = Store.all();
         clearButton.disabled = records.length === 0;
         if (records.length === 0) {
+          resultsStatus.textContent = "0 journée";
+          pagination.hidden = true;
           renderEmpty();
           return;
         }
-        renderTable(records);
+        const query = searchInput.value.trim().toLocaleLowerCase("fr");
+        const month = monthInput.value;
+        const filtered = records.filter((day) => {
+          if (month && !day.date.startsWith(month)) return false;
+          if (!query) return true;
+          return [day.date, Utils.formatDate(day.date), day.cv, day.qn, day.total, day.ca, day.depenses, day.benefice, day.caisse].join(" ").toLocaleLowerCase("fr").includes(query);
+        });
+        const pageSize = Number(pageSizeInput.value) || 25;
+        const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+        page = Math.min(page, pageCount);
+        resultsStatus.textContent = `${filtered.length} journée${filtered.length > 1 ? "s" : ""} affichée${filtered.length > 1 ? "s" : ""} sur ${records.length}`;
+        if (!filtered.length) mount.innerHTML = '<div class="empty-state">Aucune journée ne correspond aux filtres.</div>';
+        else renderTable(filtered.slice((page - 1) * pageSize, page * pageSize));
+        pagination.hidden = filtered.length <= pageSize;
+        pageLabel.textContent = `Page ${page} sur ${pageCount}`;
+        previousPage.disabled = page <= 1;
+        nextPage.disabled = page >= pageCount;
       };
 
       const init = () => {
+        searchInput.addEventListener("input", () => { window.clearTimeout(filterTimer); filterTimer = window.setTimeout(() => { page = 1; render(); }, 150); });
+        monthInput.addEventListener("input", () => { page = 1; render(); });
+        pageSizeInput.addEventListener("change", () => { page = 1; render(); });
+        previousPage.addEventListener("click", () => { if (page > 1) { page -= 1; render(); mount.scrollIntoView({ behavior: "smooth", block: "start" }); } });
+        nextPage.addEventListener("click", () => { page += 1; render(); mount.scrollIntoView({ behavior: "smooth", block: "start" }); });
         clearButton.addEventListener("click", () => {
           if (!Store.all().length) return;
-          const confirmed = window.confirm("Effacer tout l'historique NISSA Manager, y compris les ventes vendeur, sur cet appareil ?");
-          if (!confirmed) return;
+          if (!confirmAndBackup("Effacer tout l'historique NISSA Manager, y compris les ventes vendeur, sur cet appareil ?")) return;
           Sellers.clearActivity();
+          SellersView.clearDraft();
           Store.clear();
           renderAll();
         });
@@ -3021,7 +3249,7 @@
             const message = hasSellerSales
               ? "Supprimer cette journée et toutes les ventes vendeur associées ?"
               : "Supprimer cette journée de l'historique ?";
-            if (window.confirm(message)) {
+            if (confirmAndBackup(message)) {
               if (hasSellerSales) {
                 const result = Sellers.removeSalesForDate(day.date);
                 if (result.error) { window.alert(result.error); return; }
@@ -3208,7 +3436,7 @@
           const editButton = event.target.closest("[data-edit-expense]");
           const removeButton = event.target.closest("[data-remove-expense]");
           if (editButton) edit(editButton.dataset.editExpense);
-          if (removeButton && window.confirm("Supprimer cette dépense ?")) {
+          if (removeButton && confirmAndBackup("Supprimer cette dépense ?")) {
             Expenses.remove(removeButton.dataset.removeExpense);
             renderAll();
           }
@@ -3226,6 +3454,7 @@
       const initializationStatus = document.querySelector("#treasuryInitializationStatus");
       const activeContent = document.querySelector("#treasuryActiveContent");
       const summary = document.querySelector("#treasurySummary");
+      const reconciliationMount = document.querySelector("#treasuryReconciliation");
       const form = document.querySelector("#treasuryForm");
       const idInput = document.querySelector("#treasuryId");
       const dateInput = document.querySelector("#treasuryDate");
@@ -3243,17 +3472,19 @@
       const categoryOptions = () => { categoryInput.innerHTML = Object.entries(Treasury.categories[typeInput.value]).map(([key, label]) => `<option value="${key}">${escapeHtml(label)}</option>`).join(""); };
       const resetForm = () => { form.reset(); idInput.value = ""; dateInput.value = Utils.todayIso(); typeInput.value = "in"; categoryOptions(); saveButton.textContent = "Enregistrer le mouvement"; cancelButton.hidden = true; status.textContent = ""; };
       const readForm = () => ({ date: dateInput.value, type: typeInput.value, category: categoryInput.value, label: labelInput.value, amount: Number(amountInput.value), note: noteInput.value });
-      const edit = (id) => { const movement = Treasury.getAll().find((item) => item.id === id); if (!movement) return; idInput.value = movement.id; dateInput.value = movement.date; typeInput.value = movement.type; categoryOptions(); categoryInput.value = movement.category; labelInput.value = movement.label; amountInput.value = movement.amount; noteInput.value = movement.note; saveButton.textContent = "Mettre à jour"; cancelButton.hidden = false; form.scrollIntoView({ behavior: "smooth", block: "start" }); };
+      const edit = (id) => { const movement = Treasury.getAll().find((item) => item.id === id); if (!movement) return; if (movement.reference?.cycleId) { window.alert("Cette sortie de salaire est verrouillée. Pour annuler le paiement, utilisez Supprimer puis confirmez explicitement l’annulation."); return; } idInput.value = movement.id; dateInput.value = movement.date; typeInput.value = movement.type; categoryOptions(); categoryInput.value = movement.category; labelInput.value = movement.label; amountInput.value = movement.amount; noteInput.value = movement.note; saveButton.textContent = "Mettre à jour"; cancelButton.hidden = false; form.scrollIntoView({ behavior: "smooth", block: "start" }); };
       const renderSummary = () => {
         const month = Utils.todayIso().slice(0, 7);
         const inflows = Treasury.getMonthlyInflows(month);
         const outflows = Treasury.getMonthlyOutflows(month);
         summary.innerHTML = [["Trésorerie disponible", Treasury.getBalance()], ["Entrées du mois", inflows], ["Sorties du mois", outflows], ["Variation nette", inflows - outflows]].map(([label, value]) => `<article class="kpi-card"><p class="kpi-label">${escapeHtml(label)}</p><p class="kpi-value ${value < 0 ? "amount-negative" : ""}">${escapeHtml(Utils.formatMoney(value))}</p></article>`).join("");
+        const comparison = Treasury.reconciliation();
+        reconciliationMount.innerHTML = `<div class="kpi-grid"><article class="kpi-card"><p class="kpi-label">Caisse historique cumulée</p><p class="kpi-value">${escapeHtml(Utils.formatMoney(comparison.historicalCaisse))}</p></article><article class="kpi-card"><p class="kpi-label">Trésorerie théorique</p><p class="kpi-value">${escapeHtml(Utils.formatMoney(comparison.theoretical))}</p></article><article class="kpi-card"><p class="kpi-label">Écart (théorique − caisse)</p><p class="kpi-value ${comparison.discrepancy < 0 ? "amount-negative" : ""}">${escapeHtml(Utils.formatMoney(comparison.discrepancy))}</p></article></div><p class="panel-subtitle" style="margin-top:12px">Période ${escapeHtml(Utils.formatDate(comparison.startDate))} – ${escapeHtml(Utils.formatDate(comparison.endDate))}. Écart expliqué par mouvements manuels nets (${escapeHtml(Utils.formatMoney(comparison.manualNet))}) et différence de calcul entre CA − dépenses et caisse historique (${escapeHtml(Utils.formatMoney(comparison.calculationVariance))}). La trésorerie théorique inclut déjà CA, dépenses et mouvements manuels : ne pas additionner les deux soldes.</p>`;
       };
       const renderHistory = () => {
         const items = Treasury.getAll().map((movement, index) => ({ movement, index })).sort((a, b) => b.movement.date.localeCompare(a.movement.date) || a.index - b.index).map(({ movement }) => movement);
         if (!items.length) { history.innerHTML = '<div class="empty-state">Aucun mouvement manuel enregistré.</div>'; return; }
-        history.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Catégorie</th><th>Libellé</th><th>Montant</th><th>Actions</th></tr></thead><tbody>${items.map((movement) => `<tr><td>${escapeHtml(Utils.formatDate(movement.date))}</td><td>${movement.type === "in" ? "Entrée" : "Sortie"}</td><td>${escapeHtml(Treasury.categories[movement.type][movement.category])}</td><td>${escapeHtml(movement.label)}</td><td class="${movement.type === "in" ? "amount-positive" : "amount-negative"}">${movement.type === "in" ? "+" : "−"}${escapeHtml(Utils.formatMoney(movement.amount))}</td><td><div class="expense-actions"><button class="secondary-button" type="button" data-edit-treasury="${escapeHtml(movement.id)}">Modifier</button><button class="danger-button" type="button" data-remove-treasury="${escapeHtml(movement.id)}">Supprimer</button></div></td></tr>`).join("")}</tbody></table></div>`;
+        history.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Catégorie</th><th>Libellé</th><th>Montant</th><th>Actions</th></tr></thead><tbody>${items.map((movement) => `<tr><td>${escapeHtml(Utils.formatDate(movement.date))}</td><td>${movement.type === "in" ? "Entrée" : "Sortie"}</td><td>${escapeHtml(Treasury.categories[movement.type][movement.category])}</td><td>${escapeHtml(movement.label)}${movement.reference?.cycleId ? `<br><small>Paiement verrouillé · cycle ${escapeHtml(movement.reference.cycleId)}</small>` : ""}</td><td class="${movement.type === "in" ? "amount-positive" : "amount-negative"}">${movement.type === "in" ? "+" : "−"}${escapeHtml(Utils.formatMoney(movement.amount))}</td><td><div class="expense-actions"><button class="secondary-button" type="button" data-edit-treasury="${escapeHtml(movement.id)}" ${movement.reference?.cycleId ? "disabled" : ""}>Modifier</button><button class="danger-button" type="button" data-remove-treasury="${escapeHtml(movement.id)}">${movement.reference?.cycleId ? "Annuler le paiement" : "Supprimer"}</button></div></td></tr>`).join("")}</tbody></table></div>`;
       };
       const renderChart = () => {
         const months = Treasury.availableMonths();
@@ -3268,7 +3499,7 @@
         typeInput.addEventListener("change", categoryOptions);
         form.addEventListener("submit", (event) => { event.preventDefault(); const saved = idInput.value ? Treasury.update(idInput.value, readForm()) : Treasury.add(readForm()); if (!saved) { status.textContent = "Vérifiez tous les champs du mouvement."; status.classList.add("error"); return; } resetForm(); renderAll(); });
         cancelButton.addEventListener("click", resetForm);
-        history.addEventListener("click", (event) => { const editButton = event.target.closest("[data-edit-treasury]"); const removeButton = event.target.closest("[data-remove-treasury]"); if (editButton) edit(editButton.dataset.editTreasury); if (removeButton && window.confirm("Supprimer ce mouvement ?")) { Treasury.remove(removeButton.dataset.removeTreasury); renderAll(); } });
+        history.addEventListener("click", (event) => { const editButton = event.target.closest("[data-edit-treasury]"); const removeButton = event.target.closest("[data-remove-treasury]"); if (editButton) edit(editButton.dataset.editTreasury); if (removeButton) { const movement = Treasury.getAll().find((item) => item.id === removeButton.dataset.removeTreasury); const message = movement?.reference?.cycleId ? "Annuler explicitement ce paiement vendeur ? Le cycle sera déverrouillé et pourra être payé à nouveau." : "Supprimer ce mouvement ?"; if (confirmAndBackup(message, movement?.reference?.cycleId ? "secours-avant-annulation-paiement" : "secours-avant-suppression")) { Treasury.remove(removeButton.dataset.removeTreasury); renderAll(); } } });
         resetForm();
       };
       return { init, render };
@@ -3931,6 +4162,7 @@
           totals: { ca, benefice, depenses, total, cv, qn, marge },
           expenseCategories: Expenses.totalsByCategory(key),
           goalMetrics: Goals.metrics(key),
+          sellers: Sellers.monthlyReport(key),
           treasury: Treasury.isInitialized() && `${key}-31` >= Settings.all().treasury.startDate ? {
             inflows: Treasury.getMonthlyInflows(key),
             outflows: Treasury.getMonthlyOutflows(key),
@@ -3944,7 +4176,9 @@
           ...records.map((day) => monthKey(day.date)),
           ...Expenses.getAll().map((expense) => monthKey(expense.date)),
           ...Goals.getAll().map((goal) => goal.month),
-          ...Treasury.getAll().map((movement) => monthKey(movement.date))
+          ...Treasury.getAll().map((movement) => monthKey(movement.date)),
+          ...Sellers.getSales().map((sale) => monthKey(sale.date)),
+          ...Sellers.getCycles().flatMap((cycle) => [monthKey(cycle.startDate), monthKey(cycle.completedAt), monthKey(cycle.paymentDate)])
         ].filter(Boolean))];
         return months.sort((a, b) => b.localeCompare(a));
       };
@@ -3967,13 +4201,26 @@
 
       const treasuryReportHtml = (report) => report.treasury ? `<h3>Trésorerie</h3><div class="report-summary"><article class="month-card"><strong>Entrées</strong><span>${Utils.formatMoney(report.treasury.inflows)}</span></article><article class="month-card"><strong>Sorties</strong><span>${Utils.formatMoney(report.treasury.outflows)}</span></article><article class="month-card"><strong>Solde théorique</strong><span>${Utils.formatMoney(report.treasury.balance)}</span></article></div>` : "";
 
+      const sellerPerformanceHtml = (report) => {
+        const rows = report.sellers.performance;
+        if (!rows.length) return '<h3>Performance vendeurs</h3><div class="empty-state">Aucune vente vendeur pour ce mois.</div>';
+        return `<h3>Performance vendeurs</h3><table><thead><tr><th>Classement</th><th>Vendeur</th><th>Jours</th><th>Ventes</th><th>Moyenne / jour</th><th>CA</th><th>Marge brute</th></tr></thead><tbody>${rows.map((row) => `<tr><td>#${row.rank}</td><td>${escapeHtml(row.sellerName)}</td><td>${Utils.formatNumber(row.days)}</td><td>${Utils.formatNumber(row.sales)}</td><td>${Utils.formatNumber(row.averageSales)}</td><td>${Utils.formatMoney(row.ca)}</td><td>${Utils.formatMoney(row.grossMargin)}</td></tr>`).join("")}</tbody></table>`;
+      };
+
+      const payrollReportHtml = (report) => {
+        const stateLabel = (status) => ({ OPEN: "Ouvert", TO_COMPLETE: "À compléter", PAYABLE: "À payer", PAID: "Payé" }[status] || status);
+        const rows = report.sellers.payroll;
+        const totals = report.sellers.totals;
+        return `<h3>Paie vendeurs</h3><div class="report-summary"><article class="month-card"><strong>Primes cumulées</strong><span>${Utils.formatMoney(totals.accruedBonuses)}</span></article><article class="month-card"><strong>Rémunérations dues</strong><span>${Utils.formatMoney(totals.compensationDue)}</span></article><article class="month-card"><strong>Paiements effectués</strong><span>${Utils.formatMoney(totals.paymentsMade)}</span></article><article class="month-card"><strong>Sorties de trésorerie liées</strong><span>${Utils.formatMoney(totals.treasuryOutflows)}</span></article></div>${rows.length ? `<table><thead><tr><th>Cycle</th><th>Vendeur</th><th>Jours</th><th>Base</th><th>Prime</th><th>Total dû</th><th>Statut</th><th>Paiement</th><th>Sortie trésorerie</th></tr></thead><tbody>${rows.map((cycle) => `<tr><td>${escapeHtml(cycle.label)}</td><td>${escapeHtml(cycle.sellerName)}</td><td>${Utils.formatNumber(cycle.days)} / 26</td><td>${Utils.formatMoney(cycle.baseSalary)}</td><td>${Utils.formatMoney(cycle.bonus)}</td><td>${Utils.formatMoney(cycle.totalDue)}</td><td>${escapeHtml(stateLabel(cycle.status))}</td><td>${cycle.paymentDate ? `${escapeHtml(Utils.formatDate(cycle.paymentDate))}<br>${Utils.formatMoney(cycle.paidAmount)}` : "—"}</td><td>${cycle.treasuryMovementId ? `${Utils.formatMoney(cycle.treasuryOutflow)}<br><small>${escapeHtml(cycle.treasuryMovementId)}</small>` : "—"}</td></tr>`).join("")}</tbody></table>` : '<div class="empty-state">Aucun cycle vendeur rattaché à ce mois.</div>'}`;
+      };
+
       const renderEmpty = () => {
         currentReport = null;
         monthSelect.innerHTML = '<option value="">Aucun mois disponible</option>';
         monthSelect.disabled = true;
         excelButton.disabled = true;
         pdfButton.disabled = true;
-        reportMount.innerHTML = '<div class="empty-state">Aucune journée enregistrée pour générer un rapport.</div>';
+        reportMount.innerHTML = '<div class="empty-state">Aucune donnée mensuelle disponible pour générer un rapport.</div>';
       };
 
       const renderReport = (report) => {
@@ -4033,6 +4280,8 @@
           <div class="table-wrap" style="margin-top:16px">${expenseBreakdownHtml(report)}</div>
           <div class="table-wrap" style="margin-top:16px">${goalsReportHtml(report)}</div>
           ${treasuryReportHtml(report)}
+          <div class="table-wrap" style="margin-top:16px">${sellerPerformanceHtml(report)}</div>
+          <div class="table-wrap" style="margin-top:16px">${payrollReportHtml(report)}</div>
         `;
       };
 
@@ -4098,7 +4347,7 @@
         </head>
         <body>
           <h1>NISSA Manager - Rapport mensuel</h1>
-          <p>${escapeHtml(report.label)} · Version v2.7.1</p>
+          <p>${escapeHtml(report.label)} · Version ${escapeHtml(APP_VERSION)}</p>
           <div class="summary">
             <div class="card"><strong>CA</strong>${escapeHtml(Utils.formatMoney(report.totals.ca))}</div>
             <div class="card"><strong>Bénéfice</strong>${escapeHtml(Utils.formatMoney(report.totals.benefice))}</div>
@@ -4109,6 +4358,8 @@
           ${expenseBreakdownHtml(report)}
           ${goalsReportHtml(report)}
           ${treasuryReportHtml(report)}
+          ${sellerPerformanceHtml(report)}
+          ${payrollReportHtml(report)}
         </body>
         </html>
       `;
@@ -4187,6 +4438,7 @@
       const saleCv = document.querySelector("#sellerSaleCv");
       const saleQn = document.querySelector("#sellerSaleQn");
       const saleStatus = document.querySelector("#sellerSaleStatus");
+      const clearSaleDraftButton = document.querySelector("#clearSellerSaleDraft");
       const absenceForm = document.querySelector("#sellerAbsenceForm");
       const absenceDate = document.querySelector("#sellerAbsenceDate");
       const absenceSeller = document.querySelector("#sellerAbsenceSeller");
@@ -4203,6 +4455,37 @@
       const money = (value) => Utils.formatMoney(value || 0);
       const number = (value) => Utils.formatNumber(Math.round(value || 0));
       const stateLabel = (status) => ({ OPEN: "Ouvert", TO_COMPLETE: "À compléter", PAYABLE: "À payer", PAID: "Payé", COMPLETED: "Terminé" }[status] || status);
+      const saleDraftKey = "nissa_seller_sale_draft";
+      let saleDraftTimer = 0;
+      let saleDraftRestored = false;
+
+      const saleDraft = () => ({ date: saleDate.value, sellerId: saleSeller.value, cv: saleCv.value, qn: saleQn.value });
+      const saveSaleDraft = () => {
+        window.clearTimeout(saleDraftTimer);
+        saleDraftTimer = window.setTimeout(() => {
+          try { localStorage.setItem(saleDraftKey, JSON.stringify(saleDraft())); } catch (error) { /* Stockage indisponible : la saisie reste utilisable. */ }
+        }, 250);
+      };
+      const clearSaleDraft = (reset = true) => {
+        window.clearTimeout(saleDraftTimer);
+        try { localStorage.removeItem(saleDraftKey); } catch (error) { /* Sans impact sur la saisie courante. */ }
+        if (!reset) return;
+        saleDate.value = Utils.todayIso(); saleSeller.value = ""; saleCv.value = "0"; saleQn.value = "0";
+        setStatus(saleStatus, "Brouillon effacé.");
+      };
+      const restoreSaleDraft = () => {
+        if (saleDraftRestored) return;
+        saleDraftRestored = true;
+        try {
+          const draft = JSON.parse(localStorage.getItem(saleDraftKey));
+          if (!draft || typeof draft !== "object") return;
+          if (Expenses.isValidDate(draft.date)) saleDate.value = draft.date;
+          if ([...saleSeller.options].some((option) => option.value === draft.sellerId)) saleSeller.value = draft.sellerId;
+          if (Number.isFinite(Number(draft.cv)) && Number(draft.cv) >= 0) saleCv.value = String(draft.cv);
+          if (Number.isFinite(Number(draft.qn)) && Number(draft.qn) >= 0) saleQn.value = String(draft.qn);
+          setStatus(saleStatus, "Brouillon local restauré.");
+        } catch (error) { try { localStorage.removeItem(saleDraftKey); } catch (storageError) { /* Aucun traitement nécessaire. */ } }
+      };
 
       const renderSummary = () => {
         const total = Sellers.totals();
@@ -4251,6 +4534,7 @@
 
       const render = () => {
         renderSummary(); renderOptions();
+        restoreSaleDraft();
         bonusRules.value = Settings.all().sellerBonusRules.map((rule) => `${rule.threshold}:${rule.bonus}`).join(", ");
         const rankings = Sellers.performance();
         mount.innerHTML = rankings.length ? `<div class="seller-list">${rankings.map((stats, index) => sellerCard(stats, index + 1)).join("")}</div>` : '<div class="empty-state">Ajoutez un vendeur pour commencer le suivi des cycles et rémunérations.</div>';
@@ -4265,12 +4549,126 @@
       const init = () => {
         sellerStartDate.value = Utils.todayIso(); saleDate.value = Utils.todayIso(); absenceDate.value = Utils.todayIso();
         sellerForm.addEventListener("submit", (event) => { event.preventDefault(); const seller = Sellers.create({ name: sellerName.value, joinedAt: sellerStartDate.value, baseSalary: sellerSalary.value }); if (!seller) { setStatus(sellerStatus, "Renseignez un nom et une date valides.", true); return; } sellerForm.reset(); sellerStartDate.value = Utils.todayIso(); setStatus(sellerStatus, "Vendeur ajouté."); renderAll(); });
-        saleForm.addEventListener("submit", (event) => { event.preventDefault(); const result = Sellers.addSale({ sellerId: saleSeller.value, date: saleDate.value, cv: saleCv.value, qn: saleQn.value }); if (result.error) { setStatus(saleStatus, result.error, true); return; } saleCv.value = "0"; saleQn.value = "0"; setStatus(saleStatus, result.cycle.status === "PAYABLE" ? "Vente enregistrée : cycle terminé et salaire à payer." : `Vente enregistrée : ${result.cycle.days} / 26 jours dans le cycle ${result.cycle.label}.`); renderAll(); });
+        saleForm.addEventListener("submit", (event) => { event.preventDefault(); const result = Sellers.addSale({ sellerId: saleSeller.value, date: saleDate.value, cv: saleCv.value, qn: saleQn.value }); if (result.error) { setStatus(saleStatus, result.error, true); return; } clearSaleDraft(false); saleCv.value = "0"; saleQn.value = "0"; setStatus(saleStatus, result.cycle.status === "PAYABLE" ? "Vente enregistrée : cycle terminé et salaire à payer." : `Vente enregistrée : ${result.cycle.days} / 26 jours dans le cycle ${result.cycle.label}.`); renderAll(); });
+        [saleDate, saleSeller, saleCv, saleQn].forEach((field) => { field.addEventListener("input", saveSaleDraft); field.addEventListener("change", saveSaleDraft); });
+        clearSaleDraftButton.addEventListener("click", () => clearSaleDraft(true));
+        saleForm.addEventListener("keydown", (event) => { if ((event.ctrlKey || event.metaKey) && event.key === "Enter") { event.preventDefault(); saleForm.requestSubmit(); } });
+        document.addEventListener("keydown", (event) => { if (event.altKey && event.key.toLocaleLowerCase("fr") === "v") { event.preventDefault(); App.setView("vendeurs"); saleDate.focus(); } });
         absenceForm.addEventListener("submit", (event) => { event.preventDefault(); const result = Sellers.addAbsence({ sellerId: absenceSeller.value, date: absenceDate.value }); if (result.error) { setStatus(absenceStatus, result.error, true); return; } setStatus(absenceStatus, `Absence enregistrée dans le cycle ${result.cycle.label}.`); renderAll(); });
         bonusForm.addEventListener("submit", (event) => { event.preventDefault(); const rules = bonusRules.value.split(",").map((value) => value.trim().split(":")).map(([threshold, bonus]) => ({ threshold: Number(threshold), bonus: Number(bonus) })).filter((rule) => Number.isFinite(rule.threshold) && rule.threshold > 0 && Number.isFinite(rule.bonus) && rule.bonus > 0).sort((a, b) => a.threshold - b.threshold); if (!rules.length) { setStatus(bonusStatus, "Utilisez le format 3000:10000, 3200:10000.", true); return; } const settings = Settings.all(); settings.sellerBonusRules = rules; Settings.update(settings); setStatus(bonusStatus, "Règles de prime enregistrées."); renderAll(); });
         mount.addEventListener("click", (event) => { const pay = event.target.closest("[data-pay-cycle]"); const toggle = event.target.closest("[data-toggle-seller]"); const salary = event.target.closest("[data-change-salary]"); if (pay) { if (!window.confirm("Confirmer le paiement de ce cycle ? Une sortie de trésorerie sera créée.")) return; const result = Sellers.pay(pay.dataset.payCycle); if (result.error) window.alert(result.error); else renderAll(); } if (toggle) { const seller = Sellers.getAll().find((item) => item.id === toggle.dataset.toggleSeller); if (seller) { Sellers.setActive(seller.id, !seller.active); renderAll(); } } if (salary) { const seller = Sellers.getAll().find((item) => item.id === salary.dataset.changeSalary); const amount = window.prompt(`Nouveau salaire de base pour ${seller?.name || "ce vendeur"} :`); if (amount === null) return; const effectiveDate = window.prompt("Date d’effet (AAAA-MM-JJ) :", Utils.todayIso()); if (effectiveDate === null) return; if (!Sellers.changeSalary(salary.dataset.changeSalary, amount, effectiveDate)) window.alert("Salaire ou date d’effet invalide."); else renderAll(); } });
       };
-      return { init, render, renderDashboard };
+      return { init, render, renderDashboard, clearDraft: () => clearSaleDraft(false) };
+    })();
+
+    const Backup = (() => {
+      const schemaVersion = "1.0.0";
+      const fields = {
+        nissa_settings: "settings", nissa_data: "records", nissa_expenses: "expenses",
+        nissa_treasury: "treasury", nissa_goals: "goals", nissa_sellers: "sellers",
+        nissa_seller_sales: "sellerSales", nissa_seller_cycles: "sellerCycles", nissa_seller_absences: "sellerAbsences"
+      };
+      const keys = Object.keys(fields);
+      const snapshot = () => ({
+        version: APP_VERSION, schemaVersion, appVersion: APP_VERSION, exportedAt: new Date().toISOString(), includedKeys: [...keys],
+        settings: Settings.all(), records: Store.all(), expenses: Expenses.getAll(), treasury: Treasury.getAll(), goals: Goals.getAll(),
+        sellers: Sellers.getAll(), sellerSales: Sellers.getSales(), sellerCycles: Sellers.getCycles(), sellerAbsences: Sellers.getAbsences()
+      });
+      const download = (reason = "secours") => {
+        try {
+          const stamp = new Date().toISOString().replaceAll(":", "-");
+          const blob = new Blob([JSON.stringify(snapshot(), null, 2)], { type: "application/json;charset=utf-8" });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a"); link.href = url; link.download = `nissa-manager-${reason}-${stamp}.json`;
+          document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url);
+          const settings = Settings.all(); settings.backup.lastBackup = Utils.todayIso(); Settings.update(settings);
+          return true;
+        } catch (error) { return false; }
+      };
+      const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
+      const validate = (parsed) => {
+        if (Array.isArray(parsed)) return { records: parsed, included: ["nissa_data"], missing: keys.filter((key) => key !== "nissa_data"), legacy: true };
+        if (!isObject(parsed)) throw new Error("Le fichier JSON doit contenir un objet ou une liste de journées.");
+        const metadata = ["schemaVersion", "appVersion", "exportedAt", "includedKeys"];
+        const hasMetadata = metadata.some((key) => Object.hasOwn(parsed, key));
+        if (hasMetadata) {
+          if (!metadata.every((key) => Object.hasOwn(parsed, key))) throw new Error("Métadonnées de sauvegarde incomplètes.");
+          if (parsed.schemaVersion !== schemaVersion || typeof parsed.appVersion !== "string" || !parsed.appVersion.trim() || typeof parsed.exportedAt !== "string" || !Number.isFinite(Date.parse(parsed.exportedAt)) || !Array.isArray(parsed.includedKeys) || parsed.includedKeys.some((key) => typeof key !== "string" || !keys.includes(key)) || new Set(parsed.includedKeys).size !== parsed.includedKeys.length) throw new Error("Métadonnées de sauvegarde invalides ou non prises en charge.");
+        }
+        const result = {};
+        if (Object.hasOwn(parsed, "settings")) { if (!isObject(parsed.settings)) throw new Error("La section paramètres doit être un objet."); result.settings = parsed.settings; }
+        const recordField = Object.hasOwn(parsed, "records") ? "records" : Object.hasOwn(parsed, "data") ? "data" : null;
+        if (Object.hasOwn(parsed, "records") && Object.hasOwn(parsed, "data")) throw new Error("Le fichier contient deux sections historiques ambiguës.");
+        if (recordField) { if (!Array.isArray(parsed[recordField])) throw new Error("La section historique doit être une liste."); result.records = parsed[recordField]; }
+        for (const field of Object.values(fields).filter((field) => field !== "settings" && field !== "records")) if (Object.hasOwn(parsed, field)) { if (!Array.isArray(parsed[field])) throw new Error(`La section ${field} doit être une liste.`); result[field] = parsed[field]; }
+        for (const [field, value] of Object.entries(result)) if (Array.isArray(value) && value.some((item) => !isObject(item))) throw new Error(`La section ${field} contient un élément invalide.`);
+        const validRows = {
+          records: (item) => Expenses.isValidDate(item.date) && ["cv", "qn", "total", "ca", "depenses", "benefice", "caisse"].every((key) => Number.isFinite(Number(item[key]))),
+          expenses: (item) => Boolean(Expenses.normalize(item)), treasury: (item) => Boolean(Treasury.normalize(item)),
+          goals: (item) => Boolean(Goals.normalize(item)),
+          sellers: (item) => Boolean(String(item.name || "").trim()) && (!item.joinedAt || Expenses.isValidDate(item.joinedAt)),
+          sellerSales: (item) => Boolean(String(item.sellerId || "").trim() && String(item.cycleId || "").trim() && Expenses.isValidDate(item.date)) && Number(item.cv || 0) + Number(item.qn || 0) > 0,
+          sellerCycles: (item) => Boolean(String(item.sellerId || "").trim() && Expenses.isValidDate(item.startDate)),
+          sellerAbsences: (item) => Boolean(String(item.sellerId || "").trim() && String(item.cycleId || "").trim() && Expenses.isValidDate(item.date))
+        };
+        for (const [field, validator] of Object.entries(validRows)) if (Object.hasOwn(result, field) && result[field].some((item) => !validator(item))) throw new Error(`La section ${field} contient des données invalides.`);
+        const included = keys.filter((key) => Object.hasOwn(result, fields[key]));
+        if (!included.length) throw new Error("Aucune section de données importable.");
+        if (hasMetadata && (parsed.includedKeys.length !== included.length || parsed.includedKeys.some((key) => !included.includes(key)))) throw new Error("Les métadonnées ne correspondent pas aux sections présentes.");
+        return { ...result, included, missing: keys.filter((key) => !included.includes(key)), legacy: !hasMetadata };
+      };
+      return { keys, fields, snapshot, download, validate };
+    })();
+
+    const confirmAndBackup = (message, reason = "secours-avant-suppression") => {
+      if (!window.confirm(`${message}\n\nUne sauvegarde de secours horodatée sera téléchargée avant l’action.`)) return false;
+      if (!Backup.download(reason)) { window.alert("La sauvegarde de secours n’a pas pu être préparée ; aucune donnée n’a été supprimée."); return false; }
+      return true;
+    };
+
+    const Pwa = (() => {
+      const versionInput = document.querySelector("#activeAppVersion");
+      const status = document.querySelector("#pwaStatus");
+      const updateButton = document.querySelector("#forceAppUpdate");
+      const supported = "serviceWorker" in navigator && window.location.protocol !== "file:";
+
+      const renderStatus = () => {
+        versionInput.value = APP_VERSION;
+        updateButton.disabled = !supported;
+        status.classList.remove("error");
+        status.textContent = !supported ? "Non disponible depuis un fichier local" : navigator.serviceWorker.controller ? "Mode hors ligne actif" : "Activation après le prochain rechargement";
+      };
+
+      const forceUpdate = async () => {
+        if (!supported) return;
+        updateButton.disabled = true;
+        status.textContent = "Recherche de mise à jour…";
+        try {
+          const registration = await navigator.serviceWorker.getRegistration() || await navigator.serviceWorker.register("service-worker.js");
+          await registration.update();
+          if (registration.waiting) registration.waiting.postMessage({ type: "SKIP_WAITING" });
+          if (navigator.onLine && "caches" in window) {
+            const keys = await caches.keys();
+            await Promise.all(keys.filter((key) => key.startsWith("nissa-manager-")).map((key) => caches.delete(key)));
+          }
+          status.textContent = "Mise à jour vérifiée. Rechargement…";
+          window.setTimeout(() => window.location.reload(), 500);
+        } catch (error) {
+          status.textContent = "Mise à jour impossible. Vérifiez la connexion.";
+          status.classList.add("error");
+          updateButton.disabled = false;
+        }
+      };
+
+      const init = () => {
+        renderStatus();
+        updateButton.addEventListener("click", forceUpdate);
+        if (!supported) return;
+        navigator.serviceWorker.register("service-worker.js").then(renderStatus).catch(() => { status.textContent = "Service hors ligne indisponible"; status.classList.add("error"); });
+        navigator.serviceWorker.addEventListener("controllerchange", renderStatus);
+      };
+
+      return { init };
     })();
 
     const Parametres = (() => {
@@ -4380,19 +4778,7 @@
       };
 
       const exportJson = () => {
-        const payload = {
-          version: "v2.7.1",
-          exportedAt: new Date().toISOString(),
-          settings: Settings.all(),
-          records: Store.all(),
-          expenses: Expenses.getAll(),
-          treasury: Treasury.getAll(),
-          goals: Goals.getAll(),
-          sellers: Sellers.getAll(),
-          sellerSales: Sellers.getSales(),
-          sellerCycles: Sellers.getCycles(),
-          sellerAbsences: Sellers.getAbsences()
-        };
+        const payload = Backup.snapshot();
         downloadBlob(JSON.stringify(payload, null, 2), `nissa-manager-sauvegarde-${Utils.todayIso()}.json`, "application/json;charset=utf-8");
         const nextSettings = Settings.all();
         nextSettings.backup.lastBackup = Utils.todayIso();
@@ -4406,79 +4792,27 @@
         const reader = new FileReader();
         reader.addEventListener("load", () => {
           try {
-            const parsed = JSON.parse(reader.result);
-            let importedSomething = false;
-            let importedRecords = null;
-            let importedExpenses = null;
-            let importedTreasury = null;
-            let importedGoals = null;
-            let importedSellers = null;
-            let importedSellerSales = null;
-            let importedSellerCycles = null;
-            let importedSellerAbsences = null;
-            if (Array.isArray(parsed)) {
-              importedRecords = parsed;
-              importedSomething = true;
-            } else {
-              if (!parsed || typeof parsed !== "object") {
-                throw new Error("Format JSON invalide.");
-              }
-              if (parsed.settings && typeof parsed.settings === "object") {
-                Settings.update(parsed.settings);
-                importedSomething = true;
-              }
-              if (Array.isArray(parsed.records)) {
-                importedRecords = parsed.records;
-                importedSomething = true;
-              } else if (Array.isArray(parsed.data)) {
-                importedRecords = parsed.data;
-                importedSomething = true;
-              }
-              if (Array.isArray(parsed.expenses)) {
-                importedExpenses = parsed.expenses;
-                importedSomething = true;
-              }
-              if (Array.isArray(parsed.treasury)) {
-                importedTreasury = parsed.treasury;
-                importedSomething = true;
-              }
-              if (Array.isArray(parsed.goals)) {
-                importedGoals = parsed.goals;
-                importedSomething = true;
-              }
-              if (Array.isArray(parsed.sellers)) { importedSellers = parsed.sellers; importedSomething = true; }
-              if (Array.isArray(parsed.sellerSales)) { importedSellerSales = parsed.sellerSales; importedSomething = true; }
-              if (Array.isArray(parsed.sellerCycles)) { importedSellerCycles = parsed.sellerCycles; importedSomething = true; }
-              if (Array.isArray(parsed.sellerAbsences)) { importedSellerAbsences = parsed.sellerAbsences; importedSomething = true; }
+            const data = Backup.validate(JSON.parse(reader.result));
+            const descriptions = { nissa_settings: "paramètres", nissa_data: "historique", nissa_expenses: "dépenses", nissa_treasury: "trésorerie", nissa_goals: "objectifs", nissa_sellers: "fiches vendeurs", nissa_seller_sales: "ventes vendeurs", nissa_seller_cycles: "cycles de paie", nissa_seller_absences: "absences" };
+            const warning = `${data.legacy ? "\n\nSauvegarde ancienne sans métadonnées : compatibilité historique." : ""}${data.missing.length ? `\n\nSections absentes : ${data.missing.map((key) => descriptions[key]).join(", ")}. Les données actuelles correspondantes seront conservées.` : ""}`;
+            if (!confirmAndBackup(`Importer les sections présentes ? Les données correspondantes seront remplacées.${warning}`, "secours-avant-import")) return;
+            if (data.settings) Settings.update(data.settings);
+            if (Object.hasOwn(data, "records")) Store.replace(data.records);
+            if (Object.hasOwn(data, "expenses")) {
+              Expenses.replace(data.expenses);
+              if (Object.hasOwn(data, "records")) Store.all().forEach((day) => Expenses.syncDayExpenses(day.date));
+              const settings = Settings.all(); settings.dataMigrations.expensesV250 = true; Settings.update(settings);
             }
-            if (!importedSomething) throw new Error("Aucune donnee importable.");
-            if (importedRecords) Store.replace(importedRecords);
-            if (importedExpenses) {
-              Expenses.replace(importedExpenses);
-              Store.all().forEach((day) => Expenses.syncDayExpenses(day.date));
-              const settings = Settings.all();
-              settings.dataMigrations.expensesV250 = true;
-              Settings.update(settings);
-            } else if (importedRecords) {
-              Expenses.replace([]);
-              const settings = Settings.all();
-              settings.dataMigrations.expensesV250 = false;
-              Settings.update(settings);
-              Expenses.migrateLegacyExpenses(true);
+            if (Object.hasOwn(data, "treasury")) Treasury.replace(data.treasury);
+            if (Object.hasOwn(data, "goals")) Goals.replace(data.goals);
+            if (["sellers", "sellerSales", "sellerCycles", "sellerAbsences"].some((field) => Object.hasOwn(data, field))) {
+              Sellers.replace({ sellers: Object.hasOwn(data, "sellers") ? data.sellers : Sellers.getAll(), sales: Object.hasOwn(data, "sellerSales") ? data.sellerSales : Sellers.getSales(), cycles: Object.hasOwn(data, "sellerCycles") ? data.sellerCycles : Sellers.getCycles(), absences: Object.hasOwn(data, "sellerAbsences") ? data.sellerAbsences : Sellers.getAbsences() });
             }
-            Treasury.replace(importedTreasury || []);
-            if (importedTreasury === null) {
-              const settings = Settings.all();
-              settings.treasury = { startDate: "", openingBalance: 0 };
-              Settings.update(settings);
-            }
-            Goals.replace(importedGoals || []);
-            if (importedSellers || importedSellerSales || importedSellerCycles || importedSellerAbsences) Sellers.replace({ sellers: importedSellers || [], sales: importedSellerSales || [], cycles: importedSellerCycles || [], absences: importedSellerAbsences || [] });
             fillForm();
             renderAll();
-            setStatus("Import JSON terminé.");
+            setStatus(`Import JSON terminé${data.missing.length ? " (sections absentes conservées)" : ""}.`);
           } catch (error) {
-            setStatus("Import JSON impossible.", true);
+            setStatus(`Import JSON impossible : ${error.message}`, true);
           }
         });
         reader.readAsText(file);
@@ -4501,7 +4835,7 @@
         });
 
         resetSettingsButton.addEventListener("click", () => {
-          if (!window.confirm("Réinitialiser uniquement les paramètres ?")) return;
+          if (!confirmAndBackup("Réinitialiser uniquement les paramètres ?")) return;
           Settings.reset();
           fillForm();
           renderAll();
@@ -4509,20 +4843,22 @@
         });
 
         resetHistoryButton.addEventListener("click", () => {
-          if (!window.confirm("Réinitialiser l'historique, y compris les ventes vendeur ? Les fiches vendeurs et leurs salaires seront conservés.")) return;
+          if (!confirmAndBackup("Réinitialiser l'historique, y compris les ventes vendeur ? Les fiches vendeurs et leurs salaires seront conservés.")) return;
           Sellers.clearActivity();
+          SellersView.clearDraft();
           Store.clear();
           renderAll();
           setStatus("Historique réinitialisé.");
         });
 
         resetAllButton.addEventListener("click", () => {
-          if (!window.confirm("Réinitialiser les paramètres et l'historique ?")) return;
+          if (!confirmAndBackup("Réinitialiser les paramètres et l'historique ?")) return;
           Store.clear();
           Expenses.replace([]);
           Treasury.replace([]);
           Goals.replace([]);
           Sellers.replace({});
+          SellersView.clearDraft();
           Settings.reset();
           fillForm();
           renderAll();
@@ -4562,12 +4898,9 @@
       GoalsView.init();
       SellersView.init();
       Rapports.init();
+      Pwa.init();
       Parametres.init();
       renderAll();
-
-      if ("serviceWorker" in navigator && window.location.protocol !== "file:") {
-        navigator.serviceWorker.register("service-worker.js").catch(() => {});
-      }
     });
   </script>
 </body>

@@ -1,18 +1,18 @@
-# Architecture NISSA Manager v2.7.1
+# Architecture NISSA Manager v2.10.0
 
 ## Etat actuel
 
-NISSA Manager v2.7.1 est une application web hors ligne en vanilla HTML, CSS et JavaScript.
+NISSA Manager v2.10.0 est une application web hors ligne en vanilla HTML, CSS et JavaScript.
 
 Le projet contient actuellement une application complete dans `index.html` :
 
 - CSS integre dans la balise `<style>`.
 - Structure HTML des vues dans le `<body>`.
-- Template HTML du formulaire de journee via `<template id="journeeFormTemplate">`.
+- Formulaires métier intégrés aux vues, notamment la saisie quotidienne vendeur.
 - JavaScript integre dans la balise `<script>`.
 - Persistance locale via `localStorage`.
 
-La logique applicative reste dans `index.html`. La version PWA ajoute les fichiers techniques necessaires a l'installation : `manifest.webmanifest`, `service-worker.js` et les icones dans `assets/`.
+La logique applicative reste dans `index.html`. La version PWA ajoute `app-version.js`, `manifest.webmanifest`, `service-worker.js` et les icones dans `assets/`. `app-version.js` est l’unique source de version exécutée par la page et le service worker.
 
 ## Versionnement
 
@@ -35,7 +35,11 @@ Versions planifiees :
 - `v2.6.0` : tresorerie theorique et objectifs mensuels.
 - `v2.7.0` : gestion des vendeurs, ventes individuelles et cycles de salaire.
 - `v2.7.1` : synchronisation et suppression des ventes vendeur depuis l'historique.
-- `v3.0.0` : prochaine version majeure a definir apres stabilisation de `v2.7.1`.
+- `v2.7.2` : alignement documentaire et de version, recette de non-regression ciblee.
+- `v2.8.0` : sauvegardes versionnées, import prudent, secours avant suppression et rapprochement de caisse.
+- `v2.9.0` : rapports vendeurs et paie, verrouillage renforcé des cycles payés et rapports mensuels enrichis.
+- `v2.10.0` : brouillon de saisie, historique paginé, version PWA centralisée, accessibilité et responsive.
+- `v3.0.0` : prochaine version majeure a definir apres stabilisation de `v2.7.x`.
 
 Chaque developpement doit mettre a jour :
 
@@ -138,9 +142,12 @@ Ce module pourra etre deplace plus tard dans `js/dashboard.js`.
 
 Responsabilites :
 
-- afficher le tableau complet des journees ;
+- filtrer les journées en mémoire par recherche et mois ;
+- rendre seulement la page courante, avec 25, 50 ou 100 lignes ;
 - gerer l'etat vide ;
 - gerer l'effacement de l'historique.
+
+La pagination ne relit pas `localStorage` : `Store` conserve les journées en mémoire et seule la tranche visible est injectée dans le DOM. La recherche attend 150 ms après la frappe avant de recalculer le filtre.
 
 Ce module pourra etre deplace plus tard dans `js/historique.js`.
 
@@ -174,6 +181,7 @@ Responsabilites :
 - initialisation depuis `settings.treasury.startDate` et `openingBalance` ;
 - calcul parallele `solde initial + CA - depenses + entrees - sorties` depuis la date de depart ;
 - preservation integrale du champ historique `caisse`.
+- rapprochement comparatif entre solde initial + caisse quotidienne cumulée et solde théorique ; l'écart se décompose en mouvements manuels nets et différence entre CA moins dépenses et `caisse`.
 
 ### Goals
 
@@ -190,10 +198,23 @@ Responsabilites :
 
 - gerer les vendeurs actifs, leur date d'arrivee et leur historique de salaire ;
 - enregistrer les ventes individuelles et les absences ;
+- conserver un brouillon temporaire de saisie dans `nissa_seller_sale_draft`, hors sauvegarde métier ;
+- gérer les raccourcis `Ctrl/⌘ + Entrée` et `Alt + V` ;
 - organiser les ventes en cycles de 26 journees travaillees ;
 - calculer les primes cumulatives et les remunerations dues ;
 - creer un paiement unique par cycle et le synchroniser avec la tresorerie ;
 - synchroniser les ventes vendeur avec l'historique et les depenses associees.
+
+### Sauvegardes, imports et relations vendeurs
+
+- Le module `Backup` centralise le format d'export et la validation préalable à import. Le format porte `schemaVersion`, `appVersion`, `exportedAt` et `includedKeys`, qui énumère les clés localStorage représentées par les sections JSON.
+- Une ancienne sauvegarde sans métadonnées reste importable avec avertissement. Toute métadonnée partielle/invalide, incohérence avec les sections, ou type incorrect est refusé avant écriture. Une section absente est conservée dans les données actuelles, jamais remplacée par une liste vide par défaut.
+- Avant import confirmé, réinitialisation, suppression d'historique/journée, dépense ou mouvement de trésorerie, un export de secours horodaté est généré.
+- `nissa_sellers` contient des fiches et leurs identifiants `sellerId`; `nissa_seller_sales` relie chaque vente à `sellerId` et à une date/journée ; `nissa_seller_cycles` relie le cycle à `sellerId` et conserve son `id` stable. Le recalcul réconcilie les ventes et absences et met à jour le statut du cycle.
+- Une journée peut regrouper plusieurs ventes vendeur. Sa suppression retire les ventes de la date, les dépenses directes associées et recalcule les cycles. Une suppression touchant un cycle payé est refusée pour protéger l'historique comptable.
+- Le paiement renseigne `treasuryMovementId` sur le cycle et crée un mouvement `nissa_treasury` contenant `reference.sellerId` et `reference.cycleId`. Le contrôle de cycle payé/identifiant de mouvement garantit un seul paiement ; le montant est compté comme sortie de trésorerie.
+- En v2.9.0, le verrou repose simultanément sur le statut du cycle, `treasuryMovementId` et la recherche de la référence réelle dans `nissa_treasury`. Une sortie liée n’est pas modifiable ; sa suppression, précédée d’une sauvegarde et d’une confirmation spécifique, constitue l’action explicite d’annulation qui déverrouille le cycle.
+- La caisse historique et la trésorerie théorique sont deux calculs alternatifs de contrôle, pas deux fonds à additionner. La seconde intègre déjà CA, dépenses et mouvements manuels.
 
 ### Previsions
 
@@ -216,6 +237,9 @@ Responsabilites :
 - afficher le detail des journees du mois ;
 - exporter un fichier Excel compatible ;
 - ouvrir un rapport imprimable pour export PDF.
+- agréger par mois la performance vendeurs depuis `nissa_seller_sales` (classement, moyennes, CA et marge brute sur coûts directs) ;
+- rapprocher la paie depuis `nissa_seller_cycles` et les sorties référencées dans `nissa_treasury` ;
+- inclure ces tableaux dans l’aperçu, l’export Excel compatible et l’impression PDF.
 
 Ce module pourra etre deplace plus tard dans `js/rapports.js`.
 
@@ -319,9 +343,12 @@ La version `v2.4.0` ajoute :
 - des icones PWA dans `assets/` ;
 - les balises PWA dans `index.html`.
 
+Depuis v2.10.0, `app-version.js` porte la version active unique. L’interface, les rapports, les sauvegardes et `service-worker.js` la lisent directement. Paramètres affiche cette version et propose une vérification forcée qui actualise le service worker, purge les caches NISSA obsolètes lorsque le réseau est disponible, puis recharge l’application.
+
 Le service worker met en cache les fichiers principaux :
 
 - `index.html` ;
+- `app-version.js` ;
 - `manifest.webmanifest` ;
 - `assets/icon-192.png` ;
 - `assets/icon-512.png` ;
@@ -399,7 +426,7 @@ Le service worker n'est pas enregistre quand l'application est ouverte en `file:
 
 ### v3.0.0
 
-- Perimetre a definir apres stabilisation de `v2.7.1`.
+- Perimetre a definir apres stabilisation de `v2.7.x`.
 - Aucun nouveau module ne doit etre engage avant validation complete du module Parametres.
 
 ### Refactorisation future

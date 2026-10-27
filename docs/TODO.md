@@ -2,7 +2,7 @@
 
 ## Version actuelle
 
-- [x] `v2.7.1` - Stabilisation de la gestion vendeurs, des ventes individuelles et des paiements de salaires.
+- [x] `v2.10.0` - Améliorations UX, performance, PWA et accessibilité.
 
 ## Regles permanentes de versionnement
 
@@ -98,11 +98,48 @@
 
 - [x] Synchroniser les ventes vendeur avec l'historique, les depenses et les paiements de salaires.
 - [x] Permettre la suppression d'une vente vendeur depuis l'historique.
-- [ ] Realiser la recette de regression des cycles, paiements et imports/exports.
+- [x] Verifier le cycle de 26 journees, le paiement unique et l'import/export JSON.
+- [ ] Executer l'essai manuel de suppression protegee d'une vente liee a un cycle paye.
+
+## v2.7.2 - Cohérence documentaire et version
+
+- [x] Aligner README, CHANGELOG, interface, rapports, exports JSON et cache PWA sur `v2.7.2`.
+- [x] Documenter le module interne `Sellers` et actualiser la roadmap v2.7.1/v2.7.2.
+- [x] Remplacer la référence de stabilisation v3.0.0 par `v2.7.x`.
+- [x] Compléter la recette manuelle ciblée sur ventes, cycles, paiements, JSON et suppressions.
+
+## v2.8.0 - Fiabilisation des données
+
+- [x] Ajouter les métadonnées de schéma et d’application aux exports JSON.
+- [x] Valider les métadonnées et sections avant import ; préserver les sections non incluses.
+- [x] Demander confirmation et télécharger un secours horodaté avant import et suppressions/réinitialisations.
+- [x] Documenter les identifiants et liens vendeurs, ventes, cycles, paiements et trésorerie.
+- [x] Ajouter la vue de rapprochement caisse historique / trésorerie théorique.
+- [x] Aligner l’application, les exports, les rapports et le cache PWA sur `v2.8.0`.
+
+## v2.9.0 - Exploitation vendeurs et rapports
+
+- [x] Ajouter le rapport mensuel de performance vendeurs : ventes, moyenne quotidienne, classement et marge brute.
+- [x] Ajouter le rapport mensuel de paie : cycles, primes, rémunérations dues, paiements et sorties de trésorerie.
+- [x] Verrouiller les cycles payés et exiger une annulation explicite de la sortie liée avant tout nouveau paiement.
+- [x] Étendre les mois et exports de rapports aux données de trésorerie et vendeurs.
+- [x] Conserver toutes les clés nécessaires dans les sauvegardes JSON.
+- [x] Aligner l’application, les rapports, les exports et le cache PWA sur `v2.9.0`.
+
+## v2.10.0 - Améliorations UX et performance
+
+- [x] Lot 3 validé avant développement.
+- [x] Ajouter les raccourcis clavier et le brouillon local à la saisie quotidienne vendeur.
+- [x] Conserver les confirmations et sauvegardes avant les suppressions.
+- [x] Ajouter recherche, filtre mensuel et pagination 25/50/100 à l’historique.
+- [x] Éviter les relectures de `localStorage` pendant la pagination et limiter les lignes rendues.
+- [x] Centraliser la version PWA et afficher la version active.
+- [x] Ajouter un bouton de mise à jour forcée.
+- [x] Renforcer labels, focus, navigation clavier et rendu mobile de l’historique.
 
 ## v3.0.0 - Prochaine version majeure
 
-- [ ] Definir le perimetre apres stabilisation de `v2.7.1`.
+- [ ] Definir le perimetre apres stabilisation de `v2.7.x`.
 - [ ] Ne pas demarrer de nouveau module avant validation complete du module Parametres.
 
 ## Refactorisation future
@@ -120,6 +157,6 @@
 
 - [x] Ajouter des tests manuels documentes dans `docs/TESTS_MANUELS.md`.
 - [ ] Ajouter une validation plus stricte des donnees chargees depuis `localStorage`.
-- [ ] Prevoir une version de schema pour les futures migrations de donnees.
+- [x] Prévoir une version de schéma (`1.0.0`) pour les imports/exports JSON.
 - [ ] Verifier l'accessibilite clavier des onglets.
 - [ ] Verifier le rendu mobile a chaque version.

@@ -1,7 +1,10 @@
-const CACHE_NAME = "nissa-manager-v2.7.1";
+importScripts("./app-version.js");
+
+const CACHE_NAME = `nissa-manager-${globalThis.NISSA_APP_VERSION}`;
 const APP_ASSETS = [
   "./",
   "./index.html",
+  "./app-version.js",
   "./manifest.webmanifest",
   "./assets/icon-192.png",
   "./assets/icon-512.png",
@@ -27,6 +30,10 @@ self.addEventListener("activate", (event) => {
       ))
       .then(() => self.clients.claim())
   );
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
 });
 
 self.addEventListener("fetch", (event) => {

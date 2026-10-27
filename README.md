@@ -1,6 +1,6 @@
 # NISSA Manager
 
-Version actuelle : `v2.7.1`
+Version actuelle : `v2.10.0`
 
 NISSA Manager est un logiciel de gestion commerciale hors ligne pour une activite de vente de glaces.
 
@@ -88,8 +88,10 @@ Les modules JavaScript internes sont organises ainsi :
 - `Previsions` : previsions avancees, projections et intelligence metier.
 - `Rapports` : rapport mensuel, export Excel compatible et export PDF/impression.
 - `Journee` : formulaire, calcul en direct et validation de journee.
+- `Sellers` : vendeurs, ventes individuelles, cycles de salaire, primes et paiements.
 - `Expenses` : depenses detaillees, migration et synchronisation.
 - `Treasury` : tresorerie theorique et mouvements exceptionnels.
+- `Backup` : format de sauvegarde JSON, validation des imports et export de secours.
 - `Goals` : objectifs mensuels, progression et effort restant.
 
 Des dossiers de preparation existent deja pour une future separation technique :
@@ -106,6 +108,7 @@ La version PWA ajoute aussi :
 ```text
 manifest.webmanifest
 service-worker.js
+app-version.js
 assets/icon-192.svg
 assets/icon-512.svg
 assets/icon-192.png
@@ -116,7 +119,7 @@ La separation effective du code applicatif est prevue pour une version ulterieur
 
 ## Fonctionnalites
 
-Fonctionnalites disponibles en `v2.7.1` :
+Fonctionnalites disponibles en `v2.10.0` :
 
 - tableau de bord ;
 - module Journee ;
@@ -243,16 +246,42 @@ Fonctionnalites disponibles en `v2.7.1` :
 - Mouvements financiers exceptionnels et corrections.
 - Objectifs mensuels et suivi de progression.
 
-### v2.7.1 - Version actuelle
+### v2.7.1
 
 - Vendeurs, ventes individuelles et classement par performance quotidienne.
 - Cycles de travail de 26 jours, y compris le rattrapage d’un mois sur l’autre.
 - Historique de salaire, primes cumulatives configurables et rémunérations dues.
 - Paiements de salaire idempotents et sorties de trésorerie associées.
 
+### v2.7.2
+
+- Alignement documentaire et de version entre l'application, les exports et le cache PWA.
+- Recette de non-régression ciblée sur vendeurs, cycles, paiements, sauvegardes et suppressions.
+
+### v2.8.0
+
+- Sauvegardes JSON avec version de schéma, version applicative, date d’export et clés incluses.
+- Validation centralisée des imports, avertissement des sections absentes et conservation des données non importées.
+- Téléchargement d’une sauvegarde de secours avant import, réinitialisation ou suppression.
+- Rapprochement indicatif entre caisse historique et trésorerie théorique, sans double comptage.
+
+### v2.9.0
+
+- Rapport mensuel de performance vendeurs : ventes, moyenne quotidienne, classement, CA et marge brute sur coûts directs.
+- Rapport mensuel de paie vendeurs : cycles, primes cumulées, rémunérations dues, paiements et sorties de trésorerie liées.
+- Exports Excel/PDF enrichis avec les données vendeurs et de paie.
+- Verrouillage renforcé des cycles payés ; l’annulation explicite de la sortie de trésorerie liée est nécessaire avant un nouveau paiement.
+
+### v2.10.0 - Version actuelle
+
+- Brouillon local et raccourcis clavier pour la saisie quotidienne vendeur.
+- Historique filtrable et paginé, sans lecture répétée de `localStorage` pendant la navigation.
+- Source unique de version dans `app-version.js`, version active affichée et mise à jour PWA forcée.
+- Focus visibles, navigation clavier et historique adapté aux écrans mobiles.
+
 ### v3.0.0 - Prochaine version majeure
 
-- Objectif a definir apres stabilisation de `v2.7.1`.
+- Objectif a definir apres stabilisation de `v2.7.x`.
 - Aucun nouveau module ne doit etre engage avant validation du module Parametres.
 
 ## Guide d'installation
@@ -306,15 +335,15 @@ Le tableau de bord affiche les indicateurs principaux :
 - derniere cloture ;
 - dernieres journees enregistrees.
 
-Il contient aussi une saisie rapide pour valider une journee.
+La saisie quotidienne est accessible dans Vendeurs et peut être ouverte avec `Alt + V`.
 
-### Journee
+### Saisie quotidienne vendeur
 
-Le module Journee permet de saisir :
+La saisie permet de choisir un vendeur et d’enregistrer :
 
 - le nombre de CV vendus ;
 - le nombre de QN vendus ;
-- les depenses de la journee.
+- la date travaillée.
 
 Les calculs sont effectues automatiquement :
 
@@ -323,11 +352,11 @@ Les calculs sont effectues automatiquement :
 - benefice ;
 - caisse.
 
-La validation ajoute la journee a l'historique.
+La validation ajoute la journée à l’historique et aux données vendeurs. Un brouillon local est restauré après rechargement ; `Ctrl/⌘ + Entrée` enregistre la saisie.
 
 ### Historique
 
-L'historique affiche toutes les journees enregistrees, triees de la plus recente a la plus ancienne.
+L'historique affiche les journées de la plus récente à la plus ancienne, avec recherche, filtre mensuel et pagination de 25, 50 ou 100 lignes.
 
 Chaque ligne contient :
 
@@ -404,6 +433,8 @@ La version `v2.4.0` permet :
 - le chargement des fichiers principaux depuis le cache ;
 - l'utilisation renforcee hors ligne ;
 - l'affichage avec une icone et un theme dedies.
+
+Depuis `v2.10.0`, la version est définie une seule fois dans `app-version.js`. Paramètres affiche la version active et propose « Forcer la mise à jour » pour vérifier le service worker et renouveler les caches de l’application.
 
 ### Parametres
 
@@ -490,6 +521,33 @@ nissa_goals
 Les données de la gestion vendeurs sont conservées séparément sous les clés `nissa_sellers`, `nissa_seller_sales` et `nissa_seller_cycles`. Les journées historiques existantes ne sont pas modifiées.
 
 ## Historique des versions
+
+### v2.10.0 - 2026-10-27
+
+- Saisie vendeur sécurisée par brouillon local et raccourcis clavier.
+- Historique paginé avec recherche et filtre mensuel.
+- Version PWA centralisée, contrôle de mise à jour et améliorations accessibilité/mobile.
+
+### v2.9.0 - 2026-10-27
+
+- Rapports mensuels de performance et de paie vendeurs dans l’interface, Excel et PDF.
+- Verrouillage renforcé des paiements avec annulation explicite et traçable depuis la trésorerie.
+- Rapprochement des cycles et paiements par `sellerId`, `cycleId` et `treasuryMovementId`.
+
+### v2.7.2 - 2026-10-27
+
+- Cohérence de version dans l'application, les exports et le cache PWA.
+- Documentation de la recette de non-régression vendeurs et données.
+
+### v2.8.0 - 2026-10-27
+
+- Sauvegardes JSON versionnées, import contrôlé, conservation des sections absentes et secours horodaté.
+- Rapprochement de contrôle entre caisse historique et trésorerie théorique.
+
+### v2.7.1 - 2026-09-22
+
+- Synchronisation des ventes vendeur avec l'historique, les dépenses et les paiements de salaires.
+- Suppression d'une vente vendeur depuis l'historique.
 
 ### v2.7.0 - 2026-09-12
 

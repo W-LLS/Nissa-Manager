@@ -16,6 +16,63 @@ Exemples :
 - `v2.2.0` : nouveau module.
 - `v3.0.0` : evolution majeure de l'application.
 
+## [v2.10.0] - 2026-10-27
+
+### Ajoute
+
+- Brouillon local restaurable pour la saisie quotidienne vendeur, avec bouton d’effacement.
+- Raccourcis `Ctrl/⌘ + Entrée` pour enregistrer et `Alt + V` pour ouvrir la saisie vendeurs.
+- Recherche, filtre mensuel et pagination 25/50/100 lignes dans l’historique.
+- Affichage de la version active et bouton de mise à jour forcée dans Paramètres.
+- Navigation clavier par flèches, Début et Fin dans les onglets principaux.
+
+### Ameliore
+
+- Version applicative centralisée dans `app-version.js`, partagée par l’interface, les rapports, les sauvegardes et le cache PWA.
+- Historique rendu par page depuis les données déjà en mémoire afin de limiter le coût DOM et les accès au stockage.
+- Historique présenté en cartes lisibles sur petit écran, défilement tactile amélioré pour les autres tableaux et focus renforcé.
+- Zones de résultat et d’état rendues annonçables aux technologies d’assistance.
+
+## [v2.9.0] - 2026-10-27
+
+### Ajoute
+
+- Rapport mensuel « performance vendeurs » avec volumes, moyenne quotidienne, classement, chiffre d’affaires et marge brute sur coûts directs.
+- Rapport mensuel « paie vendeurs » avec cycles, primes cumulées, rémunérations dues, paiements et sorties de trésorerie liées.
+- Présence des rapports vendeurs dans l’aperçu, l’export Excel compatible et l’impression PDF.
+
+### Fiabilise
+
+- Verrouillage des cycles payés par statut, identifiant de mouvement et référence réelle dans `nissa_treasury`.
+- Modification interdite pour une sortie de salaire liée ; son annulation exige une suppression explicite avec sauvegarde préalable.
+- Sélection mensuelle étendue aux ventes, cycles et paiements vendeurs, même sans journée historique sur le mois.
+- Export JSON complet maintenu avec toutes les clés vendeurs et trésorerie nécessaires au rapprochement.
+
+## [v2.8.0] - 2026-10-27
+
+### Ajoute
+
+- Métadonnées de schéma et de version dans les sauvegardes JSON.
+- Validation centralisée des imports, détection des sections manquantes et conservation des catégories absentes.
+- Sauvegarde de secours horodatée avant import, réinitialisation et suppressions.
+- Vue de rapprochement entre caisse historique et trésorerie théorique.
+- Documentation des relations vendeurs, ventes, cycles, paiements et trésorerie.
+
+### Sécurité des données
+
+- Les imports invalides sont refusés avant toute modification ; un import valide demande confirmation.
+
+## [v2.7.2] - 2026-10-27
+
+### Corrige
+
+- Alignement de la version affichee dans l'application, les rapports, les exports JSON et le cache PWA.
+- Documentation projet alignee sur la version actuelle et la stabilisation de la branche `v2.7.x`.
+
+### Ameliore
+
+- Recette manuelle de non-regression detaillee pour les ventes vendeurs, les cycles, les paiements, les sauvegardes et les actions de suppression.
+
 ## [v2.7.1] - 2026-09-22
 
 ### Corrige
@@ -221,5 +278,5 @@ Exemples :
 
 ### Objectif
 
-- Prochaine version majeure a definir apres stabilisation de `v2.6.0`.
+- Prochaine version majeure a definir apres stabilisation de `v2.7.x`.
 - Aucun nouveau module ne doit etre engage avant validation complete du module Parametres.
