@@ -16,6 +16,13 @@ Exemples :
 - `v2.2.0` : nouveau module.
 - `v3.0.0` : evolution majeure de l'application.
 
+## [v2.10.1] - 2026-10-27
+
+### Corrige
+
+- Les sauvegardes v2.7.1 contenant `version` et `exportedAt`, mais pas les métadonnées introduites en v2.8.0, sont de nouveau reconnues comme sauvegardes anciennes compatibles.
+- Les sauvegardes modernes qui contiennent seulement une partie de `schemaVersion`, `appVersion` ou `includedKeys` restent refusées.
+
 ## [v2.10.0] - 2026-10-27
 
 ### Ajoute

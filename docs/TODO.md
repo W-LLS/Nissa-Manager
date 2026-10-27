@@ -2,7 +2,7 @@
 
 ## Version actuelle
 
-- [x] `v2.10.0` - Améliorations UX, performance, PWA et accessibilité.
+- [x] `v2.10.1` - Compatibilité d’import des sauvegardes v2.7.1.
 
 ## Regles permanentes de versionnement
 
@@ -136,6 +136,12 @@
 - [x] Centraliser la version PWA et afficher la version active.
 - [x] Ajouter un bouton de mise à jour forcée.
 - [x] Renforcer labels, focus, navigation clavier et rendu mobile de l’historique.
+
+## v2.10.1 - Compatibilité des sauvegardes anciennes
+
+- [x] Reconnaître `version` et `exportedAt` seuls comme métadonnées historiques v2.7.1.
+- [x] Ne déclencher le contrôle moderne que si `schemaVersion`, `appVersion` ou `includedKeys` est présent.
+- [x] Continuer à refuser les métadonnées modernes partielles.
 
 ## v3.0.0 - Prochaine version majeure
 

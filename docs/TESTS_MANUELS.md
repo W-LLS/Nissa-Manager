@@ -47,11 +47,11 @@ Cette recette protege les calculs, les donnees locales et les synchronisations e
 - [ ] Fermer puis rouvrir l'application hors ligne apres un premier chargement en ligne.
 - [ ] Verifier que la version de cache se renouvelle apres une mise a jour.
 
-## Fiabilisation des données — v2.8.0 maintenue en v2.10.0
+## Fiabilisation des données — v2.8.0 maintenue en v2.10.1
 
 À exécuter sur une origine de test distincte et des données fictives uniquement.
 
-- [ ] Exporter un JSON et vérifier `schemaVersion` (`1.0.0`), `appVersion` (`v2.10.0`), `exportedAt` ISO et `includedKeys` avec les clés locales attendues.
+- [ ] Exporter un JSON et vérifier `schemaVersion` (`1.0.0`), `appVersion` (`v2.10.1`), `exportedAt` ISO et `includedKeys` avec les clés locales attendues.
 - [ ] Importer une ancienne sauvegarde sans métadonnées : vérifier l'avertissement de compatibilité, la demande de confirmation et la conservation des clés absentes.
 - [ ] Importer un JSON partiel valide (par exemple `settings` seulement) : confirmer et vérifier que seuls les paramètres sont remplacés et que les autres données restent inchangées.
 - [ ] Importer un JSON à métadonnées incomplètes, une clé inconnue, ou une section de mauvais type : vérifier le refus et l'absence de changement de données.
@@ -99,6 +99,13 @@ Cette recette protege les calculs, les donnees locales et les synchronisations e
 - [ ] Vérifier visuellement l’historique en cartes à 320 px, 375 px et 720 px de largeur.
 - [ ] Tester « Forcer la mise à jour » avec une vraie version suivante disponible, en ligne puis hors ligne.
 
+## Compatibilité d’import — v2.10.1
+
+- [x] Contrôle automatisé de la classification : `{ version, exportedAt }` est reconnu comme ancien format, tandis que `{ appVersion }` seul reste refusé.
+- [ ] Importer une sauvegarde réelle v2.7.1 contenant `version` et `exportedAt`, sans `schemaVersion`, `appVersion` ni `includedKeys` : l’application doit afficher l’avertissement de compatibilité au lieu de « Métadonnées incomplètes ».
+- [ ] Confirmer l’import après téléchargement du secours, puis comparer les sections présentes avant/après.
+- [ ] Importer un fichier moderne contenant seulement `appVersion` ou seulement `includedKeys` : il doit toujours être refusé comme métadonnées incomplètes.
+
 ## Resultat de recette du 21 octobre 2026
 
 - [x] Affichage de la version `v2.7.1` et navigation des dix vues principales.
@@ -115,8 +122,8 @@ Cette recette protege les calculs, les donnees locales et les synchronisations e
 - [x] Aucun avertissement ni erreur dans la console durant ce parcours.
 - [ ] Reste a executer : essai manuel de la suppression protegee, avec confirmation explicite juste avant l'action.
 
-## Contrôle statique de version — v2.10.0
+## Contrôle statique de version — v2.10.1
 
-- [x] `app-version.js` contient l’unique valeur exécutable `v2.10.0`.
+- [x] `app-version.js` contient l’unique valeur exécutable `v2.10.1`.
 - [x] L’en-tête, le titre, les rapports, les exports JSON et le cache PWA lisent cette même valeur.
-- [x] README, CHANGELOG, TODO et architecture identifient `v2.10.0` comme version actuelle.
+- [x] README, CHANGELOG, TODO et architecture identifient `v2.10.1` comme version actuelle.

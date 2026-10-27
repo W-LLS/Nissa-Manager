@@ -4590,8 +4590,9 @@
         if (Array.isArray(parsed)) return { records: parsed, included: ["nissa_data"], missing: keys.filter((key) => key !== "nissa_data"), legacy: true };
         if (!isObject(parsed)) throw new Error("Le fichier JSON doit contenir un objet ou une liste de journées.");
         const metadata = ["schemaVersion", "appVersion", "exportedAt", "includedKeys"];
-        const hasMetadata = metadata.some((key) => Object.hasOwn(parsed, key));
-        if (hasMetadata) {
+        const modernMetadata = ["schemaVersion", "appVersion", "includedKeys"];
+        const hasModernMetadata = modernMetadata.some((key) => Object.hasOwn(parsed, key));
+        if (hasModernMetadata) {
           if (!metadata.every((key) => Object.hasOwn(parsed, key))) throw new Error("Métadonnées de sauvegarde incomplètes.");
           if (parsed.schemaVersion !== schemaVersion || typeof parsed.appVersion !== "string" || !parsed.appVersion.trim() || typeof parsed.exportedAt !== "string" || !Number.isFinite(Date.parse(parsed.exportedAt)) || !Array.isArray(parsed.includedKeys) || parsed.includedKeys.some((key) => typeof key !== "string" || !keys.includes(key)) || new Set(parsed.includedKeys).size !== parsed.includedKeys.length) throw new Error("Métadonnées de sauvegarde invalides ou non prises en charge.");
         }
@@ -4614,8 +4615,8 @@
         for (const [field, validator] of Object.entries(validRows)) if (Object.hasOwn(result, field) && result[field].some((item) => !validator(item))) throw new Error(`La section ${field} contient des données invalides.`);
         const included = keys.filter((key) => Object.hasOwn(result, fields[key]));
         if (!included.length) throw new Error("Aucune section de données importable.");
-        if (hasMetadata && (parsed.includedKeys.length !== included.length || parsed.includedKeys.some((key) => !included.includes(key)))) throw new Error("Les métadonnées ne correspondent pas aux sections présentes.");
-        return { ...result, included, missing: keys.filter((key) => !included.includes(key)), legacy: !hasMetadata };
+        if (hasModernMetadata && (parsed.includedKeys.length !== included.length || parsed.includedKeys.some((key) => !included.includes(key)))) throw new Error("Les métadonnées ne correspondent pas aux sections présentes.");
+        return { ...result, included, missing: keys.filter((key) => !included.includes(key)), legacy: !hasModernMetadata };
       };
       return { keys, fields, snapshot, download, validate };
     })();

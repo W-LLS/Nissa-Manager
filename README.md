@@ -1,6 +1,6 @@
 # NISSA Manager
 
-Version actuelle : `v2.10.0`
+Version actuelle : `v2.10.1`
 
 NISSA Manager est un logiciel de gestion commerciale hors ligne pour une activite de vente de glaces.
 
@@ -119,7 +119,7 @@ La separation effective du code applicatif est prevue pour une version ulterieur
 
 ## Fonctionnalites
 
-Fonctionnalites disponibles en `v2.10.0` :
+Fonctionnalites disponibles en `v2.10.1` :
 
 - tableau de bord ;
 - module Journee ;
@@ -272,12 +272,17 @@ Fonctionnalites disponibles en `v2.10.0` :
 - Exports Excel/PDF enrichis avec les données vendeurs et de paie.
 - Verrouillage renforcé des cycles payés ; l’annulation explicite de la sortie de trésorerie liée est nécessaire avant un nouveau paiement.
 
-### v2.10.0 - Version actuelle
+### v2.10.0
 
 - Brouillon local et raccourcis clavier pour la saisie quotidienne vendeur.
 - Historique filtrable et paginé, sans lecture répétée de `localStorage` pendant la navigation.
 - Source unique de version dans `app-version.js`, version active affichée et mise à jour PWA forcée.
 - Focus visibles, navigation clavier et historique adapté aux écrans mobiles.
+
+### v2.10.1 - Version actuelle
+
+- Import compatible avec les sauvegardes v2.7.1 qui possèdent déjà `exportedAt` mais pas encore les métadonnées de schéma v2.8.0.
+- Contrôle strict maintenu pour les sauvegardes modernes à métadonnées incomplètes.
 
 ### v3.0.0 - Prochaine version majeure
 
@@ -521,6 +526,10 @@ nissa_goals
 Les données de la gestion vendeurs sont conservées séparément sous les clés `nissa_sellers`, `nissa_seller_sales` et `nissa_seller_cycles`. Les journées historiques existantes ne sont pas modifiées.
 
 ## Historique des versions
+
+### v2.10.1 - 2026-10-27
+
+- Correction de la détection des sauvegardes anciennes v2.7.1 pendant l’import JSON.
 
 ### v2.10.0 - 2026-10-27
 

@@ -1,8 +1,8 @@
-# Architecture NISSA Manager v2.10.0
+# Architecture NISSA Manager v2.10.1
 
 ## Etat actuel
 
-NISSA Manager v2.10.0 est une application web hors ligne en vanilla HTML, CSS et JavaScript.
+NISSA Manager v2.10.1 est une application web hors ligne en vanilla HTML, CSS et JavaScript.
 
 Le projet contient actuellement une application complete dans `index.html` :
 
@@ -39,6 +39,7 @@ Versions planifiees :
 - `v2.8.0` : sauvegardes versionnées, import prudent, secours avant suppression et rapprochement de caisse.
 - `v2.9.0` : rapports vendeurs et paie, verrouillage renforcé des cycles payés et rapports mensuels enrichis.
 - `v2.10.0` : brouillon de saisie, historique paginé, version PWA centralisée, accessibilité et responsive.
+- `v2.10.1` : correction de compatibilité des imports JSON v2.7.1.
 - `v3.0.0` : prochaine version majeure a definir apres stabilisation de `v2.7.x`.
 
 Chaque developpement doit mettre a jour :
@@ -208,7 +209,7 @@ Responsabilites :
 ### Sauvegardes, imports et relations vendeurs
 
 - Le module `Backup` centralise le format d'export et la validation préalable à import. Le format porte `schemaVersion`, `appVersion`, `exportedAt` et `includedKeys`, qui énumère les clés localStorage représentées par les sections JSON.
-- Une ancienne sauvegarde sans métadonnées reste importable avec avertissement. Toute métadonnée partielle/invalide, incohérence avec les sections, ou type incorrect est refusé avant écriture. Une section absente est conservée dans les données actuelles, jamais remplacée par une liste vide par défaut.
+- Une sauvegarde v2.7.1 avec `version` et `exportedAt`, mais sans `schemaVersion`, `appVersion` ni `includedKeys`, reste importable avec avertissement. La présence d’au moins une métadonnée moderne (`schemaVersion`, `appVersion` ou `includedKeys`) active le contrôle complet : métadonnée partielle/invalide, incohérence avec les sections ou type incorrect est refusé avant écriture. Une section absente est conservée dans les données actuelles, jamais remplacée par une liste vide par défaut.
 - Avant import confirmé, réinitialisation, suppression d'historique/journée, dépense ou mouvement de trésorerie, un export de secours horodaté est généré.
 - `nissa_sellers` contient des fiches et leurs identifiants `sellerId`; `nissa_seller_sales` relie chaque vente à `sellerId` et à une date/journée ; `nissa_seller_cycles` relie le cycle à `sellerId` et conserve son `id` stable. Le recalcul réconcilie les ventes et absences et met à jour le statut du cycle.
 - Une journée peut regrouper plusieurs ventes vendeur. Sa suppression retire les ventes de la date, les dépenses directes associées et recalcule les cycles. Une suppression touchant un cycle payé est refusée pour protéger l'historique comptable.
