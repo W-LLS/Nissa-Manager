@@ -2,16 +2,18 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>NISSA Manager</title>
   <meta name="theme-color" content="#1f3b5b">
   <meta name="application-name" content="NISSA Manager">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <script src="app-version.js"></script>
+  <script src="js/business-calculations.js"></script>
   <meta name="apple-mobile-web-app-title" content="NISSA Manager">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
   <style>
     :root {
       --primary: #173b69;
@@ -35,6 +37,13 @@
       box-sizing: border-box;
     }
 
+    html {
+      min-width: 320px;
+      overflow-x: hidden;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
     body {
       margin: 0;
       min-height: 100vh;
@@ -42,6 +51,7 @@
       color: var(--text);
       background: var(--bg);
       letter-spacing: -0.01em;
+      overflow-x: hidden;
     }
 
     body[data-theme="dark"] {
@@ -99,12 +109,10 @@
     .brand-mark {
       width: 44px;
       height: 44px;
-      display: grid;
-      place-items: center;
+      display: block;
+      flex: 0 0 44px;
+      object-fit: cover;
       border-radius: 14px;
-      background: #2c5e98;
-      color: #ffffff;
-      font-size: 24px;
     }
 
     .brand-title {
@@ -124,6 +132,57 @@
     .nav {
       display: grid;
       gap: 5px;
+    }
+
+    .mobile-nav {
+      display: none;
+    }
+
+    .mobile-nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      font-weight: 850;
+      letter-spacing: 0;
+    }
+
+    .mobile-nav-mark {
+      width: 36px;
+      height: 36px;
+      flex: 0 0 36px;
+      display: block;
+      object-fit: cover;
+      border-radius: 11px;
+    }
+
+    .mobile-section-picker {
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .mobile-section-picker select {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: 12px;
+      padding: 8px 38px 8px 12px;
+      background: #ffffff;
+      color: #172033;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
 
     .nav-button {
@@ -219,6 +278,12 @@
 
     .view.active {
       display: block;
+      animation: view-enter 180ms ease-out;
+    }
+
+    @keyframes view-enter {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .kpi-grid {
@@ -465,6 +530,74 @@
 
     .status-message.error {
       color: var(--danger);
+    }
+
+    .integrity-report {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--surface-muted);
+    }
+
+    .integrity-report[hidden] {
+      display: none;
+    }
+
+    .integrity-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .integrity-state {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: #dcf5ed;
+      color: #08765b;
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .integrity-state.warning {
+      background: #fff1d8;
+      color: #9a5d00;
+    }
+
+    .integrity-state.error {
+      background: #ffe5e5;
+      color: #a92f2f;
+    }
+
+    .integrity-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .integrity-item {
+      padding: 10px 12px;
+      border-left: 4px solid var(--warning);
+      border-radius: 8px;
+      background: var(--surface);
+      line-height: 1.4;
+    }
+
+    .integrity-item.error {
+      border-left-color: var(--danger);
+    }
+
+    .integrity-item.success {
+      border-left-color: var(--accent);
     }
 
     .mini-list {
@@ -904,6 +1037,109 @@
       flex-wrap: wrap;
     }
 
+    .pdf-export-help {
+      width: 100%;
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .pdf-export-help.error {
+      color: var(--danger);
+      font-weight: 700;
+    }
+
+    .print-report-root {
+      display: none;
+    }
+
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 10mm;
+      }
+
+      body.printing-report {
+        background: #ffffff !important;
+        color: #172033 !important;
+      }
+
+      body.printing-report > .app-shell {
+        display: none !important;
+      }
+
+      body.printing-report > .print-report-root {
+        display: block !important;
+        font-family: Arial, sans-serif;
+        color: #172033;
+      }
+
+      .print-report-root h1 {
+        margin: 0 0 6px;
+        font-size: 24px;
+      }
+
+      .print-report-root h3 {
+        margin: 20px 0 8px;
+        break-after: avoid;
+      }
+
+      .print-report-root > p {
+        margin: 0 0 18px;
+        color: #66758b;
+      }
+
+      .print-report-root .summary,
+      .print-report-root .report-summary {
+        display: grid !important;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        gap: 8px !important;
+        margin: 14px 0 !important;
+      }
+
+      .print-report-root .card,
+      .print-report-root .month-card {
+        min-height: 0 !important;
+        padding: 8px !important;
+        border: 1px solid #dce4ee !important;
+        background: #ffffff !important;
+        box-shadow: none !important;
+        break-inside: avoid;
+      }
+
+      .print-report-root table {
+        width: 100% !important;
+        min-width: 0 !important;
+        margin-top: 10px;
+        border-collapse: collapse;
+        break-inside: auto;
+      }
+
+      .print-report-root tr {
+        break-inside: avoid;
+      }
+
+      .print-report-root th,
+      .print-report-root td {
+        padding: 5px 6px !important;
+        border: 1px solid #dce4ee !important;
+        color: #172033 !important;
+        font-size: 9px !important;
+        white-space: normal !important;
+      }
+
+      .print-report-root th {
+        background: #edf2f8 !important;
+      }
+
+      .print-report-root .empty-state {
+        padding: 12px !important;
+        border: 1px solid #dce4ee;
+        box-shadow: none;
+      }
+    }
+
     .report-summary {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1200,17 +1436,15 @@
       }
 
       .sidebar {
-        position: fixed;
-        z-index: 10;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        top: auto;
+        position: sticky;
+        z-index: 20;
+        top: 0;
         height: auto;
-        padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+        padding: max(8px, env(safe-area-inset-top)) 12px 8px;
         background: rgba(16, 44, 80, 0.96);
-        box-shadow: 0 -10px 30px rgba(16, 44, 80, 0.2);
+        box-shadow: 0 8px 24px rgba(16, 44, 80, 0.18);
         backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
       }
 
       .brand {
@@ -1218,53 +1452,13 @@
       }
 
       .nav {
-        display: flex;
-        gap: 2px;
-        padding: 0 8px;
-        overflow-x: auto;
-        overscroll-behavior-x: contain;
-        scrollbar-width: none;
-        scroll-snap-type: x proximity;
-      }
-
-      .nav::-webkit-scrollbar {
         display: none;
       }
 
-      .nav-button {
-        min-width: 72px;
-        min-height: 58px;
-        flex: 0 0 72px;
-        padding: 6px 4px;
-        flex-direction: column;
-        justify-content: center;
-        gap: 3px;
-        border-radius: 12px;
-        text-align: center;
-        scroll-snap-align: center;
-      }
-
-      .nav-button.active {
-        box-shadow: none;
-        background: rgba(255, 255, 255, 0.16);
-      }
-
-      .nav-icon {
-        height: 20px;
-        font-size: 18px;
-        line-height: 20px;
-      }
-
-      .nav-label {
-        display: block;
-        max-width: 68px;
-        overflow: hidden;
-        color: inherit;
-        font-size: 10px;
-        font-weight: 700;
-        line-height: 1.15;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+      .mobile-nav {
+        display: flex;
+        align-items: center;
+        gap: 10px;
       }
 
       .sidebar-footer {
@@ -1272,7 +1466,8 @@
       }
 
       .main {
-        padding: 28px 22px 96px;
+        max-width: 100%;
+        padding: 24px 18px 42px;
       }
 
       .kpi-grid {
@@ -1312,11 +1507,12 @@
 
     @media (max-width: 720px) {
       .main {
-        padding: 24px 16px 98px;
+        padding: 18px 12px 32px;
       }
 
       .topbar {
         display: grid;
+        gap: 12px;
       }
 
       .today-pill {
@@ -1325,7 +1521,22 @@
       }
 
       .topbar {
-        margin-bottom: 24px;
+        margin-bottom: 18px;
+      }
+
+      .page-title {
+        font-size: clamp(26px, 9vw, 34px);
+        line-height: 1.08;
+      }
+
+      .page-kicker {
+        margin-bottom: 5px;
+      }
+
+      .today-pill {
+        min-height: 38px;
+        padding: 7px 11px;
+        font-size: 13px;
       }
 
       .kpi-grid,
@@ -1367,8 +1578,45 @@
       }
 
       .panel {
-        padding: 18px;
-        border-radius: 18px;
+        min-width: 0;
+        padding: 15px;
+        border-radius: 15px;
+      }
+
+      .panel-header {
+        flex-direction: column;
+        align-items: stretch;
+        margin-bottom: 16px;
+      }
+
+      .panel-header > button {
+        width: 100%;
+      }
+
+      .panel-title {
+        font-size: 18px;
+      }
+
+      .kpi-grid {
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+
+      .kpi-card {
+        min-height: 112px;
+        padding: 15px;
+        gap: 12px;
+      }
+
+      .kpi-value {
+        font-size: clamp(21px, 8vw, 28px);
+      }
+
+      .field input,
+      .field select,
+      .field textarea,
+      .mobile-section-picker select {
+        font-size: 16px;
       }
 
       .actions {
@@ -1383,6 +1631,21 @@
 
       .actions > .actions {
         width: 100%;
+      }
+
+      .settings-actions,
+      .report-actions,
+      .expense-actions,
+      .seller-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .report-toolbar,
+      .report-toolbar .field {
+        width: 100%;
+        min-width: 0;
       }
 
       .pagination-bar {
@@ -1435,16 +1698,56 @@
         font-weight: 800;
         text-transform: uppercase;
       }
+
+      .table-wrap {
+        max-width: calc(100vw - 24px);
+        border-radius: 13px;
+        overscroll-behavior-x: contain;
+      }
+
+      .table-wrap table {
+        min-width: 640px;
+      }
+
+      .table-wrap .responsive-table {
+        min-width: 0;
+      }
+
+      .table-wrap th,
+      .table-wrap td {
+        padding: 10px;
+        font-size: 12px;
+      }
+
+      .chart-card {
+        min-height: 250px;
+        padding: 12px;
+      }
+
+      .chart-svg {
+        height: 180px;
+      }
+
+      .empty-state {
+        padding: 20px 14px;
+      }
     }
 
     @media (max-width: 380px) {
-      .nav-button {
-        min-width: 66px;
-        flex-basis: 66px;
+      .mobile-nav-brand span:last-child {
+        display: none;
       }
 
       .page-title {
-        font-size: 29px;
+        font-size: 27px;
+      }
+
+      .mini-row {
+        grid-template-columns: 1fr;
+      }
+
+      .mini-amount {
+        white-space: normal;
       }
     }
 
@@ -1454,6 +1757,7 @@
       *::after {
         scroll-behavior: auto !important;
         transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
       }
     }
   </style>
@@ -1461,8 +1765,18 @@
 <body>
   <div class="app-shell">
     <aside class="sidebar" aria-label="Navigation principale">
+      <div class="mobile-nav">
+        <div class="mobile-nav-brand" aria-hidden="true">
+          <img class="mobile-nav-mark" src="assets/icon-192.png" alt="">
+          <span>NISSA</span>
+        </div>
+        <label class="mobile-section-picker" for="mobileViewSelect">
+          <span class="sr-only">Changer de section</span>
+          <select id="mobileViewSelect" aria-label="Changer de section"></select>
+        </label>
+      </div>
       <div class="brand">
-        <div class="brand-mark" aria-hidden="true">N</div>
+        <img class="brand-mark" src="assets/icon-192.png" alt="" aria-hidden="true">
         <div>
           <h1 class="brand-title">NISSA Manager</h1>
           <p class="brand-subtitle" id="appVersionLabel">Version</p>
@@ -1477,6 +1791,10 @@
         <button class="nav-button" type="button" data-view="vendeurs">
           <span class="nav-icon" aria-hidden="true">♙</span>
           <span class="nav-label">Vendeurs</span>
+        </button>
+        <button class="nav-button" type="button" data-view="production">
+          <span class="nav-icon" aria-hidden="true">▦</span>
+          <span class="nav-label">Production</span>
         </button>
         <button class="nav-button" type="button" data-view="historique">
           <span class="nav-icon" aria-hidden="true">≡</span>
@@ -1626,8 +1944,71 @@
           </section>
 
           <section class="panel">
+            <div class="panel-header"><div><h3 class="panel-title">Simulateur de primes</h3><p class="panel-subtitle">Simulation sans écriture dans les cycles ni la trésorerie.</p></div></div>
+            <div class="finance-form-grid">
+              <div class="field"><label for="bonusSimulatorSeller">Vendeur (facultatif)</label><select id="bonusSimulatorSeller"></select></div>
+              <div class="field"><label for="bonusSimulatorSales">Ventes prévues sur le cycle</label><input id="bonusSimulatorSales" type="number" min="0" step="1" value="0"></div>
+              <div class="field"><label for="bonusSimulatorBase">Salaire de base</label><input id="bonusSimulatorBase" type="number" min="0" step="1" value="0"></div>
+            </div>
+            <div id="bonusSimulatorResult" style="margin-top:16px"></div>
+          </section>
+
+          <section class="panel">
             <div class="panel-header"><div><h3 class="panel-title">Équipe, cycles et paiements</h3><p class="panel-subtitle">Un cycle terminé devient à payer. Le paiement crée une sortie réelle de trésorerie.</p></div></div>
             <div id="sellerManagementMount"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="view-production" data-title="Production" data-kicker="Lots, recettes et coûts de revient">
+        <div class="finance-stack">
+          <section class="panel">
+            <div class="panel-header"><div><h3 class="panel-title">Stock valorisé</h3><p class="panel-subtitle">Quantités disponibles et coût moyen pondéré. Les ventes futures figent le coût appliqué.</p></div></div>
+            <div id="productionStockSummary"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header"><div><h3 class="panel-title">Catalogue des matières</h3><p class="panel-subtitle">Le coût est saisi par unité d’achat ou de consommation.</p></div></div>
+            <form id="materialCatalogForm" novalidate><div class="finance-form-grid">
+              <div class="field"><label for="materialCatalogName">Matière</label><input id="materialCatalogName" required placeholder="Ex. Lait"></div>
+              <div class="field"><label for="materialCatalogUnit">Unité</label><input id="materialCatalogUnit" required placeholder="kg, litre, pièce…"></div>
+              <div class="field"><label for="materialCatalogCost">Coût par unité</label><input id="materialCatalogCost" type="number" min="0.01" step="0.01" required></div>
+            </div><div class="actions"><p class="status-message" id="materialCatalogStatus"></p><button class="primary-button" type="submit">Ajouter ou mettre à jour</button></div></form>
+            <div id="materialCatalogList" style="margin-top:16px"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header"><div><h3 class="panel-title">Achat de matières</h3><p class="panel-subtitle">L’achat augmente le stock de matières et constitue la seule sortie de trésorerie liée à ces matières.</p></div></div>
+            <form id="materialPurchaseForm" novalidate><div class="finance-form-grid">
+              <div class="field"><label for="materialPurchaseDate">Date</label><input id="materialPurchaseDate" type="date" required></div>
+              <div class="field"><label for="materialPurchaseMaterial">Matière</label><select id="materialPurchaseMaterial" required></select></div>
+              <div class="field"><label for="materialPurchaseQuantity">Quantité achetée</label><input id="materialPurchaseQuantity" type="number" min="0.0001" step="0.0001" required></div>
+              <div class="field"><label for="materialPurchaseUnitCost">Coût par unité</label><input id="materialPurchaseUnitCost" type="number" min="0.01" step="0.01" required></div>
+            </div><div id="materialPurchasePreview" style="margin-top:16px"></div><div class="actions"><p class="status-message" id="materialPurchaseStatus"></p><button class="primary-button" type="submit">Enregistrer l’achat</button></div></form>
+            <div id="materialPurchaseHistory" style="margin-top:16px"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header"><div><h3 class="panel-title">Recette théorique</h3><p class="panel-subtitle">Quantités de matières nécessaires pour un lot et rendement attendu.</p></div></div>
+            <form id="productionRecipeForm" novalidate><div class="finance-form-grid">
+              <div class="field"><label for="productionRecipeProduct">Produit</label><select id="productionRecipeProduct"></select></div>
+              <div class="field"><label for="productionRecipeYield">Rendement théorique</label><input id="productionRecipeYield" type="number" min="1" step="1" required></div>
+              <div class="field"><label for="productionRecipeOtherCost">Autres coûts directs du lot</label><input id="productionRecipeOtherCost" type="number" min="0" step="1" value="0"></div>
+            </div><div id="productionRecipeMaterials" class="settings-grid" style="margin-top:16px"></div><div class="actions"><p class="status-message" id="productionRecipeStatus"></p><button class="primary-button" type="submit">Enregistrer la recette</button></div></form>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header"><div><h3 class="panel-title">Enregistrer un lot</h3><p class="panel-subtitle">Le coût du lot reprend les prix actuels des matières. Le rendement réel détermine le coût unitaire.</p></div></div>
+            <form id="productionLotForm" novalidate><div class="finance-form-grid">
+              <div class="field"><label for="productionLotDate">Date</label><input id="productionLotDate" type="date" required></div>
+              <div class="field"><label for="productionLotProduct">Produit</label><select id="productionLotProduct"></select></div>
+              <div class="field"><label for="productionLotQuantity">Quantité réellement obtenue</label><input id="productionLotQuantity" type="number" min="1" step="1" required></div>
+            </div><div id="productionLotPreview" style="margin-top:16px"></div><div class="actions"><p class="status-message" id="productionLotStatus"></p><button class="primary-button" type="submit">Valider le lot</button></div></form>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header"><div><h3 class="panel-title">Historique des lots</h3><p class="panel-subtitle">Les coûts et prix des matières sont figés au moment de la production.</p></div></div>
+            <div id="productionLotHistory"></div>
           </section>
         </div>
       </section>
@@ -1747,6 +2128,36 @@
             </div>
             <div id="expenseCategoryStats"></div>
           </section>
+
+          <section class="panel">
+            <div class="panel-header"><div><h3 class="panel-title">Dépenses récurrentes</h3><p class="panel-subtitle">Préparez des échéances mensuelles, puis générez explicitement les dépenses dues sans doublon.</p></div></div>
+            <form id="recurringExpenseForm" novalidate>
+              <div class="finance-form-grid">
+                <div class="field"><label for="recurringExpenseLabel">Libellé</label><input id="recurringExpenseLabel" type="text" required></div>
+                <div class="field"><label for="recurringExpenseCategory">Catégorie</label><select id="recurringExpenseCategory" required></select></div>
+                <div class="field"><label for="recurringExpenseAmount">Montant mensuel</label><input id="recurringExpenseAmount" type="number" min="1" step="1" required></div>
+                <div class="field"><label for="recurringExpenseDay">Jour d’échéance</label><input id="recurringExpenseDay" type="number" min="1" max="31" step="1" value="1" required></div>
+                <div class="field"><label for="recurringExpenseStart">Début</label><input id="recurringExpenseStart" type="date" required></div>
+                <div class="field"><label for="recurringExpenseEnd">Fin (facultative)</label><input id="recurringExpenseEnd" type="date"></div>
+              </div>
+              <div class="actions"><p class="status-message" id="recurringExpenseStatus"></p><button class="primary-button" type="submit">Ajouter la récurrence</button></div>
+            </form>
+            <div class="actions" style="margin-top:16px"><p class="panel-subtitle" id="recurringExpenseDueStatus"></p><button class="secondary-button" id="generateRecurringExpenses" type="button">Générer les échéances dues</button></div>
+            <div id="recurringExpenseList" style="margin-top:16px"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header"><div><h3 class="panel-title">Budgets par catégorie</h3><p class="panel-subtitle">Comparez le plafond mensuel aux dépenses réellement enregistrées.</p></div></div>
+            <form id="expenseBudgetForm" novalidate>
+              <div class="finance-form-grid">
+                <div class="field"><label for="expenseBudgetMonth">Mois</label><input id="expenseBudgetMonth" type="month" required></div>
+                <div class="field"><label for="expenseBudgetCategory">Catégorie</label><select id="expenseBudgetCategory" required></select></div>
+                <div class="field"><label for="expenseBudgetAmount">Budget</label><input id="expenseBudgetAmount" type="number" min="1" step="1" required></div>
+              </div>
+              <div class="actions"><p class="status-message" id="expenseBudgetStatus"></p><button class="primary-button" type="submit">Enregistrer le budget</button></div>
+            </form>
+            <div id="expenseBudgetSummary" style="margin-top:16px"></div>
+          </section>
         </div>
       </section>
 
@@ -1841,6 +2252,12 @@
             </div>
             <div id="monthlyStats"></div>
           </section>
+
+          <section class="panel">
+            <div class="panel-header"><div><h3 class="panel-title">Seuil de rentabilité</h3><p class="panel-subtitle">Estimation depuis les ventes vendeurs, leurs coûts directs et les autres charges du mois.</p></div></div>
+            <div class="field" style="max-width:260px"><label for="breakEvenMonth">Mois analysé</label><input id="breakEvenMonth" type="month"></div>
+            <div id="breakEvenResult" style="margin-top:16px"></div>
+          </section>
         </div>
       </section>
 
@@ -1894,8 +2311,9 @@
               </div>
               <div class="report-actions">
                 <button class="secondary-button" id="exportExcelButton" type="button">Exporter Excel</button>
-                <button class="primary-button" id="exportPdfButton" type="button">Exporter PDF</button>
+                <button class="primary-button" id="exportPdfButton" type="button">Créer le PDF</button>
               </div>
+              <p class="pdf-export-help" id="pdfExportStatus">Sur mobile, choisissez « Enregistrer en PDF » ou « Partager » dans le dialogue système.</p>
             </div>
           </section>
 
@@ -1965,31 +2383,11 @@
           <section class="panel">
             <div class="panel-header">
               <div>
-                <h3 class="panel-title">Matières premières</h3>
-                <p class="panel-subtitle">Paramètres de production et marge cible.</p>
+                <h3 class="panel-title">Marge cible</h3>
+                <p class="panel-subtitle">Seuil d’alerte utilisé dans les prévisions. Les matières et recettes sont gérées dans Production.</p>
               </div>
             </div>
-            <div class="settings-grid">
-              <div class="field">
-                <label for="materialMilk">Prix lait</label>
-                <input id="materialMilk" name="materials.milkPrice" type="number" min="0" step="1">
-              </div>
-              <div class="field">
-                <label for="materialSugar">Prix sucre</label>
-                <input id="materialSugar" name="materials.sugarPrice" type="number" min="0" step="1">
-              </div>
-              <div class="field">
-                <label for="materialStick">Prix bâtonnet</label>
-                <input id="materialStick" name="materials.stickPrice" type="number" min="0" step="1">
-              </div>
-              <div class="field">
-                <label for="materialBag">Prix sachet</label>
-                <input id="materialBag" name="materials.bagPrice" type="number" min="0" step="1">
-              </div>
-              <div class="field">
-                <label for="materialYield">Rendement</label>
-                <input id="materialYield" name="materials.yield" type="number" min="0" step="1">
-              </div>
+            <div class="settings-grid two">
               <div class="field">
                 <label for="materialMargin">Marge cible (%)</label>
                 <input id="materialMargin" name="materials.targetMargin" type="number" min="0" step="1">
@@ -2117,6 +2515,22 @@
           </section>
 
           <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">Diagnostic d’intégrité</h3>
+                <p class="panel-subtitle">Contrôle en lecture seule des relations, paiements, écritures liées, doublons et stocks.</p>
+              </div>
+            </div>
+            <div class="settings-actions">
+              <button class="secondary-button" id="runIntegrityCheck" type="button">Vérifier les données</button>
+            </div>
+            <div class="integrity-report" id="integrityReport" hidden aria-live="polite">
+              <div class="integrity-summary" id="integritySummary"></div>
+              <ul class="integrity-list" id="integrityList"></ul>
+            </div>
+          </section>
+
+          <section class="panel">
             <div class="actions">
               <p class="status-message" id="settingsStatus"></p>
               <button class="primary-button" type="submit">Enregistrer les paramètres</button>
@@ -2126,6 +2540,8 @@
       </section>
     </main>
   </div>
+
+  <div class="print-report-root" id="printReportRoot" aria-hidden="true"></div>
 
   <script>
     const APP_VERSION = globalThis.NISSA_APP_VERSION || "Version inconnue";
@@ -2454,7 +2870,7 @@
           source: "seller-sales", date: sale.date, cv: sale.cv, qn: sale.qn, total: sale.total,
           ca: sale.ca, depenses: sale.directCost, benefice: sale.ca - sale.directCost, caisse: sale.ca - sale.directCost
         };
-        return existing ? update(existing.id, nextDay) : (saveDay(nextDay), all().find((day) => day.source === "seller-sales" && day.date === sale.date));
+        return existing ? update(existing.id, nextDay, { allowSellerSync: true }) : (saveDay(nextDay), all().find((day) => day.source === "seller-sales" && day.date === sale.date));
       };
 
       const clear = () => {
@@ -2495,9 +2911,9 @@
         return changed;
       };
 
-      const update = (recordId, day) => {
+      const update = (recordId, day, options = {}) => {
         const index = records.findIndex((record) => record.id === recordId);
-        if (index < 0) return null;
+        if (index < 0 || (records[index].source === "seller-sales" && !options.allowSellerSync)) return null;
         records[index] = Utils.normalizeDay({ ...records[index], ...day, id: recordId });
         Utils.writeData(records);
         return { ...records[index] };
@@ -2546,8 +2962,12 @@
         const label = String(expense.label || "").trim().replace(/\s+/g, " ");
         const amount = Number(expense.amount);
         const note = String(expense.note ?? "").trim();
-        const source = expense.source === "seller-sale" ? "seller-sale" : "";
-        const sellerSaleId = source ? String(expense.sellerSaleId || "").trim() : "";
+        const source = ["seller-sale", "recurring", "inventory-purchase", "production-input"].includes(expense.source) ? expense.source : "";
+        const sellerSaleId = source === "seller-sale" ? String(expense.sellerSaleId || "").trim() : "";
+        const recurringExpenseId = source === "recurring" ? String(expense.recurringExpenseId || "").trim() : "";
+        const occurrenceKey = source === "recurring" ? String(expense.occurrenceKey || "").trim() : "";
+        const materialPurchaseId = source === "inventory-purchase" ? String(expense.materialPurchaseId || "").trim() : "";
+        const productionLotId = source === "production-input" ? String(expense.productionLotId || "").trim() : "";
         if ((!id && !generateId) || !isValidDate(date) || !(category in categories) || !label || !Number.isFinite(amount) || amount <= 0) return null;
         return {
           id: id || `exp_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
@@ -2557,7 +2977,11 @@
           amount: Math.round(amount),
           note,
           source,
-          sellerSaleId
+          sellerSaleId,
+          recurringExpenseId,
+          occurrenceKey,
+          materialPurchaseId,
+          productionLotId
         };
       };
 
@@ -2584,9 +3008,11 @@
       const getByMonth = (month) => getAll().filter((expense) => expense.date.slice(0, 7) === month);
       const getByCategory = (category) => getAll().filter((expense) => expense.category === category);
       const total = (items) => items.reduce((sum, expense) => sum + expense.amount, 0);
-      const totalByDate = (date) => total(getByDate(date));
-      const totalByMonth = (month) => total(getByMonth(month));
-      const totalsByCategory = (month) => getByMonth(month).reduce((totals, expense) => {
+      const isProfitExpense = (expense) => !["inventory-purchase", "production-input"].includes(expense.source);
+      const isCashOutflow = (expense) => expense.source !== "seller-sale";
+      const totalByDate = (date) => total(getByDate(date).filter(isProfitExpense));
+      const totalByMonth = (month) => total(getByMonth(month).filter(isProfitExpense));
+      const totalsByCategory = (month) => getByMonth(month).filter(isProfitExpense).reduce((totals, expense) => {
         totals[expense.category] = (totals[expense.category] || 0) + expense.amount;
         return totals;
       }, {});
@@ -2683,11 +3109,202 @@
         totalByDate,
         totalByMonth,
         totalsByCategory,
+        isProfitExpense,
+        isCashOutflow,
         syncDayExpenses,
         migrateLegacyExpenses,
         currentMonth,
         previousMonth
       };
+    })();
+
+    const RecurringExpenses = (() => {
+      const storageKey = "nissa_recurring_expenses";
+      let items = [];
+      const clone = (value) => JSON.parse(JSON.stringify(value));
+      const id = () => `rec_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+      const normalize = (item, generateId = false) => {
+        if (!item || typeof item !== "object") return null;
+        const cleanId = String(item.id || "").trim();
+        const label = String(item.label || "").trim().replace(/\s+/g, " ");
+        const category = String(item.category || "");
+        const amount = Number(item.amount);
+        const dayOfMonth = Math.floor(Number(item.dayOfMonth));
+        const startDate = String(item.startDate || "");
+        const endDate = String(item.endDate || "");
+        if ((!cleanId && !generateId) || !label || !(category in Expenses.categories) || !Number.isFinite(amount) || amount <= 0 || dayOfMonth < 1 || dayOfMonth > 31 || !Expenses.isValidDate(startDate) || (endDate && (!Expenses.isValidDate(endDate) || endDate < startDate))) return null;
+        return { id: cleanId || id(), label, category, amount: Math.round(amount), dayOfMonth, startDate, endDate, active: item.active !== false };
+      };
+      const save = () => localStorage.setItem(storageKey, JSON.stringify(items));
+      const load = () => { try { const parsed = JSON.parse(localStorage.getItem(storageKey)); items = Array.isArray(parsed) ? parsed.map((item) => normalize(item)).filter(Boolean) : []; } catch (error) { items = []; } save(); return getAll(); };
+      const getAll = () => items.map(clone);
+      const replace = (next) => { items = (Array.isArray(next) ? next : []).map((item) => normalize(item)).filter(Boolean); save(); return getAll(); };
+      const add = (item) => { const normalized = normalize(item, true); if (!normalized) return null; items.push(normalized); save(); return clone(normalized); };
+      const setActive = (itemId, active) => { const item = items.find((entry) => entry.id === itemId); if (!item) return false; item.active = Boolean(active); save(); return true; };
+      const remove = (itemId) => { const count = items.length; items = items.filter((item) => item.id !== itemId); if (items.length === count) return false; save(); return true; };
+      const dueFor = (item, throughDate = Utils.todayIso()) => NissaCalculations.monthlyOccurrences(item, throughDate, Expenses.getAll().filter((expense) => expense.source === "recurring").map((expense) => expense.occurrenceKey));
+      const dueAll = (throughDate = Utils.todayIso()) => items.filter((item) => item.active).flatMap((item) => dueFor(item, throughDate).map((occurrence) => ({ item: clone(item), ...occurrence })));
+      const generateDue = (throughDate = Utils.todayIso()) => {
+        const due = dueAll(throughDate); const created = [];
+        due.forEach(({ item, date, occurrenceKey }) => {
+          const expense = Expenses.add({ date, category: item.category, label: item.label, amount: item.amount, note: `Échéance récurrente mensuelle · ${occurrenceKey}`, source: "recurring", recurringExpenseId: item.id, occurrenceKey });
+          if (expense) created.push(expense);
+        });
+        return created;
+      };
+      load();
+      return { storageKey, normalize, getAll, replace, add, setActive, remove, dueFor, dueAll, generateDue };
+    })();
+
+    const ExpenseBudgets = (() => {
+      const storageKey = "nissa_expense_budgets";
+      let items = [];
+      const normalize = (item) => {
+        if (!item || typeof item !== "object" || !/^\d{4}-\d{2}$/.test(String(item.month || "")) || !(item.category in Expenses.categories) || !Number.isFinite(Number(item.amount)) || Number(item.amount) <= 0) return null;
+        const monthNumber = Number(String(item.month).slice(5));
+        if (monthNumber < 1 || monthNumber > 12) return null;
+        return { month: item.month, category: item.category, amount: Math.round(Number(item.amount)) };
+      };
+      const save = () => localStorage.setItem(storageKey, JSON.stringify(items));
+      const getAll = () => items.map((item) => ({ ...item }));
+      const set = (item) => { const normalized = normalize(item); if (!normalized) return null; const index = items.findIndex((entry) => entry.month === normalized.month && entry.category === normalized.category); if (index >= 0) items[index] = normalized; else items.push(normalized); save(); return { ...normalized }; };
+      const replace = (next) => { items = []; (Array.isArray(next) ? next : []).forEach((item) => { const normalized = normalize(item); if (!normalized) return; const index = items.findIndex((entry) => entry.month === normalized.month && entry.category === normalized.category); if (index >= 0) items[index] = normalized; else items.push(normalized); }); save(); return getAll(); };
+      const remove = (month, category) => { const count = items.length; items = items.filter((item) => item.month !== month || item.category !== category); if (items.length === count) return false; save(); return true; };
+      const getByMonth = (month) => getAll().filter((item) => item.month === month);
+      try { const parsed = JSON.parse(localStorage.getItem(storageKey)); replace(Array.isArray(parsed) ? parsed : []); } catch (error) { replace([]); }
+      return { storageKey, normalize, getAll, replace, set, remove, getByMonth };
+    })();
+
+    const Production = (() => {
+      const materialsKey = "nissa_material_catalog";
+      const recipesKey = "nissa_product_recipes";
+      const lotsKey = "nissa_production_lots";
+      const inventoryKey = "nissa_product_inventory";
+      const purchasesKey = "nissa_material_purchases";
+      const materialInventoryKey = "nissa_material_inventory";
+      let materials = [];
+      let recipes = [];
+      let lots = [];
+      let inventory = [];
+      let purchases = [];
+      let materialInventory = [];
+      const clone = (value) => JSON.parse(JSON.stringify(value));
+      const id = (prefix) => `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+      const text = (value) => String(value ?? "").trim().replace(/\s+/g, " ");
+      const positive = (value) => Number.isFinite(Number(value)) && Number(value) > 0 ? Number(value) : 0;
+      const nonNegative = (value) => Number.isFinite(Number(value)) && Number(value) >= 0 ? Number(value) : 0;
+      const productExists = (key) => Boolean(Settings.all().products[key]);
+      const readArray = (key) => { try { const parsed = JSON.parse(localStorage.getItem(key)); return Array.isArray(parsed) ? parsed : []; } catch (error) { return []; } };
+      const normalizeMaterial = (item, generateId = false) => {
+        if (!item || typeof item !== "object") return null;
+        const cleanId = text(item.id); const name = text(item.name); const unit = text(item.unit); const unitCost = positive(item.unitCost);
+        if ((!cleanId && !generateId) || !name || !unit || !unitCost) return null;
+        return { id: cleanId || id("mat"), name, unit, unitCost: Math.round(unitCost * 100) / 100 };
+      };
+      const normalizeRecipe = (item, checkReferences = true) => {
+        if (!item || !productExists(item.productKey)) return null;
+        const expectedYield = Math.floor(positive(item.expectedYield));
+        const otherCosts = Math.round(nonNegative(item.otherCosts));
+        const ingredients = (Array.isArray(item.ingredients) ? item.ingredients : []).map((entry) => ({ materialId: text(entry.materialId), quantity: positive(entry.quantity) })).filter((entry) => entry.materialId && entry.quantity > 0 && (!checkReferences || materials.some((material) => material.id === entry.materialId)));
+        if (!expectedYield || !ingredients.length) return null;
+        return { productKey: item.productKey, expectedYield, otherCosts, ingredients };
+      };
+      const normalizeLot = (item) => {
+        if (!item || !text(item.id) || !/^\d{4}-\d{2}-\d{2}$/.test(String(item.date || "")) || !productExists(item.productKey)) return null;
+        const actualQuantity = Math.floor(positive(item.actualQuantity)); const totalCost = positive(item.totalCost); const unitCost = positive(item.unitCost);
+        if (!actualQuantity || !totalCost || !unitCost) return null;
+        return { id: text(item.id), date: item.date, productKey: item.productKey, expectedYield: Math.floor(nonNegative(item.expectedYield)), actualQuantity, otherCosts: Math.round(nonNegative(item.otherCosts)), totalCost: Math.round(totalCost), unitCost: Math.round(unitCost * 10000) / 10000, ingredients: Array.isArray(item.ingredients) ? clone(item.ingredients) : [] };
+      };
+      const normalizeInventory = (item) => {
+        if (!item || !productExists(item.productKey)) return null;
+        return { productKey: item.productKey, quantity: Math.floor(nonNegative(item.quantity)), averageCost: Math.round(nonNegative(item.averageCost) * 10000) / 10000 };
+      };
+      const normalizeMaterialInventory = (item, checkReferences = true) => {
+        if (!item || !text(item.materialId) || (checkReferences && !materials.some((material) => material.id === item.materialId))) return null;
+        return { materialId: text(item.materialId), quantity: Math.round(nonNegative(item.quantity) * 10000) / 10000, averageCost: Math.round(nonNegative(item.averageCost) * 10000) / 10000 };
+      };
+      const normalizePurchase = (item, checkReferences = true) => {
+        if (!item || !text(item.id) || !/^\d{4}-\d{2}-\d{2}$/.test(String(item.date || "")) || !text(item.materialId) || (checkReferences && !materials.some((material) => material.id === item.materialId))) return null;
+        const quantity = positive(item.quantity); const unitCost = positive(item.unitCost); const totalCost = positive(item.totalCost) || quantity * unitCost;
+        if (!quantity || !unitCost || !totalCost) return null;
+        const material = materials.find((entry) => entry.id === item.materialId);
+        const materialName = text(item.materialName) || material?.name || "Matière";
+        const unit = text(item.unit) || material?.unit || "unité";
+        return { id: text(item.id), date: item.date, materialId: text(item.materialId), materialName, unit, quantity: Math.round(quantity * 10000) / 10000, unitCost: Math.round(unitCost * 10000) / 10000, totalCost: Math.round(totalCost), expenseId: text(item.expenseId) };
+      };
+      const save = () => { localStorage.setItem(materialsKey, JSON.stringify(materials)); localStorage.setItem(recipesKey, JSON.stringify(recipes)); localStorage.setItem(lotsKey, JSON.stringify(lots)); localStorage.setItem(inventoryKey, JSON.stringify(inventory)); localStorage.setItem(purchasesKey, JSON.stringify(purchases)); localStorage.setItem(materialInventoryKey, JSON.stringify(materialInventory)); };
+      const load = () => {
+        materials = readArray(materialsKey).map((item) => normalizeMaterial(item)).filter(Boolean);
+        recipes = readArray(recipesKey).map(normalizeRecipe).filter(Boolean);
+        lots = readArray(lotsKey).map(normalizeLot).filter(Boolean);
+        inventory = readArray(inventoryKey).map(normalizeInventory).filter(Boolean);
+        purchases = readArray(purchasesKey).map((item) => normalizePurchase(item)).filter(Boolean);
+        materialInventory = readArray(materialInventoryKey).map((item) => normalizeMaterialInventory(item)).filter(Boolean);
+        save();
+      };
+      const getMaterials = () => clone(materials);
+      const getRecipes = () => clone(recipes);
+      const getLots = () => clone(lots).sort((a, b) => b.date.localeCompare(a.date));
+      const getInventory = () => Object.keys(Settings.all().products).map((productKey) => clone(inventory.find((item) => item.productKey === productKey) || { productKey, quantity: 0, averageCost: Settings.product(productKey).cost || 0 }));
+      const getPurchases = () => clone(purchases).sort((a, b) => b.date.localeCompare(a.date));
+      const getMaterialInventory = () => materials.map((material) => clone(materialInventory.find((item) => item.materialId === material.id) || { materialId: material.id, quantity: 0, averageCost: material.unitCost }));
+      const addMaterial = (item) => { const normalized = normalizeMaterial(item, true); if (!normalized) return null; const existing = materials.find((material) => material.name.toLocaleLowerCase("fr") === normalized.name.toLocaleLowerCase("fr")); if (existing) { const unitLocked = purchases.some((purchase) => purchase.materialId === existing.id) || recipes.some((recipe) => recipe.ingredients.some((entry) => entry.materialId === existing.id)); existing.name = normalized.name; if (!unitLocked) existing.unit = normalized.unit; existing.unitCost = normalized.unitCost; save(); return clone(existing); } materials.push(normalized); save(); return clone(normalized); };
+      const removeMaterial = (materialId) => { if (recipes.some((recipe) => recipe.ingredients.some((entry) => entry.materialId === materialId)) || purchases.some((purchase) => purchase.materialId === materialId) || materialInventory.some((item) => item.materialId === materialId && item.quantity > 0)) return false; const count = materials.length; materials = materials.filter((item) => item.id !== materialId); materialInventory = materialInventory.filter((item) => item.materialId !== materialId); if (count === materials.length) return false; save(); return true; };
+      const setRecipe = (item) => { const normalized = normalizeRecipe(item); if (!normalized) return null; recipes = recipes.filter((recipe) => recipe.productKey !== normalized.productKey); recipes.push(normalized); save(); return clone(normalized); };
+      const recipeFor = (productKey) => clone(recipes.find((recipe) => recipe.productKey === productKey) || null);
+      const addPurchase = ({ date, materialId, quantity, unitCost }) => {
+        const material = materials.find((item) => item.id === materialId); const purchaseId = id("buy");
+        const purchase = normalizePurchase({ id: purchaseId, date, materialId, materialName: material?.name, unit: material?.unit, quantity, unitCost, totalCost: Number(quantity) * Number(unitCost) });
+        if (!material || !purchase) return null;
+        const expense = Expenses.add({ date: purchase.date, category: "matieres_premieres", label: `Achat matière · ${material.name}`, amount: purchase.totalCost, note: `${purchase.quantity} ${material.unit} à ${Utils.formatMoney(purchase.unitCost)} par ${material.unit}`, source: "inventory-purchase", materialPurchaseId: purchase.id });
+        if (!expense) return null;
+        purchase.expenseId = expense.id;
+        let state = materialInventory.find((item) => item.materialId === materialId);
+        if (!state) { state = { materialId, quantity: 0, averageCost: 0 }; materialInventory.push(state); }
+        const weighted = NissaCalculations.weightedAverageCost({ currentQuantity: state.quantity, currentAverageCost: state.averageCost, addedQuantity: purchase.quantity, addedTotalCost: purchase.totalCost });
+        state.quantity = weighted.quantity; state.averageCost = weighted.averageCost; material.unitCost = purchase.unitCost; purchases.push(purchase); save(); return clone(purchase);
+      };
+      const lotAvailabilityError = (productKey) => {
+        const recipe = recipes.find((item) => item.productKey === productKey); if (!recipe) return "Aucune recette enregistrée pour ce produit.";
+        for (const entry of recipe.ingredients) { const material = materials.find((item) => item.id === entry.materialId); const state = materialInventory.find((item) => item.materialId === entry.materialId); if (!material || !state || state.quantity < entry.quantity) return `Stock de ${material?.name || "matière"} insuffisant : ${state?.quantity || 0} ${material?.unit || ""} disponible(s), ${entry.quantity} requis.`; }
+        return "";
+      };
+      const previewLot = (productKey, actualQuantity) => {
+        const recipe = recipes.find((item) => item.productKey === productKey); const quantity = Math.floor(positive(actualQuantity));
+        if (!recipe || !quantity || lotAvailabilityError(productKey)) return null;
+        const ingredientRows = recipe.ingredients.map((entry) => { const material = materials.find((item) => item.id === entry.materialId); const state = materialInventory.find((item) => item.materialId === entry.materialId); return material && state ? { materialId: material.id, name: material.name, unit: material.unit, quantity: entry.quantity, unitCost: state.averageCost, cost: Math.round(entry.quantity * state.averageCost) } : null; }).filter(Boolean);
+        if (ingredientRows.length !== recipe.ingredients.length) return null;
+        const costs = NissaCalculations.productionLotCost({ ingredients: ingredientRows, otherCosts: recipe.otherCosts, actualQuantity: quantity });
+        return { productKey, expectedYield: recipe.expectedYield, actualQuantity: quantity, otherCosts: recipe.otherCosts, ingredients: ingredientRows, totalCost: Math.round(costs.totalCost), unitCost: costs.unitCost };
+      };
+      const updateProductCost = (productKey, averageCost) => { const settings = clone(Settings.all()); if (settings.products[productKey]) { settings.products[productKey].cost = Math.round(averageCost); Settings.update(settings); } };
+      const addLot = ({ date, productKey, actualQuantity }) => {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date || ""))) return null;
+        const preview = previewLot(productKey, actualQuantity); if (!preview || preview.totalCost <= 0) return null;
+        const lotId = id("lot");
+        if (preview.otherCosts > 0 && !Expenses.add({ date, category: "autres", label: `Coûts directs de production · ${Settings.product(productKey).name}`, amount: preview.otherCosts, note: "Capitalisés dans le coût du lot, hors charge immédiate", source: "production-input", productionLotId: lotId })) return null;
+        preview.ingredients.forEach((entry) => { const state = materialInventory.find((item) => item.materialId === entry.materialId); state.quantity = Math.max(0, state.quantity - entry.quantity); });
+        const current = inventory.find((item) => item.productKey === productKey) || { productKey, quantity: 0, averageCost: 0 };
+        const weighted = NissaCalculations.weightedAverageCost({ currentQuantity: current.quantity, currentAverageCost: current.averageCost, addedQuantity: preview.actualQuantity, addedTotalCost: preview.totalCost });
+        current.averageCost = weighted.averageCost; current.quantity = weighted.quantity;
+        if (!inventory.some((item) => item.productKey === productKey)) inventory.push(current);
+        const lot = normalizeLot({ id: lotId, date, ...preview }); lots.push(lot); save(); updateProductCost(productKey, current.averageCost); return clone(lot);
+      };
+      const quoteSale = ({ cv, qn }) => {
+        const quantities = { cv: Math.floor(nonNegative(cv)), qn: Math.floor(nonNegative(qn)) }; const unitCosts = {}; const tracked = {};
+        for (const productKey of ["cv", "qn"]) {
+          const state = inventory.find((item) => item.productKey === productKey); tracked[productKey] = lots.some((lot) => lot.productKey === productKey);
+          if (tracked[productKey] && quantities[productKey] > (state?.quantity || 0)) return { error: `Stock ${Settings.product(productKey).name} insuffisant : ${state?.quantity || 0} disponible(s).` };
+          unitCosts[productKey] = tracked[productKey] ? state.averageCost : Number(Settings.product(productKey).cost || 0);
+        }
+        return { quantities, unitCosts, tracked, directCost: Math.round(quantities.cv * unitCosts.cv + quantities.qn * unitCosts.qn) };
+      };
+      const consumeSale = (sale) => { for (const productKey of ["cv", "qn"]) if (sale.inventoryTracked?.[productKey] && sale[productKey] > 0) { const state = inventory.find((item) => item.productKey === productKey); if (!state || state.quantity < sale[productKey]) return false; state.quantity -= sale[productKey]; } save(); return true; };
+      const restoreSale = (sale) => { for (const productKey of ["cv", "qn"]) if (sale.inventoryTracked?.[productKey] && sale[productKey] > 0) { let state = inventory.find((item) => item.productKey === productKey); if (!state) { state = { productKey, quantity: 0, averageCost: 0 }; inventory.push(state); } const restoredCost = Number(sale.unitCosts?.[productKey] || 0); const nextQuantity = state.quantity + sale[productKey]; state.averageCost = nextQuantity ? (state.quantity * state.averageCost + sale[productKey] * restoredCost) / nextQuantity : 0; state.quantity = nextQuantity; updateProductCost(productKey, state.averageCost); } save(); };
+      const replace = (payload = {}) => { materials = (payload.materials || []).map((item) => normalizeMaterial(item)).filter(Boolean); recipes = (payload.recipes || []).map(normalizeRecipe).filter(Boolean); lots = (payload.lots || []).map(normalizeLot).filter(Boolean); inventory = (payload.inventory || []).map(normalizeInventory).filter(Boolean); purchases = (payload.purchases || []).map((item) => normalizePurchase(item)).filter(Boolean); materialInventory = (payload.materialInventory || []).map((item) => normalizeMaterialInventory(item)).filter(Boolean); save(); };
+      const clear = () => { materials = []; recipes = []; lots = []; inventory = []; purchases = []; materialInventory = []; save(); };
+      load();
+      return { materialsKey, recipesKey, lotsKey, inventoryKey, purchasesKey, materialInventoryKey, normalizeMaterial, normalizeRecipe, normalizeLot, normalizeInventory, normalizePurchase, normalizeMaterialInventory, getMaterials, getRecipes, getLots, getInventory, getPurchases, getMaterialInventory, addMaterial, removeMaterial, addPurchase, setRecipe, recipeFor, lotAvailabilityError, previewLot, addLot, quoteSale, consumeSale, restoreSale, replace, clear };
     })();
 
     const Treasury = (() => {
@@ -2744,7 +3361,7 @@
       };
       const getOpeningBalance = () => configuration().openingBalance || 0;
       const activityInflowsUntil = (endDate) => !isInitialized() ? 0 : Store.all().filter((day) => day.date >= configuration().startDate && day.date <= endDate).reduce((sum, day) => sum + Number(day.ca || 0), 0);
-      const activityOutflowsUntil = (endDate) => !isInitialized() ? 0 : Expenses.getAll().filter((expense) => expense.date >= configuration().startDate && expense.date <= endDate).reduce((sum, expense) => sum + expense.amount, 0);
+      const activityOutflowsUntil = (endDate) => !isInitialized() ? 0 : Expenses.getAll().filter((expense) => Expenses.isCashOutflow(expense) && expense.date >= configuration().startDate && expense.date <= endDate).reduce((sum, expense) => sum + expense.amount, 0);
       const manualUntil = (type, endDate) => !isInitialized() ? 0 : getAll().filter((movement) => movement.type === type && movement.date >= configuration().startDate && movement.date <= endDate).reduce((sum, movement) => sum + movement.amount, 0);
       const getBalance = (endDate = Utils.todayIso()) => !isInitialized() ? 0 : getOpeningBalance() + activityInflowsUntil(endDate) - activityOutflowsUntil(endDate) + manualUntil("in", endDate) - manualUntil("out", endDate);
       const reconciliation = (endDate = Utils.todayIso()) => {
@@ -2759,7 +3376,7 @@
       };
       const monthCutoff = (month) => month < Utils.todayIso().slice(0, 7) ? `${month}-31` : month === Utils.todayIso().slice(0, 7) ? Utils.todayIso() : `${month}-00`;
       const getMonthlyInflows = (month) => !isInitialized() ? 0 : Store.all().filter((day) => day.date.startsWith(month) && day.date >= configuration().startDate && day.date <= monthCutoff(month)).reduce((sum, day) => sum + Number(day.ca || 0), 0) + getByMonth(month).filter((movement) => movement.type === "in" && movement.date >= configuration().startDate && movement.date <= monthCutoff(month)).reduce((sum, movement) => sum + movement.amount, 0);
-      const getMonthlyOutflows = (month) => !isInitialized() ? 0 : Expenses.getByMonth(month).filter((expense) => expense.date >= configuration().startDate && expense.date <= monthCutoff(month)).reduce((sum, expense) => sum + expense.amount, 0) + getByMonth(month).filter((movement) => movement.type === "out" && movement.date >= configuration().startDate && movement.date <= monthCutoff(month)).reduce((sum, movement) => sum + movement.amount, 0);
+      const getMonthlyOutflows = (month) => !isInitialized() ? 0 : Expenses.getByMonth(month).filter((expense) => Expenses.isCashOutflow(expense) && expense.date >= configuration().startDate && expense.date <= monthCutoff(month)).reduce((sum, expense) => sum + expense.amount, 0) + getByMonth(month).filter((movement) => movement.type === "out" && movement.date >= configuration().startDate && movement.date <= monthCutoff(month)).reduce((sum, movement) => sum + movement.amount, 0);
       const availableMonths = () => {
         if (!isInitialized()) return [];
         const start = configuration().startDate.slice(0, 7);
@@ -2880,7 +3497,9 @@
         return {
           id: cleanText(sale.id) || id("sale"), sellerId: cleanText(sale.sellerId), cycleId: cleanText(sale.cycleId), date: sale.date, cv, qn, total,
           ca: Number.isFinite(savedCa) && savedCa >= 0 ? Math.round(savedCa) : calculated.ca,
-          directCost: Number.isFinite(savedDirectCost) && savedDirectCost >= 0 ? Math.round(savedDirectCost) : calculated.depenses
+          directCost: Number.isFinite(savedDirectCost) && savedDirectCost >= 0 ? Math.round(savedDirectCost) : calculated.depenses,
+          unitCosts: sale.unitCosts && typeof sale.unitCosts === "object" ? { cv: Math.max(0, Number(sale.unitCosts.cv) || 0), qn: Math.max(0, Number(sale.unitCosts.qn) || 0) } : null,
+          inventoryTracked: sale.inventoryTracked && typeof sale.inventoryTracked === "object" ? { cv: Boolean(sale.inventoryTracked.cv), qn: Boolean(sale.inventoryTracked.qn) } : null
         };
       };
 
@@ -2900,7 +3519,7 @@
       const salaryAt = (seller, date) => [...seller.salaryHistory].filter((entry) => entry.effectiveDate <= date).pop()?.amount ?? seller.salaryHistory[0]?.amount ?? 0;
       const salesForCycle = (cycleId) => sales.filter((sale) => sale.cycleId === cycleId);
       const cycleTotals = (cycle) => salesForCycle(cycle.id).reduce((total, sale) => ({ days: total.days + 1, sales: total.sales + sale.total, ca: total.ca + sale.ca, directCost: total.directCost + sale.directCost }), { days: 0, sales: 0, ca: 0, directCost: 0 });
-      const bonusFor = (quantity) => Settings.all().sellerBonusRules.reduce((sum, rule) => sum + (quantity >= rule.threshold ? rule.bonus : 0), 0);
+      const bonusFor = (quantity) => NissaCalculations.cumulativeBonus(quantity, Settings.all().sellerBonusRules);
       const paymentForCycle = (cycleId) => Treasury.getSellerPayment(cycleId);
       const hydrateCycle = (cycle) => { const totals = cycleTotals(cycle); const completed = totals.days >= 26; const payment = paymentForCycle(cycle.id); const locked = cycle.status === "PAID" || Boolean(cycle.treasuryMovementId) || Boolean(payment); const status = locked ? "PAID" : completed ? "PAYABLE" : totals.days ? "TO_COMPLETE" : "OPEN"; return { ...clone(cycle), ...totals, absences: absences.filter((absence) => absence.cycleId === cycle.id).length, remainingDays: Math.max(0, 26 - totals.days), bonus: bonusFor(totals.sales), totalDue: cycle.baseSalary + bonusFor(totals.sales), status, paymentLocked: locked, paymentDate: payment?.date || cycle.paymentDate, paidAmount: payment?.amount || cycle.paidAmount, treasuryMovementId: payment?.id || cycle.treasuryMovementId }; };
       const activeCycle = (sellerId) => cycles.find((cycle) => cycle.sellerId === sellerId && ["OPEN", "TO_COMPLETE"].includes(cycle.status)) || null;
@@ -2914,9 +3533,12 @@
         const seller = sellerById(sellerId); const cleanCv = number(cv); const cleanQn = number(qn);
         if (!seller || !seller.active || !validDate(date) || cleanCv + cleanQn <= 0) return { error: "Renseignez un vendeur actif, une date et au moins une vente." };
         if (sales.some((sale) => sale.sellerId === sellerId && sale.date === date) || absences.some((absence) => absence.sellerId === sellerId && absence.date === date)) return { error: "Cette date est déjà enregistrée pour ce vendeur." };
+        const quote = Production.quoteSale({ cv: cleanCv, qn: cleanQn });
+        if (quote.error) return { error: quote.error };
         let cycle = activeCycle(sellerId); if (!cycle) cycle = createCycle(sellerId, date);
         if (!cycle) return { error: "Impossible de créer le cycle vendeur." };
-        const sale = normalizeSale({ id: id("sale"), sellerId, cycleId: cycle.id, date, cv: cleanCv, qn: cleanQn });
+        const sale = normalizeSale({ id: id("sale"), sellerId, cycleId: cycle.id, date, cv: cleanCv, qn: cleanQn, directCost: quote.directCost, unitCosts: quote.unitCosts, inventoryTracked: quote.tracked });
+        if (!Production.consumeSale(sale)) return { error: "Le stock a changé. Vérifiez les quantités disponibles." };
         sales.push(sale);
         Expenses.add({
           date: sale.date,
@@ -2939,6 +3561,7 @@
       };
       const clearActivity = () => {
         const saleIds = sales.map((sale) => sale.id);
+        sales.forEach(Production.restoreSale);
         sales = [];
         cycles = [];
         absences = [];
@@ -2950,6 +3573,7 @@
         if (!targets.length) return { removed: 0 };
         if (targets.some((sale) => { const cycle = cycleById(sale.cycleId); return cycle && hydrateCycle(cycle).paymentLocked; })) return { error: "Impossible de supprimer une vente liée à un cycle déjà payé. Annulez d’abord le paiement dans la trésorerie." };
         const ids = targets.map((sale) => sale.id);
+        targets.forEach(Production.restoreSale);
         sales = sales.filter((sale) => sale.date !== date);
         Expenses.removeSellerSaleExpenses(ids);
         save();
@@ -3028,8 +3652,9 @@
       const pageKicker = document.querySelector("#pageKicker");
       const todayLabel = document.querySelector("#todayLabel");
       const versionLabel = document.querySelector("#appVersionLabel");
+      const mobileViewSelect = document.querySelector("#mobileViewSelect");
 
-      const setView = (viewName) => {
+      const setView = (viewName, options = {}) => {
         views.forEach((view) => view.classList.toggle("active", view.id === `view-${viewName}`));
         navButtons.forEach((button) => {
           const isActive = button.dataset.view === viewName;
@@ -3042,8 +3667,15 @@
         });
 
         const activeView = document.querySelector(`#view-${viewName}`);
+        if (!activeView) return;
         pageTitle.textContent = activeView.dataset.title;
         pageKicker.textContent = activeView.dataset.kicker;
+        mobileViewSelect.value = viewName;
+
+        if (options.scroll !== false && window.matchMedia("(max-width: 960px)").matches) {
+          const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+        }
       };
 
       const init = () => {
@@ -3051,6 +3683,14 @@
         versionLabel.textContent = APP_VERSION;
         document.querySelectorAll(".status-message").forEach((element) => { element.setAttribute("role", "status"); element.setAttribute("aria-live", "polite"); });
         todayLabel.textContent = `Aujourd'hui · ${Utils.formatDate(Utils.todayIso())}`;
+        mobileViewSelect.replaceChildren(...navButtons.map((button) => {
+          const option = document.createElement("option");
+          option.value = button.dataset.view;
+          option.textContent = button.querySelector(".nav-label")?.textContent?.trim() || button.textContent.trim();
+          return option;
+        }));
+        mobileViewSelect.value = navButtons.find((button) => button.classList.contains("active"))?.dataset.view || "dashboard";
+        mobileViewSelect.addEventListener("change", () => setView(mobileViewSelect.value));
         navButtons.forEach((button) => {
           button.addEventListener("click", () => setView(button.dataset.view));
         });
@@ -3158,7 +3798,7 @@
                     <td data-label="Dépenses">${Utils.formatMoney(day.depenses)}</td>
                     <td data-label="Bénéfice" class="${day.benefice >= 0 ? "amount-positive" : "amount-negative"}">${Utils.formatMoney(day.benefice)}</td>
                     <td data-label="Caisse">${Utils.formatMoney(day.caisse)}</td>
-                    <td data-label="Actions"><div class="expense-actions"><button class="secondary-button" type="button" data-edit-day="${escapeHtml(day.id)}">Modifier</button><button class="danger-button" type="button" data-remove-day="${escapeHtml(day.id)}">Supprimer</button></div></td>
+                    <td data-label="Actions"><div class="expense-actions">${day.source === "seller-sales" ? '<span class="panel-subtitle">Journée liée aux ventes</span>' : `<button class="secondary-button" type="button" data-edit-day="${escapeHtml(day.id)}">Modifier</button>`}<button class="danger-button" type="button" data-remove-day="${escapeHtml(day.id)}">Supprimer</button></div></td>
                   </tr>
                 `).join("")}
               </tbody>
@@ -3170,7 +3810,7 @@
       const editRow = (recordId) => {
         const day = Store.all().find((record) => record.id === recordId);
         const row = mount.querySelector(`[data-day-row="${CSS.escape(recordId)}"]`) || mount.querySelector(`[data-edit-day="${CSS.escape(recordId)}"]`)?.closest("tr");
-        if (!day || !row) return;
+        if (!day || !row || day.source === "seller-sales") return;
         row.dataset.dayRow = recordId;
         row.innerHTML = `
           <td><input aria-label="Date" name="date" type="date" value="${escapeHtml(day.date)}"></td>
@@ -3366,10 +4006,7 @@
                   <td>${escapeHtml(Expenses.categories[expense.category])}</td>
                   <td>${escapeHtml(expense.label)}</td>
                   <td>${escapeHtml(Utils.formatMoney(expense.amount))}</td>
-                  <td><div class="expense-actions">
-                    <button class="secondary-button" type="button" data-edit-expense="${escapeHtml(expense.id)}">Modifier</button>
-                    <button class="danger-button" type="button" data-remove-expense="${escapeHtml(expense.id)}">Supprimer</button>
-                  </div></td>
+                  <td>${["seller-sale", "inventory-purchase", "production-input"].includes(expense.source) ? `<span class="panel-subtitle">${expense.source === "seller-sale" ? "Coût des ventes" : expense.source === "inventory-purchase" ? "Achat de stock" : "Coût direct du lot"} · écriture liée</span>` : `<div class="expense-actions"><button class="secondary-button" type="button" data-edit-expense="${escapeHtml(expense.id)}">Modifier</button><button class="danger-button" type="button" data-remove-expense="${escapeHtml(expense.id)}">Supprimer</button></div>`}</td>
                 </tr>`).join("")}</tbody>
             </table>
           </div>`;
@@ -3446,6 +4083,150 @@
       return { init, render, renderStats };
     })();
 
+    const RecurringExpensesView = (() => {
+      const form = document.querySelector("#recurringExpenseForm");
+      const labelInput = document.querySelector("#recurringExpenseLabel");
+      const categoryInput = document.querySelector("#recurringExpenseCategory");
+      const amountInput = document.querySelector("#recurringExpenseAmount");
+      const dayInput = document.querySelector("#recurringExpenseDay");
+      const startInput = document.querySelector("#recurringExpenseStart");
+      const endInput = document.querySelector("#recurringExpenseEnd");
+      const status = document.querySelector("#recurringExpenseStatus");
+      const dueStatus = document.querySelector("#recurringExpenseDueStatus");
+      const generateButton = document.querySelector("#generateRecurringExpenses");
+      const list = document.querySelector("#recurringExpenseList");
+      const escapeHtml = (value) => String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+      const reset = () => { form.reset(); dayInput.value = "1"; startInput.value = Utils.todayIso(); status.textContent = ""; };
+      const render = () => {
+        const items = RecurringExpenses.getAll();
+        const due = RecurringExpenses.dueAll();
+        dueStatus.textContent = `${due.length} échéance${due.length > 1 ? "s" : ""} à générer jusqu’au ${Utils.formatDate(Utils.todayIso())}.`;
+        generateButton.disabled = due.length === 0;
+        if (!items.length) { list.innerHTML = '<div class="empty-state">Aucune dépense récurrente configurée.</div>'; return; }
+        list.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Libellé</th><th>Catégorie</th><th>Montant</th><th>Échéance</th><th>Période</th><th>À générer</th><th>Actions</th></tr></thead><tbody>${items.map((item) => { const count = item.active ? RecurringExpenses.dueFor(item).length : 0; return `<tr><td>${escapeHtml(item.label)}</td><td>${escapeHtml(Expenses.categories[item.category])}</td><td>${escapeHtml(Utils.formatMoney(item.amount))}</td><td>Jour ${item.dayOfMonth}</td><td>${escapeHtml(Utils.formatDate(item.startDate))}${item.endDate ? ` – ${escapeHtml(Utils.formatDate(item.endDate))}` : " – sans fin"}</td><td>${count}</td><td><div class="expense-actions"><button class="secondary-button" type="button" data-toggle-recurring="${escapeHtml(item.id)}">${item.active ? "Suspendre" : "Activer"}</button><button class="danger-button" type="button" data-remove-recurring="${escapeHtml(item.id)}">Supprimer</button></div></td></tr>`; }).join("")}</tbody></table></div>`;
+      };
+      const init = () => {
+        categoryInput.innerHTML = Object.entries(Expenses.categories).map(([key, label]) => `<option value="${key}">${escapeHtml(label)}</option>`).join("");
+        reset();
+        form.addEventListener("submit", (event) => { event.preventDefault(); const saved = RecurringExpenses.add({ label: labelInput.value, category: categoryInput.value, amount: amountInput.value, dayOfMonth: dayInput.value, startDate: startInput.value, endDate: endInput.value, active: true }); if (!saved) { status.textContent = "Vérifiez le libellé, le montant, le jour et les dates."; status.classList.add("error"); return; } reset(); renderAll(); });
+        generateButton.addEventListener("click", () => { const due = RecurringExpenses.dueAll(); if (!due.length || !window.confirm(`Créer ${due.length} dépense(s) récurrente(s) due(s) ?`)) return; const created = RecurringExpenses.generateDue(); status.textContent = `${created.length} échéance(s) générée(s), sans doublon.`; status.classList.remove("error"); renderAll(); });
+        list.addEventListener("click", (event) => { const toggle = event.target.closest("[data-toggle-recurring]"); const remove = event.target.closest("[data-remove-recurring]"); if (toggle) { const item = RecurringExpenses.getAll().find((entry) => entry.id === toggle.dataset.toggleRecurring); if (item) RecurringExpenses.setActive(item.id, !item.active); renderAll(); } if (remove && confirmAndBackup("Supprimer cette règle récurrente ? Les dépenses déjà générées seront conservées.")) { RecurringExpenses.remove(remove.dataset.removeRecurring); renderAll(); } });
+      };
+      return { init, render };
+    })();
+
+    const ExpenseBudgetsView = (() => {
+      const form = document.querySelector("#expenseBudgetForm");
+      const monthInput = document.querySelector("#expenseBudgetMonth");
+      const categoryInput = document.querySelector("#expenseBudgetCategory");
+      const amountInput = document.querySelector("#expenseBudgetAmount");
+      const status = document.querySelector("#expenseBudgetStatus");
+      const summary = document.querySelector("#expenseBudgetSummary");
+      const escapeHtml = (value) => String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+      const render = () => {
+        const month = monthInput.value || Expenses.currentMonth();
+        const budgets = ExpenseBudgets.getByMonth(month);
+        const spentByCategory = Expenses.totalsByCategory(month);
+        if (!budgets.length) { summary.innerHTML = '<div class="empty-state">Aucun budget défini pour ce mois.</div>'; return; }
+        const rows = budgets.map((budget) => ({ ...budget, metrics: NissaCalculations.budgetStatus({ budget: budget.amount, spent: spentByCategory[budget.category] || 0 }) }));
+        const totalBudget = rows.reduce((sum, row) => sum + row.amount, 0); const totalSpent = rows.reduce((sum, row) => sum + row.metrics.spent, 0);
+        summary.innerHTML = `<div class="report-summary"><article class="month-card"><strong>Budget catégorisé</strong><span>${escapeHtml(Utils.formatMoney(totalBudget))}</span></article><article class="month-card"><strong>Dépensé</strong><span>${escapeHtml(Utils.formatMoney(totalSpent))}</span></article><article class="month-card"><strong>Disponible</strong><span>${escapeHtml(Utils.formatMoney(Math.max(0, totalBudget - totalSpent)))}</span></article></div><div class="table-wrap" style="margin-top:16px"><table><thead><tr><th>Catégorie</th><th>Budget</th><th>Dépensé</th><th>Reste</th><th>Utilisation</th><th>Statut</th><th></th></tr></thead><tbody>${rows.map((row) => `<tr><td>${escapeHtml(Expenses.categories[row.category])}</td><td>${escapeHtml(Utils.formatMoney(row.amount))}</td><td>${escapeHtml(Utils.formatMoney(row.metrics.spent))}</td><td>${escapeHtml(Utils.formatMoney(row.metrics.remaining))}</td><td>${row.metrics.usage === null ? "—" : `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 }).format(row.metrics.usage)} %`}</td><td>${escapeHtml(row.metrics.status)}</td><td><button class="danger-button" type="button" data-remove-budget="${escapeHtml(row.category)}">Supprimer</button></td></tr>`).join("")}</tbody></table></div>`;
+      };
+      const init = () => {
+        monthInput.value = Expenses.currentMonth();
+        categoryInput.innerHTML = Object.entries(Expenses.categories).map(([key, label]) => `<option value="${key}">${escapeHtml(label)}</option>`).join("");
+        monthInput.addEventListener("change", render);
+        form.addEventListener("submit", (event) => { event.preventDefault(); const saved = ExpenseBudgets.set({ month: monthInput.value, category: categoryInput.value, amount: amountInput.value }); if (!saved) { status.textContent = "Vérifiez le mois, la catégorie et le montant."; status.classList.add("error"); return; } amountInput.value = ""; status.textContent = "Budget enregistré."; status.classList.remove("error"); renderAll(); });
+        summary.addEventListener("click", (event) => { const button = event.target.closest("[data-remove-budget]"); if (button && confirmAndBackup("Supprimer ce budget de catégorie ?")) { ExpenseBudgets.remove(monthInput.value, button.dataset.removeBudget); renderAll(); } });
+      };
+      return { init, render };
+    })();
+
+    const ProductionView = (() => {
+      const stockMount = document.querySelector("#productionStockSummary");
+      const materialForm = document.querySelector("#materialCatalogForm");
+      const materialName = document.querySelector("#materialCatalogName");
+      const materialUnit = document.querySelector("#materialCatalogUnit");
+      const materialCost = document.querySelector("#materialCatalogCost");
+      const materialStatus = document.querySelector("#materialCatalogStatus");
+      const materialList = document.querySelector("#materialCatalogList");
+      const purchaseForm = document.querySelector("#materialPurchaseForm");
+      const purchaseDate = document.querySelector("#materialPurchaseDate");
+      const purchaseMaterial = document.querySelector("#materialPurchaseMaterial");
+      const purchaseQuantity = document.querySelector("#materialPurchaseQuantity");
+      const purchaseUnitCost = document.querySelector("#materialPurchaseUnitCost");
+      const purchasePreview = document.querySelector("#materialPurchasePreview");
+      const purchaseStatus = document.querySelector("#materialPurchaseStatus");
+      const purchaseHistory = document.querySelector("#materialPurchaseHistory");
+      const recipeForm = document.querySelector("#productionRecipeForm");
+      const recipeProduct = document.querySelector("#productionRecipeProduct");
+      const recipeYield = document.querySelector("#productionRecipeYield");
+      const recipeOtherCost = document.querySelector("#productionRecipeOtherCost");
+      const recipeMaterials = document.querySelector("#productionRecipeMaterials");
+      const recipeStatus = document.querySelector("#productionRecipeStatus");
+      const lotForm = document.querySelector("#productionLotForm");
+      const lotDate = document.querySelector("#productionLotDate");
+      const lotProduct = document.querySelector("#productionLotProduct");
+      const lotQuantity = document.querySelector("#productionLotQuantity");
+      const lotPreview = document.querySelector("#productionLotPreview");
+      const lotStatus = document.querySelector("#productionLotStatus");
+      const lotHistory = document.querySelector("#productionLotHistory");
+      const escapeHtml = (value) => String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+      const productOptions = (selected) => Object.entries(Settings.all().products).filter(([, product]) => product.active).map(([key, product]) => `<option value="${escapeHtml(key)}" ${key === selected ? "selected" : ""}>${escapeHtml(product.name)}</option>`).join("");
+      const fillRecipe = () => {
+        const recipe = Production.recipeFor(recipeProduct.value);
+        recipeYield.value = recipe?.expectedYield || ""; recipeOtherCost.value = recipe?.otherCosts || 0;
+        const quantities = Object.fromEntries((recipe?.ingredients || []).map((entry) => [entry.materialId, entry.quantity]));
+        const materials = Production.getMaterials();
+        recipeMaterials.innerHTML = materials.length ? materials.map((material) => `<div class="field"><label for="recipe-${escapeHtml(material.id)}">${escapeHtml(material.name)} (${escapeHtml(material.unit)})</label><input id="recipe-${escapeHtml(material.id)}" data-recipe-material="${escapeHtml(material.id)}" type="number" min="0" step="0.01" value="${escapeHtml(quantities[material.id] || 0)}"></div>`).join("") : '<div class="empty-state">Ajoutez d’abord les matières utilisées.</div>';
+      };
+      const renderStock = () => {
+        const rows = Production.getInventory().filter((item) => Settings.all().products[item.productKey]);
+        stockMount.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Produit</th><th>Stock</th><th>Coût moyen</th><th>Valeur</th><th>Mode</th></tr></thead><tbody>${rows.map((row) => { const tracked = Production.getLots().some((lot) => lot.productKey === row.productKey); return `<tr><td>${escapeHtml(Settings.product(row.productKey).name)}</td><td>${escapeHtml(Utils.formatNumber(row.quantity))}</td><td>${escapeHtml(Utils.formatMoney(Math.round(row.averageCost)))}</td><td>${escapeHtml(Utils.formatMoney(Math.round(row.quantity * row.averageCost)))}</td><td>${tracked ? "Lots suivis" : "Coût manuel"}</td></tr>`; }).join("")}</tbody></table></div>`;
+      };
+      const renderMaterials = () => {
+        const rows = Production.getMaterials();
+        const stocks = Object.fromEntries(Production.getMaterialInventory().map((item) => [item.materialId, item]));
+        materialList.innerHTML = rows.length ? `<div class="table-wrap"><table><thead><tr><th>Matière</th><th>Unité</th><th>Stock</th><th>Coût moyen</th><th>Valeur</th><th></th></tr></thead><tbody>${rows.map((item) => { const stock = stocks[item.id] || { quantity: 0, averageCost: item.unitCost }; return `<tr><td>${escapeHtml(item.name)}</td><td>${escapeHtml(item.unit)}</td><td>${escapeHtml(new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 4 }).format(stock.quantity))}</td><td>${escapeHtml(Utils.formatMoney(Math.round(stock.averageCost)))}</td><td>${escapeHtml(Utils.formatMoney(Math.round(stock.quantity * stock.averageCost)))}</td><td><button class="danger-button" type="button" data-remove-material="${escapeHtml(item.id)}">Supprimer</button></td></tr>`; }).join("")}</tbody></table></div>` : '<div class="empty-state">Aucune matière configurée.</div>';
+      };
+      const renderPurchase = () => {
+        const selected = purchaseMaterial.value; const materials = Production.getMaterials();
+        purchaseMaterial.innerHTML = materials.map((item) => `<option value="${escapeHtml(item.id)}" ${item.id === selected ? "selected" : ""}>${escapeHtml(item.name)} · ${escapeHtml(item.unit)}</option>`).join("");
+        const quantity = Number(purchaseQuantity.value); const unitCost = Number(purchaseUnitCost.value); const total = quantity > 0 && unitCost > 0 ? quantity * unitCost : 0;
+        purchasePreview.innerHTML = total > 0 ? `<div class="advice-item">Coût total de l’achat : <strong>${escapeHtml(Utils.formatMoney(Math.round(total)))}</strong></div>` : '<div class="empty-state">Indiquez la quantité et le coût unitaire.</div>';
+        const rows = Production.getPurchases();
+        purchaseHistory.innerHTML = rows.length ? `<div class="table-wrap"><table><thead><tr><th>Date</th><th>Matière</th><th>Quantité</th><th>Coût unitaire</th><th>Total</th></tr></thead><tbody>${rows.map((item) => `<tr><td>${escapeHtml(Utils.formatDate(item.date))}</td><td>${escapeHtml(item.materialName)}</td><td>${escapeHtml(new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 4 }).format(item.quantity))} ${escapeHtml(item.unit)}</td><td>${escapeHtml(Utils.formatMoney(Math.round(item.unitCost)))}</td><td>${escapeHtml(Utils.formatMoney(item.totalCost))}</td></tr>`).join("")}</tbody></table></div>` : '<div class="empty-state">Aucun achat de matière enregistré.</div>';
+      };
+      const renderLotPreview = () => {
+        const preview = Production.previewLot(lotProduct.value, lotQuantity.value);
+        const stockError = Production.lotAvailabilityError(lotProduct.value);
+        lotPreview.innerHTML = preview ? `<div class="report-summary"><article class="month-card"><strong>Coût du lot</strong><span>${escapeHtml(Utils.formatMoney(preview.totalCost))}</span></article><article class="month-card"><strong>Rendement théorique</strong><span>${escapeHtml(Utils.formatNumber(preview.expectedYield))}</span></article><article class="month-card"><strong>Rendement réel</strong><span>${escapeHtml(Utils.formatNumber(preview.actualQuantity))}</span></article><article class="month-card"><strong>Coût unitaire</strong><span>${escapeHtml(Utils.formatMoney(Math.round(preview.unitCost)))}</span></article></div>` : `<div class="empty-state">${escapeHtml(stockError || "Indiquez la quantité réellement obtenue.")}</div>`;
+      };
+      const renderLots = () => {
+        const rows = Production.getLots();
+        lotHistory.innerHTML = rows.length ? `<div class="table-wrap"><table><thead><tr><th>Date</th><th>Produit</th><th>Rendement prévu</th><th>Obtenu</th><th>Coût total</th><th>Coût unitaire</th></tr></thead><tbody>${rows.map((lot) => `<tr><td>${escapeHtml(Utils.formatDate(lot.date))}</td><td>${escapeHtml(Settings.product(lot.productKey).name)}</td><td>${escapeHtml(Utils.formatNumber(lot.expectedYield))}</td><td>${escapeHtml(Utils.formatNumber(lot.actualQuantity))}</td><td>${escapeHtml(Utils.formatMoney(lot.totalCost))}</td><td>${escapeHtml(Utils.formatMoney(Math.round(lot.unitCost)))}</td></tr>`).join("")}</tbody></table></div>` : '<div class="empty-state">Aucun lot enregistré.</div>';
+      };
+      const render = () => {
+        const selectedRecipe = recipeProduct.value || "cv"; const selectedLot = lotProduct.value || "cv";
+        recipeProduct.innerHTML = productOptions(selectedRecipe); lotProduct.innerHTML = productOptions(selectedLot);
+        if (!recipeProduct.value) recipeProduct.value = recipeProduct.options[0]?.value || "";
+        if (!lotProduct.value) lotProduct.value = lotProduct.options[0]?.value || "";
+        renderStock(); renderMaterials(); renderPurchase(); fillRecipe(); renderLotPreview(); renderLots();
+      };
+      const init = () => {
+        lotDate.value = Utils.todayIso(); purchaseDate.value = Utils.todayIso();
+        materialForm.addEventListener("submit", (event) => { event.preventDefault(); const saved = Production.addMaterial({ name: materialName.value, unit: materialUnit.value, unitCost: materialCost.value }); if (!saved) { materialStatus.textContent = "Vérifiez le nom, l’unité et le coût."; materialStatus.classList.add("error"); return; } materialForm.reset(); materialStatus.textContent = "Matière ajoutée."; materialStatus.classList.remove("error"); renderAll(); });
+        materialList.addEventListener("click", (event) => { const button = event.target.closest("[data-remove-material]"); if (!button) return; if (!confirmAndBackup("Supprimer cette matière du catalogue ?")) return; if (!Production.removeMaterial(button.dataset.removeMaterial)) window.alert("Cette matière possède une recette, un stock ou un historique d’achat et ne peut pas être supprimée."); renderAll(); });
+        [purchaseQuantity, purchaseUnitCost].forEach((input) => input.addEventListener("input", renderPurchase));
+        purchaseForm.addEventListener("submit", (event) => { event.preventDefault(); const saved = Production.addPurchase({ date: purchaseDate.value, materialId: purchaseMaterial.value, quantity: purchaseQuantity.value, unitCost: purchaseUnitCost.value }); if (!saved) { purchaseStatus.textContent = "Vérifiez la date, la matière, la quantité et le coût."; purchaseStatus.classList.add("error"); return; } purchaseQuantity.value = ""; purchaseUnitCost.value = ""; purchaseStatus.textContent = "Achat enregistré : stock matière et décaissement actualisés."; purchaseStatus.classList.remove("error"); renderAll(); });
+        recipeProduct.addEventListener("change", fillRecipe);
+        recipeForm.addEventListener("submit", (event) => { event.preventDefault(); const ingredients = [...recipeMaterials.querySelectorAll("[data-recipe-material]")].map((input) => ({ materialId: input.dataset.recipeMaterial, quantity: input.value })).filter((entry) => Number(entry.quantity) > 0); const saved = Production.setRecipe({ productKey: recipeProduct.value, expectedYield: recipeYield.value, otherCosts: recipeOtherCost.value, ingredients }); if (!saved) { recipeStatus.textContent = "Indiquez un rendement et au moins une matière."; recipeStatus.classList.add("error"); return; } recipeStatus.textContent = "Recette enregistrée."; recipeStatus.classList.remove("error"); renderAll(); });
+        lotProduct.addEventListener("change", renderLotPreview); lotQuantity.addEventListener("input", renderLotPreview);
+        lotForm.addEventListener("submit", (event) => { event.preventDefault(); const preview = Production.previewLot(lotProduct.value, lotQuantity.value); if (!preview) { lotStatus.textContent = "Recette ou quantité invalide."; lotStatus.classList.add("error"); return; } if (!window.confirm(`Valider ce lot pour un coût total de ${Utils.formatMoney(preview.totalCost)} ?`)) return; const saved = Production.addLot({ date: lotDate.value, productKey: lotProduct.value, actualQuantity: lotQuantity.value }); if (!saved) { lotStatus.textContent = "Impossible d’enregistrer ce lot."; lotStatus.classList.add("error"); return; } lotQuantity.value = ""; lotStatus.textContent = `Lot enregistré à ${Utils.formatMoney(Math.round(saved.unitCost))} par unité.`; lotStatus.classList.remove("error"); renderAll(); });
+      };
+      return { init, render };
+    })();
+
     const TreasuryView = (() => {
       const initializationPanel = document.querySelector("#treasuryInitializationPanel");
       const initializationForm = document.querySelector("#treasuryInitializationForm");
@@ -3479,7 +4260,7 @@
         const outflows = Treasury.getMonthlyOutflows(month);
         summary.innerHTML = [["Trésorerie disponible", Treasury.getBalance()], ["Entrées du mois", inflows], ["Sorties du mois", outflows], ["Variation nette", inflows - outflows]].map(([label, value]) => `<article class="kpi-card"><p class="kpi-label">${escapeHtml(label)}</p><p class="kpi-value ${value < 0 ? "amount-negative" : ""}">${escapeHtml(Utils.formatMoney(value))}</p></article>`).join("");
         const comparison = Treasury.reconciliation();
-        reconciliationMount.innerHTML = `<div class="kpi-grid"><article class="kpi-card"><p class="kpi-label">Caisse historique cumulée</p><p class="kpi-value">${escapeHtml(Utils.formatMoney(comparison.historicalCaisse))}</p></article><article class="kpi-card"><p class="kpi-label">Trésorerie théorique</p><p class="kpi-value">${escapeHtml(Utils.formatMoney(comparison.theoretical))}</p></article><article class="kpi-card"><p class="kpi-label">Écart (théorique − caisse)</p><p class="kpi-value ${comparison.discrepancy < 0 ? "amount-negative" : ""}">${escapeHtml(Utils.formatMoney(comparison.discrepancy))}</p></article></div><p class="panel-subtitle" style="margin-top:12px">Période ${escapeHtml(Utils.formatDate(comparison.startDate))} – ${escapeHtml(Utils.formatDate(comparison.endDate))}. Écart expliqué par mouvements manuels nets (${escapeHtml(Utils.formatMoney(comparison.manualNet))}) et différence de calcul entre CA − dépenses et caisse historique (${escapeHtml(Utils.formatMoney(comparison.calculationVariance))}). La trésorerie théorique inclut déjà CA, dépenses et mouvements manuels : ne pas additionner les deux soldes.</p>`;
+        reconciliationMount.innerHTML = `<div class="kpi-grid"><article class="kpi-card"><p class="kpi-label">Caisse historique cumulée</p><p class="kpi-value">${escapeHtml(Utils.formatMoney(comparison.historicalCaisse))}</p></article><article class="kpi-card"><p class="kpi-label">Trésorerie théorique</p><p class="kpi-value">${escapeHtml(Utils.formatMoney(comparison.theoretical))}</p></article><article class="kpi-card"><p class="kpi-label">Écart (théorique − caisse)</p><p class="kpi-value ${comparison.discrepancy < 0 ? "amount-negative" : ""}">${escapeHtml(Utils.formatMoney(comparison.discrepancy))}</p></article></div><p class="panel-subtitle" style="margin-top:12px">Période ${escapeHtml(Utils.formatDate(comparison.startDate))} – ${escapeHtml(Utils.formatDate(comparison.endDate))}. L’écart inclut les mouvements manuels nets (${escapeHtml(Utils.formatMoney(comparison.manualNet))}) et le décalage entre achats de stock payés et coût des produits effectivement vendus (${escapeHtml(Utils.formatMoney(comparison.calculationVariance))}). La trésorerie suit les décaissements réels ; la caisse historique suit la marge des ventes. Ne pas additionner les deux soldes.</p>`;
       };
       const renderHistory = () => {
         const items = Treasury.getAll().map((movement, index) => ({ movement, index })).sort((a, b) => b.movement.date.localeCompare(a.movement.date) || a.index - b.index).map(({ movement }) => movement);
@@ -3839,6 +4620,29 @@
       return { render };
     })();
 
+    const BreakEvenView = (() => {
+      const monthInput = document.querySelector("#breakEvenMonth");
+      const resultMount = document.querySelector("#breakEvenResult");
+      const escapeHtml = (value) => String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+      const availableMonths = () => [...new Set([...Sellers.getSales().map((sale) => sale.date.slice(0, 7)), ...Expenses.getAll().map((expense) => expense.date.slice(0, 7)), ...Treasury.getAll().map((movement) => movement.date.slice(0, 7))].filter(Boolean))].sort((a, b) => b.localeCompare(a));
+      const render = () => {
+        const months = availableMonths();
+        const selected = monthInput.value && months.includes(monthInput.value) ? monthInput.value : months[0] || Expenses.currentMonth();
+        monthInput.value = selected;
+        const sales = Sellers.getSales().filter((sale) => sale.date.startsWith(selected));
+        const revenue = sales.reduce((sum, sale) => sum + sale.ca, 0);
+        const directCosts = sales.reduce((sum, sale) => sum + sale.directCost, 0);
+        const units = sales.reduce((sum, sale) => sum + sale.total, 0);
+        const operatingExpenses = Expenses.getByMonth(selected).filter((expense) => !["seller-sale", "inventory-purchase", "production-input"].includes(expense.source)).reduce((sum, expense) => sum + expense.amount, 0);
+        const payroll = Sellers.monthlyReport(selected).payroll.filter((cycle) => ["PAYABLE", "PAID"].includes(cycle.status) && (cycle.completedAt.startsWith(selected) || cycle.paymentDate.startsWith(selected))).reduce((sum, cycle) => sum + (cycle.status === "PAID" ? cycle.paidAmount : cycle.totalDue), 0);
+        const metrics = NissaCalculations.breakEven({ revenue, directCosts, fixedCosts: operatingExpenses + payroll, units });
+        if (!sales.length || metrics.breakEvenRevenue === null) { resultMount.innerHTML = `<div class="empty-state">Ventes ou marge contributive insuffisantes pour calculer le seuil. Charges fixes recensées : ${escapeHtml(Utils.formatMoney(metrics.fixedCosts))}.</div>`; return; }
+        resultMount.innerHTML = `<div class="report-summary"><article class="month-card"><strong>Seuil de CA</strong><span>${escapeHtml(Utils.formatMoney(metrics.breakEvenRevenue))}</span></article><article class="month-card"><strong>Seuil en ventes</strong><span>${escapeHtml(Utils.formatNumber(metrics.breakEvenUnits))}</span></article><article class="month-card"><strong>CA réalisé</strong><span>${escapeHtml(Utils.formatMoney(metrics.revenue))}</span></article><article class="month-card"><strong>Statut</strong><span class="${metrics.reached ? "amount-positive" : "amount-negative"}">${metrics.reached ? "Seuil atteint" : `Reste ${escapeHtml(Utils.formatMoney(metrics.revenueGap))}`}</span></article></div><p class="panel-subtitle" style="margin-top:12px">Marge sur coûts directs : ${escapeHtml(Utils.formatMoney(metrics.contribution))} · charges fixes et salaires : ${escapeHtml(Utils.formatMoney(metrics.fixedCosts))} · contribution moyenne : ${escapeHtml(Utils.formatMoney(Math.round(metrics.contributionPerUnit)))} par vente.</p>`;
+      };
+      const init = () => { monthInput.value = Expenses.currentMonth(); monthInput.addEventListener("change", render); };
+      return { init, render };
+    })();
+
     const Previsions = (() => {
       const forecastStats = document.querySelector("#forecastStats");
       const businessInsights = document.querySelector("#businessInsights");
@@ -4115,6 +4919,8 @@
       const monthSelect = document.querySelector("#reportMonthSelect");
       const excelButton = document.querySelector("#exportExcelButton");
       const pdfButton = document.querySelector("#exportPdfButton");
+      const pdfStatus = document.querySelector("#pdfExportStatus");
+      const printRoot = document.querySelector("#printReportRoot");
       const reportMount = document.querySelector("#monthlyReportMount");
       let currentReport = null;
 
@@ -4326,6 +5132,23 @@
         </table>
       `;
 
+      const reportContentHtml = (report) => `
+          <h1>NISSA Manager - Rapport mensuel</h1>
+          <p>${escapeHtml(report.label)} · Version ${escapeHtml(APP_VERSION)}</p>
+          <div class="summary">
+            <div class="card"><strong>CA</strong>${escapeHtml(Utils.formatMoney(report.totals.ca))}</div>
+            <div class="card"><strong>Bénéfice</strong>${escapeHtml(Utils.formatMoney(report.totals.benefice))}</div>
+            <div class="card"><strong>Dépenses</strong>${escapeHtml(Utils.formatMoney(report.totals.depenses))}</div>
+            <div class="card"><strong>Glaces</strong>${escapeHtml(Utils.formatNumber(report.totals.total))}</div>
+          </div>
+          ${reportTableHtml(report)}
+          ${expenseBreakdownHtml(report)}
+          ${goalsReportHtml(report)}
+          ${treasuryReportHtml(report)}
+          ${sellerPerformanceHtml(report)}
+          ${payrollReportHtml(report)}
+      `;
+
       const reportDocumentHtml = (report) => `
         <!DOCTYPE html>
         <html lang="fr">
@@ -4346,20 +5169,7 @@
           </style>
         </head>
         <body>
-          <h1>NISSA Manager - Rapport mensuel</h1>
-          <p>${escapeHtml(report.label)} · Version ${escapeHtml(APP_VERSION)}</p>
-          <div class="summary">
-            <div class="card"><strong>CA</strong>${escapeHtml(Utils.formatMoney(report.totals.ca))}</div>
-            <div class="card"><strong>Bénéfice</strong>${escapeHtml(Utils.formatMoney(report.totals.benefice))}</div>
-            <div class="card"><strong>Dépenses</strong>${escapeHtml(Utils.formatMoney(report.totals.depenses))}</div>
-            <div class="card"><strong>Glaces</strong>${escapeHtml(Utils.formatNumber(report.totals.total))}</div>
-          </div>
-          ${reportTableHtml(report)}
-          ${expenseBreakdownHtml(report)}
-          ${goalsReportHtml(report)}
-          ${treasuryReportHtml(report)}
-          ${sellerPerformanceHtml(report)}
-          ${payrollReportHtml(report)}
+          ${reportContentHtml(report)}
         </body>
         </html>
       `;
@@ -4384,16 +5194,26 @@
 
       const exportPdf = () => {
         if (!currentReport) return;
-        const popup = window.open("", "_blank");
-        if (!popup) {
-          window.alert("Impossible d'ouvrir la fenêtre d'impression PDF.");
-          return;
+        printRoot.innerHTML = reportContentHtml(currentReport);
+        document.body.classList.add("printing-report");
+        pdfStatus.classList.remove("error");
+        pdfStatus.textContent = "Dans le dialogue système, choisissez « Enregistrer au format PDF » ou « Partager ».";
+        const printMedia = window.matchMedia("print");
+        const handlePrintChange = (event) => { if (!event.matches) cleanup(); };
+        const cleanup = () => {
+          document.body.classList.remove("printing-report");
+          printRoot.replaceChildren();
+          printMedia.removeEventListener?.("change", handlePrintChange);
+        };
+        window.addEventListener("afterprint", cleanup, { once: true });
+        printMedia.addEventListener?.("change", handlePrintChange);
+        try {
+          window.print();
+        } catch (error) {
+          cleanup();
+          pdfStatus.textContent = "Impression indisponible sur ce navigateur. Utilisez l’export Excel ou un autre navigateur mobile.";
+          pdfStatus.classList.add("error");
         }
-        popup.document.open();
-        popup.document.write(reportDocumentHtml(currentReport));
-        popup.document.close();
-        popup.focus();
-        popup.print();
       };
 
       const render = () => {
@@ -4561,18 +5381,51 @@
       return { init, render, renderDashboard, clearDraft: () => clearSaleDraft(false) };
     })();
 
+    const BonusSimulatorView = (() => {
+      const sellerInput = document.querySelector("#bonusSimulatorSeller");
+      const salesInput = document.querySelector("#bonusSimulatorSales");
+      const baseInput = document.querySelector("#bonusSimulatorBase");
+      const result = document.querySelector("#bonusSimulatorResult");
+      const escapeHtml = (value) => String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+      const renderOptions = () => {
+        const selected = sellerInput.value;
+        sellerInput.innerHTML = `<option value="">Simulation libre</option>${Sellers.getAll().map((seller) => `<option value="${escapeHtml(seller.id)}">${escapeHtml(seller.name)}</option>`).join("")}`;
+        if ([...sellerInput.options].some((option) => option.value === selected)) sellerInput.value = selected;
+      };
+      const applySellerSalary = () => {
+        const seller = Sellers.getAll().find((item) => item.id === sellerInput.value);
+        if (!seller) return;
+        baseInput.value = String(seller.salaryHistory[seller.salaryHistory.length - 1]?.amount || 0);
+      };
+      const render = () => {
+        renderOptions();
+        const quantity = Math.max(0, Number(salesInput.value) || 0);
+        const base = Math.max(0, Number(baseInput.value) || 0);
+        const bonus = NissaCalculations.cumulativeBonus(quantity, Settings.all().sellerBonusRules);
+        const reached = Settings.all().sellerBonusRules.filter((rule) => quantity >= rule.threshold).length;
+        result.innerHTML = `<div class="report-summary"><article class="month-card"><strong>Ventes simulées</strong><span>${escapeHtml(Utils.formatNumber(Math.round(quantity)))}</span></article><article class="month-card"><strong>Seuils atteints</strong><span>${reached}</span></article><article class="month-card"><strong>Prime cumulée</strong><span>${escapeHtml(Utils.formatMoney(bonus))}</span></article><article class="month-card"><strong>Rémunération simulée</strong><span>${escapeHtml(Utils.formatMoney(base + bonus))}</span></article></div>`;
+      };
+      const init = () => { sellerInput.addEventListener("change", () => { applySellerSalary(); render(); }); [salesInput, baseInput].forEach((input) => input.addEventListener("input", render)); };
+      return { init, render };
+    })();
+
     const Backup = (() => {
       const schemaVersion = "1.0.0";
       const fields = {
         nissa_settings: "settings", nissa_data: "records", nissa_expenses: "expenses",
         nissa_treasury: "treasury", nissa_goals: "goals", nissa_sellers: "sellers",
-        nissa_seller_sales: "sellerSales", nissa_seller_cycles: "sellerCycles", nissa_seller_absences: "sellerAbsences"
+        nissa_seller_sales: "sellerSales", nissa_seller_cycles: "sellerCycles", nissa_seller_absences: "sellerAbsences",
+        nissa_recurring_expenses: "recurringExpenses", nissa_expense_budgets: "expenseBudgets",
+        nissa_material_catalog: "materialCatalog", nissa_product_recipes: "productRecipes", nissa_production_lots: "productionLots", nissa_product_inventory: "productInventory",
+        nissa_material_purchases: "materialPurchases", nissa_material_inventory: "materialInventory"
       };
       const keys = Object.keys(fields);
       const snapshot = () => ({
         version: APP_VERSION, schemaVersion, appVersion: APP_VERSION, exportedAt: new Date().toISOString(), includedKeys: [...keys],
         settings: Settings.all(), records: Store.all(), expenses: Expenses.getAll(), treasury: Treasury.getAll(), goals: Goals.getAll(),
-        sellers: Sellers.getAll(), sellerSales: Sellers.getSales(), sellerCycles: Sellers.getCycles(), sellerAbsences: Sellers.getAbsences()
+        sellers: Sellers.getAll(), sellerSales: Sellers.getSales(), sellerCycles: Sellers.getCycles(), sellerAbsences: Sellers.getAbsences(),
+        recurringExpenses: RecurringExpenses.getAll(), expenseBudgets: ExpenseBudgets.getAll(),
+        materialCatalog: Production.getMaterials(), productRecipes: Production.getRecipes(), productionLots: Production.getLots(), productInventory: Production.getInventory(), materialPurchases: Production.getPurchases(), materialInventory: Production.getMaterialInventory()
       });
       const download = (reason = "secours") => {
         try {
@@ -4610,15 +5463,111 @@
           sellers: (item) => Boolean(String(item.name || "").trim()) && (!item.joinedAt || Expenses.isValidDate(item.joinedAt)),
           sellerSales: (item) => Boolean(String(item.sellerId || "").trim() && String(item.cycleId || "").trim() && Expenses.isValidDate(item.date)) && Number(item.cv || 0) + Number(item.qn || 0) > 0,
           sellerCycles: (item) => Boolean(String(item.sellerId || "").trim() && Expenses.isValidDate(item.startDate)),
-          sellerAbsences: (item) => Boolean(String(item.sellerId || "").trim() && String(item.cycleId || "").trim() && Expenses.isValidDate(item.date))
+          sellerAbsences: (item) => Boolean(String(item.sellerId || "").trim() && String(item.cycleId || "").trim() && Expenses.isValidDate(item.date)),
+          recurringExpenses: (item) => Boolean(RecurringExpenses.normalize(item)),
+          expenseBudgets: (item) => Boolean(ExpenseBudgets.normalize(item)),
+          materialCatalog: (item) => Boolean(Production.normalizeMaterial(item)),
+          productRecipes: (item) => Boolean(Production.normalizeRecipe(item, false)),
+          productionLots: (item) => Boolean(Production.normalizeLot(item)),
+          productInventory: (item) => Boolean(Production.normalizeInventory(item)),
+          materialPurchases: (item) => Boolean(Production.normalizePurchase(item, false)),
+          materialInventory: (item) => Boolean(Production.normalizeMaterialInventory(item, false))
         };
         for (const [field, validator] of Object.entries(validRows)) if (Object.hasOwn(result, field) && result[field].some((item) => !validator(item))) throw new Error(`La section ${field} contient des données invalides.`);
+        if (hasModernMetadata) {
+          const effective = (field, current) => Object.hasOwn(result, field) ? result[field] : current;
+          const effectiveExpenses = effective("expenses", Expenses.getAll());
+          const effectiveSellers = effective("sellers", Sellers.getAll());
+          const effectiveSales = effective("sellerSales", Sellers.getSales());
+          const effectiveCycles = effective("sellerCycles", Sellers.getCycles());
+          const effectiveAbsences = effective("sellerAbsences", Sellers.getAbsences());
+          const effectiveTreasury = effective("treasury", Treasury.getAll());
+          const effectiveMaterials = effective("materialCatalog", Production.getMaterials());
+          const effectiveRecipes = effective("productRecipes", Production.getRecipes());
+          const effectiveLots = effective("productionLots", Production.getLots());
+          const effectiveProductInventory = effective("productInventory", Production.getInventory());
+          const effectivePurchases = effective("materialPurchases", Production.getPurchases());
+          const effectiveMaterialInventory = effective("materialInventory", Production.getMaterialInventory());
+          const ids = (items, field = "id") => new Set(items.map((item) => String(item?.[field] || "").trim()).filter(Boolean));
+          const assertStableIds = (items, label, field = "id") => {
+            const values = items.map((item) => String(item?.[field] || "").trim());
+            if (values.some((value) => !value) || new Set(values).size !== values.length) throw new Error(`La section ${label} contient des identifiants absents ou dupliqués.`);
+          };
+          assertStableIds(effectiveExpenses, "expenses");
+          assertStableIds(effectiveSellers, "sellers");
+          assertStableIds(effectiveSales, "sellerSales");
+          assertStableIds(effectiveCycles, "sellerCycles");
+          assertStableIds(effectiveAbsences, "sellerAbsences");
+          assertStableIds(effectiveTreasury, "treasury");
+          assertStableIds(effectiveMaterials, "materialCatalog");
+          assertStableIds(effectiveLots, "productionLots");
+          assertStableIds(effectivePurchases, "materialPurchases");
+          assertStableIds(effectiveRecipes, "productRecipes", "productKey");
+          assertStableIds(effectiveProductInventory, "productInventory", "productKey");
+          assertStableIds(effectiveMaterialInventory, "materialInventory", "materialId");
+          const sellerIds = ids(effectiveSellers); const saleIds = ids(effectiveSales); const cycleIds = ids(effectiveCycles);
+          const materialIds = ids(effectiveMaterials); const purchaseIds = ids(effectivePurchases); const lotIds = ids(effectiveLots); const expenseIds = ids(effectiveExpenses);
+          if (effectiveCycles.some((cycle) => !sellerIds.has(String(cycle.sellerId || "")))) throw new Error("Un cycle référence un vendeur absent.");
+          if (effectiveSales.some((sale) => !sellerIds.has(String(sale.sellerId || "")) || !cycleIds.has(String(sale.cycleId || "")))) throw new Error("Une vente référence un vendeur ou un cycle absent.");
+          if (effectiveAbsences.some((absence) => !sellerIds.has(String(absence.sellerId || "")) || !cycleIds.has(String(absence.cycleId || "")))) throw new Error("Une absence référence un vendeur ou un cycle absent.");
+          if (effectiveTreasury.some((movement) => movement.reference?.sellerId && !sellerIds.has(String(movement.reference.sellerId)) || movement.reference?.cycleId && !cycleIds.has(String(movement.reference.cycleId)))) throw new Error("Un mouvement de trésorerie référence un vendeur ou un cycle absent.");
+          if (effectiveRecipes.some((recipe) => recipe.ingredients.some((entry) => !materialIds.has(String(entry.materialId || ""))))) throw new Error("Une recette référence une matière absente.");
+          if (effectivePurchases.some((purchase) => !materialIds.has(String(purchase.materialId || "")) || !String(purchase.expenseId || "").trim() || !expenseIds.has(String(purchase.expenseId)))) throw new Error("Un achat de matière référence une matière ou une écriture absente.");
+          if (effectiveMaterialInventory.some((item) => !materialIds.has(String(item.materialId || "")))) throw new Error("Le stock matière référence une matière absente.");
+          if (effectiveLots.some((lot) => lot.ingredients.some((entry) => !materialIds.has(String(entry.materialId || ""))))) throw new Error("Un lot référence une matière absente.");
+          if (effectiveExpenses.some((expense) => expense.source === "seller-sale" && !saleIds.has(String(expense.sellerSaleId || "")) || expense.source === "inventory-purchase" && !purchaseIds.has(String(expense.materialPurchaseId || "")) || expense.source === "production-input" && !lotIds.has(String(expense.productionLotId || "")))) throw new Error("Une écriture liée référence une vente, un achat ou un lot absent.");
+        }
         const included = keys.filter((key) => Object.hasOwn(result, fields[key]));
         if (!included.length) throw new Error("Aucune section de données importable.");
         if (hasModernMetadata && (parsed.includedKeys.length !== included.length || parsed.includedKeys.some((key) => !included.includes(key)))) throw new Error("Les métadonnées ne correspondent pas aux sections présentes.");
         return { ...result, included, missing: keys.filter((key) => !included.includes(key)), legacy: !hasModernMetadata };
       };
       return { keys, fields, snapshot, download, validate };
+    })();
+
+    const Integrity = (() => {
+      const storageShapeIssues = () => {
+        const issues = [];
+        Backup.keys.forEach((key) => {
+          const raw = localStorage.getItem(key);
+          if (raw === null) {
+            issues.push({ severity: "warning", code: "missing-storage", message: `La clé locale ${key} est absente.` });
+            return;
+          }
+          try {
+            const parsed = JSON.parse(raw);
+            const validShape = key === "nissa_settings" ? parsed && typeof parsed === "object" && !Array.isArray(parsed) : Array.isArray(parsed);
+            if (!validShape) issues.push({ severity: "error", code: "storage-shape", message: `La clé locale ${key} n’a pas la structure attendue.` });
+          } catch (error) {
+            issues.push({ severity: "error", code: "storage-json", message: `La clé locale ${key} contient un JSON illisible.` });
+          }
+        });
+        return issues;
+      };
+
+      const storageBytes = () => Backup.keys.reduce((total, key) => total + (localStorage.getItem(key)?.length || 0) * 2, 0);
+
+      const run = () => {
+        const snapshot = Backup.snapshot();
+        const report = NissaCalculations.analyzeIntegrity(snapshot);
+        const issues = [...report.issues, ...storageShapeIssues()];
+        try {
+          Backup.validate(snapshot);
+        } catch (error) {
+          issues.push({ severity: "error", code: "backup-validation", message: `La sauvegarde complète échoue au contrôle : ${error.message}` });
+        }
+        const bytes = storageBytes();
+        if (bytes >= 4 * 1024 * 1024) issues.push({ severity: "warning", code: "storage-size", message: "Le stockage local approche 4 Mo. Préparez une sauvegarde et archivez les anciens historiques." });
+        return {
+          checks: report.checks + Backup.keys.length + 1,
+          issues,
+          errors: issues.filter((issue) => issue.severity === "error").length,
+          warnings: issues.filter((issue) => issue.severity === "warning").length,
+          storageBytes: bytes
+        };
+      };
+
+      return { run };
     })();
 
     const confirmAndBackup = (message, reason = "secours-avant-suppression") => {
@@ -4682,6 +5631,10 @@
       const resetSettingsButton = document.querySelector("#resetSettingsButton");
       const resetHistoryButton = document.querySelector("#resetHistoryButton");
       const resetAllButton = document.querySelector("#resetAllButton");
+      const runIntegrityCheck = document.querySelector("#runIntegrityCheck");
+      const integrityReport = document.querySelector("#integrityReport");
+      const integritySummary = document.querySelector("#integritySummary");
+      const integrityList = document.querySelector("#integrityList");
 
       const productKeys = ["cv", "qn", "yaourt"];
 
@@ -4712,6 +5665,12 @@
           status.textContent = "";
           status.classList.remove("error");
         }, 3200);
+      };
+
+      const clearIntegrity = () => {
+        integrityReport.hidden = true;
+        integritySummary.textContent = "";
+        integrityList.textContent = "";
       };
 
       const renderProducts = () => {
@@ -4785,7 +5744,19 @@
         nextSettings.backup.lastBackup = Utils.todayIso();
         Settings.update(nextSettings);
         fillForm();
+        clearIntegrity();
         setStatus("Export JSON préparé.");
+      };
+
+      const renderIntegrity = () => {
+        const report = Integrity.run();
+        const state = report.errors ? "error" : report.warnings ? "warning" : "success";
+        const stateLabel = report.errors ? `${report.errors} erreur(s)` : report.warnings ? `${report.warnings} avertissement(s)` : "Données cohérentes";
+        integritySummary.innerHTML = `<div><strong>${report.checks} contrôles exécutés</strong><p class="panel-subtitle">Stockage utilisé : ${escapeHtml((report.storageBytes / 1024).toLocaleString("fr-FR", { maximumFractionDigits: 1 }))} Ko</p></div><span class="integrity-state ${state === "success" ? "" : state}">${escapeHtml(stateLabel)}</span>`;
+        integrityList.innerHTML = report.issues.length
+          ? report.issues.map((issue) => `<li class="integrity-item ${issue.severity === "error" ? "error" : ""}"><strong>${issue.severity === "error" ? "Erreur" : "Vigilance"}</strong><br>${escapeHtml(issue.message)}</li>`).join("")
+          : '<li class="integrity-item success"><strong>Aucune anomalie détectée.</strong><br>Les relations métier, paiements, écritures liées, stocks et sauvegardes sont cohérents.</li>';
+        integrityReport.hidden = false;
       };
 
       const importJson = (file) => {
@@ -4794,7 +5765,7 @@
         reader.addEventListener("load", () => {
           try {
             const data = Backup.validate(JSON.parse(reader.result));
-            const descriptions = { nissa_settings: "paramètres", nissa_data: "historique", nissa_expenses: "dépenses", nissa_treasury: "trésorerie", nissa_goals: "objectifs", nissa_sellers: "fiches vendeurs", nissa_seller_sales: "ventes vendeurs", nissa_seller_cycles: "cycles de paie", nissa_seller_absences: "absences" };
+            const descriptions = { nissa_settings: "paramètres", nissa_data: "historique", nissa_expenses: "dépenses", nissa_treasury: "trésorerie", nissa_goals: "objectifs", nissa_sellers: "fiches vendeurs", nissa_seller_sales: "ventes vendeurs", nissa_seller_cycles: "cycles de paie", nissa_seller_absences: "absences", nissa_recurring_expenses: "dépenses récurrentes", nissa_expense_budgets: "budgets par catégorie", nissa_material_catalog: "catalogue matières", nissa_product_recipes: "recettes", nissa_production_lots: "lots de production", nissa_product_inventory: "stock produits", nissa_material_purchases: "achats de matières", nissa_material_inventory: "stock matières" };
             const warning = `${data.legacy ? "\n\nSauvegarde ancienne sans métadonnées : compatibilité historique." : ""}${data.missing.length ? `\n\nSections absentes : ${data.missing.map((key) => descriptions[key]).join(", ")}. Les données actuelles correspondantes seront conservées.` : ""}`;
             if (!confirmAndBackup(`Importer les sections présentes ? Les données correspondantes seront remplacées.${warning}`, "secours-avant-import")) return;
             if (data.settings) Settings.update(data.settings);
@@ -4806,10 +5777,14 @@
             }
             if (Object.hasOwn(data, "treasury")) Treasury.replace(data.treasury);
             if (Object.hasOwn(data, "goals")) Goals.replace(data.goals);
+            if (Object.hasOwn(data, "recurringExpenses")) RecurringExpenses.replace(data.recurringExpenses);
+            if (Object.hasOwn(data, "expenseBudgets")) ExpenseBudgets.replace(data.expenseBudgets);
+            if (["materialCatalog", "productRecipes", "productionLots", "productInventory", "materialPurchases", "materialInventory"].some((field) => Object.hasOwn(data, field))) Production.replace({ materials: Object.hasOwn(data, "materialCatalog") ? data.materialCatalog : Production.getMaterials(), recipes: Object.hasOwn(data, "productRecipes") ? data.productRecipes : Production.getRecipes(), lots: Object.hasOwn(data, "productionLots") ? data.productionLots : Production.getLots(), inventory: Object.hasOwn(data, "productInventory") ? data.productInventory : Production.getInventory(), purchases: Object.hasOwn(data, "materialPurchases") ? data.materialPurchases : Production.getPurchases(), materialInventory: Object.hasOwn(data, "materialInventory") ? data.materialInventory : Production.getMaterialInventory() });
             if (["sellers", "sellerSales", "sellerCycles", "sellerAbsences"].some((field) => Object.hasOwn(data, field))) {
               Sellers.replace({ sellers: Object.hasOwn(data, "sellers") ? data.sellers : Sellers.getAll(), sales: Object.hasOwn(data, "sellerSales") ? data.sellerSales : Sellers.getSales(), cycles: Object.hasOwn(data, "sellerCycles") ? data.sellerCycles : Sellers.getCycles(), absences: Object.hasOwn(data, "sellerAbsences") ? data.sellerAbsences : Sellers.getAbsences() });
             }
             fillForm();
+            clearIntegrity();
             renderAll();
             setStatus(`Import JSON terminé${data.missing.length ? " (sections absentes conservées)" : ""}.`);
           } catch (error) {
@@ -4824,6 +5799,7 @@
           event.preventDefault();
           Settings.update(readForm());
           fillForm();
+          clearIntegrity();
           renderAll();
           setStatus("Paramètres enregistrés.");
         });
@@ -4834,11 +5810,13 @@
           importJson(importJsonInput.files[0]);
           importJsonInput.value = "";
         });
+        runIntegrityCheck.addEventListener("click", renderIntegrity);
 
         resetSettingsButton.addEventListener("click", () => {
           if (!confirmAndBackup("Réinitialiser uniquement les paramètres ?")) return;
           Settings.reset();
           fillForm();
+          clearIntegrity();
           renderAll();
           setStatus("Paramètres réinitialisés.");
         });
@@ -4848,6 +5826,7 @@
           Sellers.clearActivity();
           SellersView.clearDraft();
           Store.clear();
+          clearIntegrity();
           renderAll();
           setStatus("Historique réinitialisé.");
         });
@@ -4859,9 +5838,13 @@
           Treasury.replace([]);
           Goals.replace([]);
           Sellers.replace({});
+          RecurringExpenses.replace([]);
+          ExpenseBudgets.replace([]);
+          Production.clear();
           SellersView.clearDraft();
           Settings.reset();
           fillForm();
+          clearIntegrity();
           renderAll();
           setStatus("Réinitialisation complète terminée.");
         });
@@ -4870,6 +5853,7 @@
       const render = () => {
         if (form.contains(document.activeElement)) return;
         fillForm();
+        clearIntegrity();
       };
 
       return { init, render };
@@ -4879,12 +5863,17 @@
       Dashboard.render();
       Historique.render();
       ExpensesView.render();
+      RecurringExpensesView.render();
+      ExpenseBudgetsView.render();
+      ProductionView.render();
       TreasuryView.render();
       GoalsView.render();
       GoalsView.renderDashboard();
       SellersView.render();
       SellersView.renderDashboard();
+      BonusSimulatorView.render();
       Statistiques.render();
+      BreakEvenView.render();
       Previsions.render();
       Rapports.render();
       Parametres.render();
@@ -4895,9 +5884,14 @@
       App.init();
       Historique.init();
       ExpensesView.init();
+      RecurringExpensesView.init();
+      ExpenseBudgetsView.init();
+      ProductionView.init();
       TreasuryView.init();
       GoalsView.init();
       SellersView.init();
+      BonusSimulatorView.init();
+      BreakEvenView.init();
       Rapports.init();
       Pwa.init();
       Parametres.init();

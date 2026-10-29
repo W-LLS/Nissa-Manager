@@ -16,6 +16,107 @@ Exemples :
 - `v2.2.0` : nouveau module.
 - `v3.0.0` : evolution majeure de l'application.
 
+## [v2.15.2] - 2026-10-29
+
+### Corrige
+
+- Export PDF mobile exécuté depuis la page active au lieu d’une nouvelle fenêtre bloquante.
+- Mise en page A4 dédiée avec tableaux compacts, sauts de page et masquage de l’interface pendant l’impression.
+- Indication mobile pour choisir « Enregistrer au format PDF » ou « Partager » dans le dialogue système.
+- Retour automatique à la vue Rapports après impression ou annulation.
+
+## [v2.15.1] - 2026-10-29
+
+### Ameliore
+
+- Identité visuelle remplacée par le nouveau logo NISSA fourni.
+- Logo appliqué à la navigation de bureau, à l’en-tête mobile, au favicon, à l’icône Apple et aux icônes PWA 192/512.
+- Cache PWA renouvelé par la source unique de version.
+
+## [v2.15.0] - 2026-10-29
+
+### Ajoute
+
+- Diagnostic d’intégrité en lecture seule depuis Paramètres.
+- Contrôles des identifiants, relations vendeurs/cycles, paiements, coûts liés aux ventes, achats matières, recettes, lots et stocks.
+- Détection des doubles paiements, doubles journées vendeur, doublons d’échéances récurrentes et budgets dupliqués.
+- Validation de la sauvegarde complète et contrôle de la structure des clés `localStorage`.
+- Affichage du volume de stockage utilisé et avertissement à l’approche de 4 Mo.
+
+### Fiabilise
+
+- Fonction pure `analyzeIntegrity` ajoutée aux calculs testables, sans correction automatique ni modification des données.
+
+## [v2.14.0] - 2026-10-29
+
+### Ameliore
+
+- Navigation mobile remplacée par un sélecteur de section compact, accessible et toujours visible en haut de l’écran.
+- Changement de section synchronisé avec le titre, l’état actif et un retour fluide en haut de page.
+- Mise en page resserrée pour les écrans de 320 à 430 px : panneaux, indicateurs, formulaires, actions et graphiques.
+- Champs de saisie maintenus à 16 px sur mobile afin d’éviter le zoom automatique des navigateurs mobiles.
+- Tableaux volumineux rendus défilables horizontalement sans agrandir toute la page ; historique conservé sous forme de cartes.
+- Transitions courtes entre les vues, automatiquement désactivées lorsque la réduction des animations est demandée.
+
+## [v2.13.1] - 2026-10-29
+
+### Stabilise
+
+- Modification directe interdite pour les journées agrégées depuis les ventes vendeurs ; les corrections passent désormais par les données sources afin de préserver stock, cycles, dépenses et marges.
+- Protection ajoutée dans la couche `Store`, au-delà du seul verrou visuel de l'historique.
+- Validation relationnelle des imports modernes : identifiants stables et uniques, références vendeurs/cycles, matières/recettes/lots/stocks et écritures liées.
+- Les achats de matières conservent désormais un instantané du nom et de l'unité pour garantir un historique lisible malgré les évolutions du catalogue.
+- L'unité d'une matière déjà utilisée dans une recette, un achat ou un stock ne peut plus être modifiée implicitement.
+
+## [v2.13.0] - 2026-10-28
+
+### Ajoute
+
+- Enregistrement des achats de matières avec date, quantité, coût unitaire et coût total.
+- Stock de matières valorisé au coût moyen pondéré et consommé par les recettes lors de la production.
+- Historique immuable des achats, relié à une écriture de décaissement identifiable.
+
+### Corrige
+
+- Les coûts automatiques des ventes restent utilisés pour la marge, mais ne diminuent plus la trésorerie une seconde fois.
+- Les achats de matières diminuent la trésorerie, mais ne sont pas ajoutés une seconde fois aux charges du compte de résultat.
+- Le rapprochement explique désormais le décalage entre achats de stock payés et coût des produits vendus.
+
+### Fiabilise
+
+- Une production est refusée si le stock d'une matière de la recette est insuffisant.
+- Les achats et stocks matières sont inclus dans les sauvegardes JSON sans modification de `nissa_data`.
+
+## [v2.12.0] - 2026-10-28
+
+### Ajoute
+
+- Vue Production avec catalogue des matières, recettes théoriques, lots et stock valorisé.
+- Calcul du coût unitaire réel par lot à partir du coût total et de la quantité effectivement obtenue.
+- Coût moyen pondéré par produit, mis à jour à chaque nouveau lot.
+- Contrôle du stock avant vente et coût appliqué figé dans chaque nouvelle vente vendeur.
+
+### Fiabilise
+
+- Restauration valorisée du stock lors de la suppression d'une vente non payée ou de la réinitialisation de l'activité.
+- Historique des lots immuable avec prix et quantités de matières figés.
+- Sauvegardes étendues au catalogue, aux recettes, aux lots et au stock, sans modification de `nissa_data`.
+- Anciens champs de matières conservés pour compatibilité mais retirés de l'interface au profit du module Production réellement utilisé.
+
+## [v2.11.0] - 2026-10-28
+
+### Ajoute
+
+- Dépenses récurrentes mensuelles avec génération explicite, prévention des doublons, suspension et traçabilité de l'occurrence créée.
+- Budgets mensuels par catégorie avec consommé, restant, taux d'utilisation et signalement des dépassements.
+- Calcul du seuil de rentabilité mensuel à partir du chiffre d'affaires, des coûts directs, des charges d'exploitation et de la paie.
+- Simulateur de primes vendeurs sans écriture dans les cycles ni dans la trésorerie.
+
+### Fiabilise
+
+- Calculs purs de prime cumulative, budget, seuil de rentabilité et occurrences mensuelles extraits dans `js/business-calculations.js`.
+- Sauvegardes JSON étendues aux clés `nissa_recurring_expenses` et `nissa_expense_budgets`, sans modification de `nissa_data`.
+
 ## [v2.10.1] - 2026-10-27
 
 ### Corrige

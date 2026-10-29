@@ -2,7 +2,7 @@
 
 ## Version actuelle
 
-- [x] `v2.10.1` - Compatibilité d’import des sauvegardes v2.7.1.
+- [x] `v2.15.2` - Correction de l’export PDF mobile.
 
 ## Regles permanentes de versionnement
 
@@ -142,6 +142,92 @@
 - [x] Reconnaître `version` et `exportedAt` seuls comme métadonnées historiques v2.7.1.
 - [x] Ne déclencher le contrôle moderne que si `schemaVersion`, `appVersion` ou `includedKeys` est présent.
 - [x] Continuer à refuser les métadonnées modernes partielles.
+
+## v2.11.0 - Fonctions métier optionnelles
+
+- [x] Lot 5 validé explicitement avant développement.
+- [x] Ajouter les dépenses récurrentes mensuelles avec génération explicite et anti-doublon.
+- [x] Ajouter un budget mensuel par catégorie avec consommé, restant et dépassement.
+- [x] Ajouter le seuil de rentabilité à partir des ventes, coûts directs, charges et paie disponibles.
+- [x] Ajouter un simulateur de primes sans écriture dans les cycles ni la trésorerie.
+- [x] Extraire progressivement les fonctions pures testables dans `js/business-calculations.js`.
+- [x] Étendre les sauvegardes JSON aux nouvelles clés sans modifier `nissa_data`.
+- [x] Aligner l'application, la documentation et le cache PWA sur `v2.11.0`.
+
+## v2.12.0 - Production par lot
+
+- [x] Ajouter un catalogue de matières avec unité et coût unitaire.
+- [x] Ajouter une recette théorique par produit avec rendement et autres coûts directs.
+- [x] Enregistrer les productions par lot avec quantité réellement obtenue.
+- [x] Calculer le coût total, le coût unitaire et le coût moyen pondéré du stock.
+- [x] Contrôler le stock disponible avant les nouvelles ventes vendeur.
+- [x] Figer le coût appliqué sur chaque nouvelle vente sans recalculer les anciennes.
+- [x] Restaurer le stock valorisé lors de la suppression autorisée d'une vente.
+- [x] Étendre les sauvegardes JSON aux quatre nouvelles clés de production.
+- [x] Conserver `nissa_data` et les anciens paramètres matières sans migration destructive.
+
+## v2.13.0 - Achats et stock matières
+
+- [x] Ajouter l'enregistrement des achats de matières avec quantité et coût réel.
+- [x] Valoriser le stock matière au coût moyen pondéré.
+- [x] Contrôler et consommer le stock matière lors de la production d'un lot.
+- [x] Compter l'achat comme sortie réelle de trésorerie.
+- [x] Exclure l'achat de stock des charges déjà constatées au moment de la vente.
+- [x] Exclure le coût automatique de vente des sorties de trésorerie.
+- [x] Verrouiller les écritures liées dans l'historique des dépenses.
+- [x] Étendre les sauvegardes JSON aux achats et stocks matières.
+
+## v2.13.1 - Stabilisation
+
+- [x] Interdire la modification directe des journées issues des ventes vendeur.
+- [x] Ajouter le verrou correspondant dans `Store.update`.
+- [x] Valider l'unicité et la présence des identifiants des sauvegardes modernes.
+- [x] Contrôler les relations vendeurs, cycles, ventes, matières, recettes, lots, stocks et écritures liées avant import.
+- [x] Figer le nom et l'unité dans chaque achat de matière.
+- [x] Protéger l'unité d'une matière déjà utilisée.
+- [x] Aligner application, documentation et cache PWA sur `v2.13.1`.
+
+## v2.14.0 - Interface mobile
+
+- [x] Remplacer la longue navigation mobile par un sélecteur direct de section.
+- [x] Synchroniser le sélecteur, les boutons de bureau, le titre et la vue active.
+- [x] Revenir en haut de page après un changement de section sur petit écran.
+- [x] Éviter le zoom automatique des champs de saisie sur mobile.
+- [x] Adapter panneaux, indicateurs, formulaires, actions et graphiques aux écrans étroits.
+- [x] Conserver les tableaux lisibles par défilement horizontal et l’historique sous forme de cartes.
+- [x] Respecter la préférence de réduction des animations.
+- [x] Aligner application, documentation et cache PWA sur `v2.14.0`.
+
+## v2.15.0 - Diagnostic d’intégrité
+
+- [x] Ajouter un diagnostic accessible depuis Paramètres sans modification automatique.
+- [x] Contrôler les identifiants absents ou dupliqués.
+- [x] Contrôler les relations vendeurs, ventes, cycles, absences et paiements.
+- [x] Détecter les doubles paiements et les journées vendeurs incohérentes.
+- [x] Contrôler les dépenses liées aux ventes, achats de matières et lots.
+- [x] Contrôler les recettes, stocks produits et stocks matières.
+- [x] Détecter les doublons d’échéances récurrentes et de budgets.
+- [x] Vérifier la structure des clés locales et la sauvegarde complète.
+- [x] Afficher le volume de stockage utilisé et avertir à l’approche de 4 Mo.
+- [x] Extraire le moteur de diagnostic sous forme de fonction pure testable.
+- [x] Aligner application, documentation et cache PWA sur `v2.15.0`.
+
+## v2.15.1 - Identité visuelle
+
+- [x] Remplacer le logo de la navigation de bureau.
+- [x] Remplacer le logo de l’en-tête mobile.
+- [x] Générer les icônes PNG 192 × 192 et 512 × 512 depuis l’image fournie.
+- [x] Aligner favicon, icône Apple et manifeste PWA.
+- [x] Renouveler la version du cache PWA.
+
+## v2.15.2 - Export PDF mobile
+
+- [x] Supprimer l’ouverture du rapport dans une nouvelle fenêtre.
+- [x] Imprimer le rapport depuis un conteneur dédié dans la page active.
+- [x] Masquer l’interface applicative pendant l’impression.
+- [x] Ajouter une mise en page A4 compacte pour les tableaux volumineux.
+- [x] Afficher les instructions « Enregistrer en PDF » ou « Partager » sur mobile.
+- [x] Nettoyer le rapport temporaire après la fermeture du dialogue d’impression.
 
 ## v3.0.0 - Prochaine version majeure
 

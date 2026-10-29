@@ -1,6 +1,6 @@
 # NISSA Manager
 
-Version actuelle : `v2.10.1`
+Version actuelle : `v2.15.2`
 
 NISSA Manager est un logiciel de gestion commerciale hors ligne pour une activite de vente de glaces.
 
@@ -90,8 +90,10 @@ Les modules JavaScript internes sont organises ainsi :
 - `Journee` : formulaire, calcul en direct et validation de journee.
 - `Sellers` : vendeurs, ventes individuelles, cycles de salaire, primes et paiements.
 - `Expenses` : depenses detaillees, migration et synchronisation.
+- `Production` : matières, recettes, lots, stock valorisé et coût moyen pondéré.
 - `Treasury` : tresorerie theorique et mouvements exceptionnels.
 - `Backup` : format de sauvegarde JSON, validation des imports et export de secours.
+- `Integrity` : diagnostic en lecture seule des relations métier et du stockage local.
 - `Goals` : objectifs mensuels, progression et effort restant.
 
 Des dossiers de preparation existent deja pour une future separation technique :
@@ -109,6 +111,7 @@ La version PWA ajoute aussi :
 manifest.webmanifest
 service-worker.js
 app-version.js
+js/business-calculations.js
 assets/icon-192.svg
 assets/icon-512.svg
 assets/icon-192.png
@@ -119,7 +122,7 @@ La separation effective du code applicatif est prevue pour une version ulterieur
 
 ## Fonctionnalites
 
-Fonctionnalites disponibles en `v2.10.1` :
+Fonctionnalites disponibles en `v2.15.2` :
 
 - tableau de bord ;
 - module Journee ;
@@ -175,6 +178,18 @@ Fonctionnalites disponibles en `v2.10.1` :
 - gestion multi-vendeurs et ventes individuelles ;
 - cycles de 26 jours avec rattrapage sur le mois suivant ;
 - salaires historiques, primes cumulatives configurables et paiements relies a la tresorerie.
+- dépenses récurrentes mensuelles générées sur confirmation, sans doublon d'occurrence ;
+- budgets mensuels par catégorie et suivi des dépassements ;
+- seuil de rentabilité mensuel et simulateur de primes vendeurs ;
+- calculs métier purs isolés dans `js/business-calculations.js`.
+- production par lot, recettes et valorisation du stock ;
+- catalogue des matières et recettes par produit ;
+- productions par lot avec rendement réel et coût unitaire ;
+- stock valorisé au coût moyen pondéré ;
+- contrôle du stock et coût historique figé sur les nouvelles ventes.
+- achats de matières avec stock et coût moyen pondéré ;
+- consommation des matières par les lots ;
+- séparation entre décaissement réel et coût comptable des ventes.
 
 ## Roadmap
 
@@ -279,10 +294,65 @@ Fonctionnalites disponibles en `v2.10.1` :
 - Source unique de version dans `app-version.js`, version active affichée et mise à jour PWA forcée.
 - Focus visibles, navigation clavier et historique adapté aux écrans mobiles.
 
-### v2.10.1 - Version actuelle
+### v2.10.1
 
 - Import compatible avec les sauvegardes v2.7.1 qui possèdent déjà `exportedAt` mais pas encore les métadonnées de schéma v2.8.0.
 - Contrôle strict maintenu pour les sauvegardes modernes à métadonnées incomplètes.
+
+### v2.11.0
+
+- Dépenses récurrentes mensuelles avec génération explicite et anti-doublon.
+- Budgets mensuels par catégorie avec suivi du consommé et du restant.
+- Seuil de rentabilité intégrant coûts directs, charges d'exploitation et paie.
+- Simulateur de primes sans effet sur les données comptables.
+- Premiers calculs métier purs extraits sans séparer brutalement `index.html`.
+
+### v2.12.0
+
+- Production par lot depuis des recettes et prix de matières configurables.
+- Coût unitaire calculé sur le rendement réel et coût moyen pondéré du stock.
+- Nouvelles ventes valorisées au coût courant puis figées historiquement.
+- Catalogue, recettes, lots et inventaire inclus dans les sauvegardes JSON.
+
+### v2.13.0
+
+- Achats réels de matières et valorisation du stock matières.
+- Consommation automatique des matières lors de la validation d'un lot.
+- Coût des produits vendus conservé pour la marge mais exclu des sorties de trésorerie.
+- Achats de stock comptés en trésorerie sans double charge dans le bénéfice.
+
+### v2.13.1
+
+- Journées vendeurs protégées contre les modifications directes incohérentes.
+- Imports modernes contrôlés sur les identifiants et toutes les relations métier essentielles.
+- Historique des achats figé avec nom et unité de matière au moment de l'opération.
+- Unités de matières déjà utilisées protégées contre les changements implicites.
+
+### v2.14.0
+
+- Sélecteur compact de section sur mobile, toujours visible et synchronisé avec la vue active.
+- Retour fluide en haut de page lors d’un changement de section.
+- Formulaires, indicateurs, panneaux et actions adaptés aux largeurs de 320 à 430 px sans zoom nécessaire.
+- Saisie à taille lisible sur mobile et tableaux larges défilables horizontalement.
+- Transitions de vues compatibles avec la préférence de réduction des animations.
+
+### v2.15.0
+
+- Diagnostic d’intégrité accessible depuis Paramètres et strictement en lecture seule.
+- Détection des identifiants dupliqués, relations orphelines, doubles paiements et écritures liées incohérentes.
+- Contrôle des stocks, achats, recettes, lots, ventes vendeurs et sauvegarde complète.
+- Suivi du volume occupé dans le stockage local.
+
+### v2.15.1
+
+- Nouveau logo NISSA dans l’application et la navigation mobile.
+- Favicon, icône Apple et icônes d’installation PWA alignés sur la même identité.
+
+### v2.15.2 - Version actuelle
+
+- Création du PDF depuis la page active, sans nouvelle fenêtre bloquante sur mobile.
+- Mise en page d’impression A4 optimisée pour les rapports et tableaux vendeurs.
+- Instructions adaptées aux dialogues « Enregistrer en PDF » et « Partager » des appareils mobiles.
 
 ### v3.0.0 - Prochaine version majeure
 
@@ -414,7 +484,7 @@ Le module Rapports permet de :
 - consulter une synthese mensuelle ;
 - consulter le detail des journees du mois ;
 - exporter un fichier Excel compatible ;
-- ouvrir un rapport imprimable en PDF depuis le navigateur.
+- créer un rapport PDF depuis le dialogue système du navigateur, y compris sur mobile.
 
 ### Tresorerie
 
@@ -525,7 +595,49 @@ nissa_goals
 
 Les données de la gestion vendeurs sont conservées séparément sous les clés `nissa_sellers`, `nissa_seller_sales` et `nissa_seller_cycles`. Les journées historiques existantes ne sont pas modifiées.
 
+Les règles de dépenses récurrentes et les budgets mensuels par catégorie sont conservés séparément sous `nissa_recurring_expenses` et `nissa_expense_budgets`. Une dépense récurrente n'entre dans les comptes qu'après l'action explicite « Générer les échéances » ; son `occurrenceKey` empêche la création d'un doublon pour le même mois.
+
+La production utilise six clés additives : `nissa_material_catalog`, `nissa_material_purchases`, `nissa_material_inventory`, `nissa_product_recipes`, `nissa_production_lots` et `nissa_product_inventory`. Un achat valorise le stock matière et constitue un décaissement. Un lot consomme ce stock et conserve un instantané des coûts. Le coût moyen pondéré devient le coût courant du produit, tandis que chaque vente conserve son propre coût direct afin d'empêcher les recalculs rétroactifs.
+
+Une ligne automatique `seller-sale` représente un coût des produits vendus : elle participe à la marge, mais pas à la trésorerie. Les lignes `inventory-purchase` et `production-input` représentent des achats de stock ou autres coûts directs du lot : elles participent à la trésorerie, mais pas une seconde fois au bénéfice. Cette séparation évite le double comptage.
+
+Le seuil de rentabilité est une estimation mensuelle : marge sur coûts directs des ventes vendeur, charges d'exploitation hors coûts directs déjà comptés, et rémunérations vendeurs dues ou payées rattachées au mois. Le simulateur de primes est informatif et ne modifie ni cycle ni trésorerie.
+
 ## Historique des versions
+
+### v2.15.2 - 2026-10-29
+
+- Correction de l’export PDF mobile et nouvelle mise en page d’impression intégrée.
+
+### v2.15.1 - 2026-10-29
+
+- Remplacement complet de l’identité visuelle et des icônes installables par le logo fourni.
+
+### v2.15.0 - 2026-10-29
+
+- Diagnostic d’intégrité métier, contrôle du stockage et détection automatique des incohérences sans modification des données.
+
+### v2.14.0 - 2026-10-29
+
+- Refonte responsive de la navigation et des vues pour une utilisation mobile sans zoom fréquent.
+
+### v2.13.1 - 2026-10-29
+
+- Stabilisation des relations importées, des journées vendeurs et de la traçabilité des achats matières.
+
+### v2.13.0 - 2026-10-28
+
+- Achats et stocks de matières, consommation par les lots et séparation trésorerie/coût des ventes.
+
+### v2.12.0 - 2026-10-28
+
+- Production par lot, catalogue matières, recettes, rendement réel et stock au coût moyen pondéré.
+- Coût des ventes figé et sauvegardes JSON étendues aux données de production.
+
+### v2.11.0 - 2026-10-28
+
+- Dépenses récurrentes, budgets par catégorie, seuil de rentabilité et simulateur de primes.
+- Calculs métier purs extraits et sauvegardes étendues aux deux nouvelles clés.
 
 ### v2.10.1 - 2026-10-27
 

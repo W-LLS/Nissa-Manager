@@ -5,6 +5,7 @@ const APP_ASSETS = [
   "./",
   "./index.html",
   "./app-version.js",
+  "./js/business-calculations.js",
   "./manifest.webmanifest",
   "./assets/icon-192.png",
   "./assets/icon-512.png",

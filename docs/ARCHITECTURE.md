@@ -1,8 +1,8 @@
-# Architecture NISSA Manager v2.10.1
+# Architecture NISSA Manager v2.15.2
 
 ## Etat actuel
 
-NISSA Manager v2.10.1 est une application web hors ligne en vanilla HTML, CSS et JavaScript.
+NISSA Manager v2.15.2 est une application web hors ligne en vanilla HTML, CSS et JavaScript.
 
 Le projet contient actuellement une application complete dans `index.html` :
 
@@ -12,7 +12,7 @@ Le projet contient actuellement une application complete dans `index.html` :
 - JavaScript integre dans la balise `<script>`.
 - Persistance locale via `localStorage`.
 
-La logique applicative reste dans `index.html`. La version PWA ajoute `app-version.js`, `manifest.webmanifest`, `service-worker.js` et les icones dans `assets/`. `app-version.js` est l’unique source de version exécutée par la page et le service worker.
+La logique applicative reste principalement dans `index.html`. La version PWA ajoute `app-version.js`, `manifest.webmanifest`, `service-worker.js` et les icones dans `assets/`. `app-version.js` est l’unique source de version exécutée par la page et le service worker. Le fichier `js/business-calculations.js` constitue une première extraction progressive de fonctions pures, sans changement de framework ni découpage brutal.
 
 ## Versionnement
 
@@ -40,6 +40,14 @@ Versions planifiees :
 - `v2.9.0` : rapports vendeurs et paie, verrouillage renforcé des cycles payés et rapports mensuels enrichis.
 - `v2.10.0` : brouillon de saisie, historique paginé, version PWA centralisée, accessibilité et responsive.
 - `v2.10.1` : correction de compatibilité des imports JSON v2.7.1.
+- `v2.11.0` : dépenses récurrentes, budgets par catégorie, seuil de rentabilité, simulateur de primes et calculs purs extraits.
+- `v2.12.0` : production par lot, recettes, rendement réel, stock valorisé et coût des ventes figé.
+- `v2.13.0` : achats et stocks matières, consommation par les lots et séparation entre marge et trésorerie.
+- `v2.13.1` : stabilisation des écritures liées, des imports relationnels et des historiques figés.
+- `v2.14.0` : navigation mobile directe, densité responsive et réduction des besoins de zoom.
+- `v2.15.0` : diagnostic d’intégrité en lecture seule et contrôles relationnels exécutables depuis Paramètres.
+- `v2.15.1` : remplacement du logo d’interface, du favicon et des icônes PWA.
+- `v2.15.2` : impression PDF intégrée à la page pour compatibilité mobile.
 - `v3.0.0` : prochaine version majeure a definir apres stabilisation de `v2.7.x`.
 
 Chaque developpement doit mettre a jour :
@@ -55,6 +63,7 @@ L'application est organisee autour de vues affichees par onglets :
 
 - Tableau de bord
 - Vendeurs
+- Production
 - Journee
 - Historique
 - Depenses
@@ -65,7 +74,7 @@ L'application est organisee autour de vues affichees par onglets :
 - Rapports
 - Parametres
 
-La navigation active ou masque les sections avec la classe CSS `.active`.
+La navigation active ou masque les sections avec la classe CSS `.active`. Sur ordinateur, les boutons latéraux restent la navigation principale. Jusqu’à 960 px, ils sont remplacés visuellement par `#mobileViewSelect`, alimenté depuis leurs libellés afin de conserver une seule liste de sections. `App.setView` synchronise les deux contrôles, le titre et le retour en haut de page.
 
 Le flux principal est :
 
@@ -174,6 +183,37 @@ Responsabilites :
 - migration anti-double des montants historiques ;
 - synchronisation de `jour.depenses`, `benefice` et `caisse` avec les calculs existants.
 
+### RecurringExpenses et ExpenseBudgets
+
+Responsabilites :
+
+- stocker séparément les règles mensuelles sous `nissa_recurring_expenses` ;
+- calculer les échéances dues jusqu'à une date, en ramenant un jour inexistant au dernier jour du mois ;
+- générer uniquement sur action explicite des dépenses `source: "recurring"` ;
+- empêcher les doublons par la paire règle/mois portée dans `occurrenceKey` ;
+- conserver les budgets sous `nissa_expense_budgets`, avec une seule valeur par mois et catégorie ;
+- comparer budget et dépenses réelles sans modifier les écritures existantes.
+
+La suspension ou la suppression d'une règle ne supprime pas les dépenses déjà générées : celles-ci restent des écritures traçables.
+
+### Production
+
+Responsabilites :
+
+- gérer le catalogue `nissa_material_catalog` avec unité et coût unitaire ;
+- enregistrer les achats dans `nissa_material_purchases` et valoriser `nissa_material_inventory` ;
+- créer une écriture `inventory-purchase` qui affecte la trésorerie mais pas le bénéfice ;
+- conserver une recette par produit dans `nissa_product_recipes` ;
+- contrôler puis consommer les quantités de matières nécessaires au lot ;
+- calculer le coût total et le coût unitaire d'un lot selon le rendement réellement obtenu ;
+- figer les matières et leurs prix dans `nissa_production_lots` ;
+- valoriser `nissa_product_inventory` au coût moyen pondéré ;
+- vérifier le stock avant une nouvelle vente vendeur ;
+- figer sur la vente les coûts unitaires et le coût direct utilisés ;
+- restaurer quantité et valeur lorsqu'une vente non verrouillée est supprimée.
+
+L'achat d'une matière crée le décaissement réel. Le lot transfère ensuite la valeur du stock matière vers le stock produit ; ses éventuels autres coûts directs créent une écriture `production-input` de trésorerie, capitalisée dans le lot mais exclue des charges immédiates. La vente constate le coût des produits vendus pour la marge sans diminuer une seconde fois la trésorerie.
+
 ### Treasury
 
 Responsabilites :
@@ -205,6 +245,22 @@ Responsabilites :
 - calculer les primes cumulatives et les remunerations dues ;
 - creer un paiement unique par cycle et le synchroniser avec la tresorerie ;
 - synchroniser les ventes vendeur avec l'historique et les depenses associees.
+
+### Calculs métier purs
+
+`js/business-calculations.js` expose `NissaCalculations` avec des fonctions sans lecture ni écriture du DOM ou de `localStorage` : prime cumulative, état budgétaire, seuil de rentabilité, occurrences mensuelles, coûts de production et diagnostic relationnel. Les vues appellent ces fonctions et conservent la persistance dans leurs modules dédiés.
+
+### Integrity
+
+Responsabilites :
+
+- produire un instantané complet via `Backup.snapshot()` ;
+- contrôler les relations et doublons avec la fonction pure `NissaCalculations.analyzeIntegrity` ;
+- vérifier la structure JSON des clés locales et la validité de la sauvegarde complète ;
+- mesurer le volume de stockage utilisé ;
+- afficher les erreurs et vigilances sans modifier les données.
+
+Le diagnostic n’effectue aucune réparation automatique. Toute correction future devra conserver une sauvegarde préalable et demander une action explicite.
 
 ### Sauvegardes, imports et relations vendeurs
 
@@ -335,6 +391,16 @@ Les mouvements de tresorerie manuels sont stockes sous `nissa_treasury`. Les obj
 
 Les donnees vendeurs sont conservees separement : `nissa_sellers`, `nissa_seller_sales`, `nissa_seller_cycles` et `nissa_seller_absences`. Elles ne modifient pas la structure des journees historiques.
 
+Les règles récurrentes et budgets sont conservés dans `nissa_recurring_expenses` et `nissa_expense_budgets`. Ces clés sont additives et ne modifient ni la forme ni le contenu de `nissa_data`.
+
+Les données de production sont conservées sous `nissa_material_catalog`, `nissa_material_purchases`, `nissa_material_inventory`, `nissa_product_recipes`, `nissa_production_lots` et `nissa_product_inventory`. Les champs historiques `settings.materials` sont préservés pour compatibilité, mais seul `targetMargin` demeure exposé dans Paramètres.
+
+Les écritures `seller-sale` sont des coûts comptables inclus dans la marge et exclues des sorties de trésorerie. Les écritures `inventory-purchase` et `production-input` sont des décaissements inclus dans la trésorerie et exclus des charges immédiates, car leur valeur est constatée lors de la vente. Les autres dépenses restent à la fois des charges et des sorties de trésorerie.
+
+Depuis v2.13.1, une journée `seller-sales` est une projection agrégée en lecture seule : elle ne peut être modifiée directement ni depuis l'interface ni via `Store.update`. Sa suppression continue de passer par `Sellers.removeSalesForDate`, qui vérifie les cycles payés et restaure le stock.
+
+Les sauvegardes modernes sont validées relationnellement avant toute écriture : identifiants obligatoires et uniques, ventes et cycles rattachés à des vendeurs existants, recettes/lots/stocks rattachés à des matières existantes, et écritures système rattachées à leur vente, achat ou lot.
+
 ## Fonctionnement PWA
 
 La version `v2.4.0` ajoute :
@@ -350,6 +416,7 @@ Le service worker met en cache les fichiers principaux :
 
 - `index.html` ;
 - `app-version.js` ;
+- `js/business-calculations.js` ;
 - `manifest.webmanifest` ;
 - `assets/icon-192.png` ;
 - `assets/icon-512.png` ;
