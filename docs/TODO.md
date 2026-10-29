@@ -2,7 +2,7 @@
 
 ## Version actuelle
 
-- [x] `v2.15.2` - Correction de l’export PDF mobile.
+- [x] `v2.15.4` - Secours autonome des calculs sur mobile.
 
 ## Regles permanentes de versionnement
 
@@ -228,6 +228,21 @@
 - [x] Ajouter une mise en page A4 compacte pour les tableaux volumineux.
 - [x] Afficher les instructions « Enregistrer en PDF » ou « Partager » sur mobile.
 - [x] Nettoyer le rapport temporaire après la fermeture du dialogue d’impression.
+
+## v2.15.3 - Import JSON mobile
+
+- [x] Retirer la dépendance à `Object.hasOwn` du validateur et du restaurateur.
+- [x] Utiliser `Object.prototype.hasOwnProperty.call` pour les anciennes versions de Safari/Chrome mobile.
+- [x] Conserver le message d’échec d’import à l’écran.
+- [x] Maintenir la détection des sauvegardes anciennes v2.7.1.
+
+## v2.15.4 - Secours autonome des calculs
+
+- [x] Détecter une API `NissaCalculations` absente ou incomplète.
+- [x] Intégrer une copie de secours dans `index.html`.
+- [x] Conserver le module externe comme source prioritaire.
+- [x] Tester le démarrage du secours sans le fichier externe.
+- [x] Tester le chargement combiné sans double initialisation.
 
 ## v3.0.0 - Prochaine version majeure
 

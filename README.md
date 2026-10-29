@@ -1,6 +1,6 @@
 # NISSA Manager
 
-Version actuelle : `v2.15.2`
+Version actuelle : `v2.15.4`
 
 NISSA Manager est un logiciel de gestion commerciale hors ligne pour une activite de vente de glaces.
 
@@ -122,7 +122,7 @@ La separation effective du code applicatif est prevue pour une version ulterieur
 
 ## Fonctionnalites
 
-Fonctionnalites disponibles en `v2.15.2` :
+Fonctionnalites disponibles en `v2.15.4` :
 
 - tableau de bord ;
 - module Journee ;
@@ -348,11 +348,21 @@ Fonctionnalites disponibles en `v2.15.2` :
 - Nouveau logo NISSA dans l’application et la navigation mobile.
 - Favicon, icône Apple et icônes d’installation PWA alignés sur la même identité.
 
-### v2.15.2 - Version actuelle
+### v2.15.2
 
 - Création du PDF depuis la page active, sans nouvelle fenêtre bloquante sur mobile.
 - Mise en page d’impression A4 optimisée pour les rapports et tableaux vendeurs.
 - Instructions adaptées aux dialogues « Enregistrer en PDF » et « Partager » des appareils mobiles.
+
+### v2.15.3
+
+- Import des anciennes sauvegardes compatible avec les versions mobiles plus anciennes de Safari et Chrome.
+- Message d’erreur complet conservé à l’écran en cas d’échec d’import.
+
+### v2.15.4 - Version actuelle
+
+- Copie de secours intégrée des calculs métier lorsque le fichier JavaScript séparé manque sur mobile.
+- Import des anciennes sauvegardes possible même depuis un paquet local ou un cache incomplet.
 
 ### v3.0.0 - Prochaine version majeure
 
@@ -604,6 +614,14 @@ Une ligne automatique `seller-sale` représente un coût des produits vendus : e
 Le seuil de rentabilité est une estimation mensuelle : marge sur coûts directs des ventes vendeur, charges d'exploitation hors coûts directs déjà comptés, et rémunérations vendeurs dues ou payées rattachées au mois. Le simulateur de primes est informatif et ne modifie ni cycle ni trésorerie.
 
 ## Historique des versions
+
+### v2.15.4 - 2026-10-29
+
+- Secours autonome pour `NissaCalculations` et correction définitive de l’import mobile sans sous-dossier JavaScript.
+
+### v2.15.3 - 2026-10-29
+
+- Correction de compatibilité JavaScript du parcours d’import sur mobile.
 
 ### v2.15.2 - 2026-10-29
 

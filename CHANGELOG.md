@@ -16,6 +16,22 @@ Exemples :
 - `v2.2.0` : nouveau module.
 - `v3.0.0` : evolution majeure de l'application.
 
+## [v2.15.4] - 2026-10-29
+
+### Corrige
+
+- Ajout d’un moteur de calcul de secours directement dans `index.html` lorsque `js/business-calculations.js` n’est pas disponible sur mobile.
+- L’import, les primes, budgets, seuils, productions et diagnostics restent fonctionnels même avec un dossier `js` absent ou un ancien cache incomplet.
+- Le module externe reste prioritaire lorsqu’il est présent et expose l’API complète.
+
+## [v2.15.3] - 2026-10-29
+
+### Corrige
+
+- Import des anciennes sauvegardes rendu compatible avec les navigateurs mobiles ne prenant pas en charge `Object.hasOwn`.
+- Vérification des sections JSON remplacée par une méthode historique sûre basée sur `hasOwnProperty.call`.
+- Les erreurs d’import restent affichées afin de pouvoir lire et transmettre le diagnostic complet.
+
 ## [v2.15.2] - 2026-10-29
 
 ### Corrige

@@ -47,11 +47,11 @@ Cette recette protege les calculs, les donnees locales et les synchronisations e
 - [ ] Fermer puis rouvrir l'application hors ligne apres un premier chargement en ligne.
 - [ ] Verifier que la version de cache se renouvelle apres une mise a jour.
 
-## Fiabilisation des données — v2.8.0 maintenue en v2.15.2
+## Fiabilisation des données — v2.8.0 maintenue en v2.15.4
 
 À exécuter sur une origine de test distincte et des données fictives uniquement.
 
-- [ ] Exporter un JSON et vérifier `schemaVersion` (`1.0.0`), `appVersion` (`v2.15.2`), `exportedAt` ISO et `includedKeys` avec les clés locales attendues.
+- [ ] Exporter un JSON et vérifier `schemaVersion` (`1.0.0`), `appVersion` (`v2.15.4`), `exportedAt` ISO et `includedKeys` avec les clés locales attendues.
 - [ ] Importer une ancienne sauvegarde sans métadonnées : vérifier l'avertissement de compatibilité, la demande de confirmation et la conservation des clés absentes.
 - [ ] Importer un JSON partiel valide (par exemple `settings` seulement) : confirmer et vérifier que seuls les paramètres sont remplacés et que les autres données restent inchangées.
 - [ ] Importer un JSON à métadonnées incomplètes, une clé inconnue, ou une section de mauvais type : vérifier le refus et l'absence de changement de données.
@@ -201,6 +201,23 @@ Cette recette protege les calculs, les donnees locales et les synchronisations e
 - [ ] Vérifier un rapport long sur plusieurs pages : aucune ligne ne doit être coupée horizontalement.
 - [x] Vérifier la syntaxe JavaScript, les références DOM et l’équilibre du CSS d’impression.
 
+## Import JSON mobile — v2.15.3
+
+- [ ] Sur le mobile concerné, forcer la mise à jour puis importer une sauvegarde réelle v2.7.1.
+- [ ] Vérifier que l’avertissement de compatibilité ancienne s’affiche avant confirmation.
+- [ ] Confirmer l’import et comparer historique, vendeurs, dépenses et trésorerie.
+- [ ] Importer un fichier volontairement invalide et vérifier que le message complet reste visible.
+- [x] Vérifier statiquement qu’aucun appel à `Object.hasOwn` ne subsiste dans l’application.
+- [x] Vérifier la classification des sauvegardes anciennes et modernes avec la fonction de propriété compatible.
+
+## Secours autonome mobile — v2.15.4
+
+- [ ] Sur le mobile concerné, installer ou ouvrir `v2.15.4`, vérifier la version active puis importer l’ancienne sauvegarde.
+- [ ] Vérifier ensuite Vendeurs, Production, Budgets, Seuil de rentabilité et Diagnostic d’intégrité.
+- [ ] Tester volontairement une copie locale sans le dossier `js` : l’application doit rester utilisable grâce au secours intégré.
+- [x] Contrôle automatisé : API complète disponible sans charger le fichier externe.
+- [x] Contrôle automatisé : fichier externe et secours chargés ensemble sans conflit.
+
 ## Resultat de recette du 21 octobre 2026
 
 - [x] Affichage de la version `v2.7.1` et navigation des dix vues principales.
@@ -217,8 +234,8 @@ Cette recette protege les calculs, les donnees locales et les synchronisations e
 - [x] Aucun avertissement ni erreur dans la console durant ce parcours.
 - [ ] Reste a executer : essai manuel de la suppression protegee, avec confirmation explicite juste avant l'action.
 
-## Contrôle statique de version — v2.15.2
+## Contrôle statique de version — v2.15.4
 
-- [x] `app-version.js` contient l’unique valeur exécutable `v2.15.2`.
+- [x] `app-version.js` contient l’unique valeur exécutable `v2.15.4`.
 - [x] L’en-tête, le titre, les rapports, les exports JSON et le cache PWA lisent cette même valeur.
-- [x] README, CHANGELOG, TODO et architecture identifient `v2.15.2` comme version actuelle.
+- [x] README, CHANGELOG, TODO et architecture identifient `v2.15.4` comme version actuelle.

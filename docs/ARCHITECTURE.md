@@ -1,8 +1,8 @@
-# Architecture NISSA Manager v2.15.2
+# Architecture NISSA Manager v2.15.4
 
 ## Etat actuel
 
-NISSA Manager v2.15.2 est une application web hors ligne en vanilla HTML, CSS et JavaScript.
+NISSA Manager v2.15.4 est une application web hors ligne en vanilla HTML, CSS et JavaScript.
 
 Le projet contient actuellement une application complete dans `index.html` :
 
@@ -48,6 +48,8 @@ Versions planifiees :
 - `v2.15.0` : diagnostic d’intégrité en lecture seule et contrôles relationnels exécutables depuis Paramètres.
 - `v2.15.1` : remplacement du logo d’interface, du favicon et des icônes PWA.
 - `v2.15.2` : impression PDF intégrée à la page pour compatibilité mobile.
+- `v2.15.3` : compatibilité de l’import JSON avec les anciens moteurs JavaScript mobiles.
+- `v2.15.4` : secours autonome des calculs métier lorsque le module externe est indisponible.
 - `v3.0.0` : prochaine version majeure a definir apres stabilisation de `v2.7.x`.
 
 Chaque developpement doit mettre a jour :
@@ -248,7 +250,7 @@ Responsabilites :
 
 ### Calculs métier purs
 
-`js/business-calculations.js` expose `NissaCalculations` avec des fonctions sans lecture ni écriture du DOM ou de `localStorage` : prime cumulative, état budgétaire, seuil de rentabilité, occurrences mensuelles, coûts de production et diagnostic relationnel. Les vues appellent ces fonctions et conservent la persistance dans leurs modules dédiés.
+`js/business-calculations.js` expose `NissaCalculations` avec des fonctions sans lecture ni écriture du DOM ou de `localStorage` : prime cumulative, état budgétaire, seuil de rentabilité, occurrences mensuelles, coûts de production et diagnostic relationnel. Les vues appellent ces fonctions et conservent la persistance dans leurs modules dédiés. Depuis v2.15.4, une copie de secours identique est intégrée dans `index.html` : elle ne s’active que si le module externe est absent ou incomplet, afin de préserver l’utilisation locale sur mobile.
 
 ### Integrity
 
